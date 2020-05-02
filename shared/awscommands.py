@@ -3,7 +3,7 @@ from shared.common import *
 from shared.internal.security import IAM 
 from shared.internal.network import VPC
 from shared.internal.compute import LAMBDA, EC2
-from shared.internal.database import RDS
+from shared.internal.database import RDS, ELASTICACHE
 from shared.internal.storage import EFS
 
 class AwsCommands(object):
@@ -19,3 +19,4 @@ class AwsCommands(object):
         EC2(self.vpc_id, self.region_name).run()
         RDS(self.vpc_id, self.region_name).run()
         EFS(self.vpc_id, self.region_name).run()
+        ELASTICACHE(self.vpc_id, self.region_name).run()

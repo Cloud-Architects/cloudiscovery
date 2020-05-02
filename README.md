@@ -12,6 +12,7 @@ Following services are integrated
   - Lambda
   - RDS
   - EFS 
+  - ELASTICACHE
 
 ### Requirements and Installation
 

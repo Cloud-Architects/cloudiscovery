@@ -35,7 +35,7 @@ if sys.version_info < (3, 6):
 
 from commands.vpc import Vpc
 
-__version__ = "0.0.1"
+__version__ = "0.1.1"
 
 def show_options(args="sys.argv[1:]"):
     parser = argparse.ArgumentParser()
