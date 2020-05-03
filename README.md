@@ -9,6 +9,7 @@ AWS Network Discovery helps you analyze what's resources are using a custom VPC.
 Following services are integrated
 
   - EC2
+  - IAM POLICY
   - Lambda
   - RDS
   - EFS 
@@ -30,10 +31,11 @@ $ pip install awscli boto3
 $ aws configure
 ```
 
-- Those credentials must be associated to a user or role with proper permissions to do all checks. To make sure, add the AWS managed policy ViewOnlyAccess, to the user or role being used. Policy ARN is:
+- Those credentials must be associated to a user or role with proper permissions to do all checks. To make sure, add the AWS managed policies ViewOnlyAccess and SecurityAudit, to the user or role being used. Policies ARN are:
 
 ```sh
 arn:aws:iam::aws:policy/job-function/ViewOnlyAccess
+arn:aws:iam::aws:policy/SecurityAudit
 ```
 
 ### Usage
