@@ -1,6 +1,6 @@
 import boto3
 from shared.common import * 
-from shared.internal.security import IAM 
+from shared.internal.security import IAM, IAMPOLICY
 from shared.internal.network import VPC
 from shared.internal.compute import LAMBDA, EC2
 from shared.internal.database import RDS, ELASTICACHE
@@ -20,3 +20,4 @@ class AwsCommands(object):
         RDS(self.vpc_id, self.region_name).run()
         EFS(self.vpc_id, self.region_name).run()
         ELASTICACHE(self.vpc_id, self.region_name).run()
+        IAMPOLICY(self.vpc_id, self.region_name).run()

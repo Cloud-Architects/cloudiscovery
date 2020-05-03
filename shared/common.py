@@ -1,4 +1,5 @@
 import boto3
+import datetime
 
 class bcolors:
 
@@ -28,3 +29,7 @@ def exit_critical(message):
 
 def message_handler(message, position):
     print(bcolors.colors.get(position), message, bcolors.colors.get('ENDC'), sep="")
+
+def datetime_to_string(o):
+    if isinstance(o, datetime.datetime):
+        return o.__str__()
