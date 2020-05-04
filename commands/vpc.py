@@ -17,7 +17,7 @@ class Vpc(object):
         region_name = session.region_name
 
         if self.region_name is None and region_name is None:
-            exit_critical("Neither region parameter or region config were informed")
+            exit_critical(_("Neither region parameter or region config were informed"))
 
         """ assuming region parameter precedes region configuration """
         if self.region_name is not None:

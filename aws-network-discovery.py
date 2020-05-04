@@ -26,16 +26,19 @@ This script manages aws-network-discovery, a tool for analyzing VPC dependencies
 """
 import sys
 import argparse
+import gettext
 
 # Check version
 if sys.version_info < (3, 6):
-    print("Python 3.6 or newer is required", file=sys.stderr)
+    print(_("Python 3.6 or newer is required"), file=sys.stderr)
     sys.exit(1)
 
 
 from commands.vpc import Vpc
 
 __version__ = "0.3.0"
+
+AVAILABLE_LANGUAGES = ['en_US','pt_BR']
 
 def show_options(args="sys.argv[1:]"):
     parser = argparse.ArgumentParser()
@@ -57,6 +60,12 @@ def show_options(args="sys.argv[1:]"):
                         required=False,
                         help="Profile to be used"
                         )
+    parser.add_argument(
+                        "-l",
+                        "--language",
+                        required=False,
+                        help="available languages: pt_BR, en_US"
+                        )
     args = parser.parse_args()
 
     return args
@@ -70,6 +79,18 @@ def main():
         options = show_options(args=['-h'])
 
     args = show_options(sys.argv)
+
+    if args.language is None or args.language not in AVAILABLE_LANGUAGES:
+        language = "en_US"
+    else:
+        language = args.language
+
+
+    """ defining default language to show messages """
+    defaultlanguage = gettext.translation('messages', localedir='locales', languages=[language])
+    defaultlanguage.install()
+    _ = defaultlanguage.gettext 
+
 
     vpc = Vpc(vpc_id=args.vpc_id, region_name=args.region_name, profile_name=args.profile_name)
     vpc.run()
