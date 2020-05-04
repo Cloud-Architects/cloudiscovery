@@ -3,7 +3,7 @@ from shared.internal.security import IAM, IAMPOLICY
 from shared.internal.network import VPC
 from shared.internal.compute import LAMBDA, EC2
 from shared.internal.database import RDS, ELASTICACHE
-from shared.internal.storage import EFS
+from shared.internal.storage import EFS, S3POLICY
 
 
 class AwsCommands(object):
@@ -20,3 +20,4 @@ class AwsCommands(object):
         EFS(self.vpc_options).run()
         ELASTICACHE(self.vpc_options).run()
         IAMPOLICY(self.vpc_options).run()
+        S3POLICY(self.vpc_options).run()
