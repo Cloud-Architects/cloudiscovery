@@ -1,23 +1,22 @@
-import boto3
-from shared.common import * 
+from shared.common import *
+
 
 class EFS(object):
     
-    def __init__(self, vpc_id, region_name):
-        self.vpc_id = vpc_id
-        self.region_name = region_name
-    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
     def run(self):
         try:
-            client = boto3.client('efs', region_name=self.region_name)
+            client = self.vpc_options.session.client('efs', region_name=self.vpc_options.region_name)
             
             """ get filesystems available """
             response = client.describe_file_systems()
 
             message_handler("\nChecking EFS MOUNT TARGETS...", "HEADER")
 
-            if (len(response["FileSystems"]) == 0):
-                message_handler("Found 0 EFS File Systems in region {0}".format(self.region_name), "OKBLUE")
+            if len(response["FileSystems"]) == 0:
+                message_handler("Found 0 EFS File Systems in region {0}".format(self.vpc_options.region_name), "OKBLUE")
             else:
                 found = 0
                 message = ""
@@ -31,11 +30,11 @@ class EFS(object):
                     for datafilesystem in filesystem['MountTargets']:
 
                         """ describe subnet to get VpcId """
-                        ec2 = boto3.client('ec2', region_name=self.region_name)
+                        ec2 = self.vpc_options.session.client('ec2', region_name=self.vpc_options.region_name)
                         
                         subnets = ec2.describe_subnets(SubnetIds=[datafilesystem['SubnetId']])
 
-                        if (subnets['Subnets'][0]['VpcId'] == self.vpc_id):
+                        if subnets['Subnets'][0]['VpcId'] == self.vpc_options.vpc_id:
                             found += 1
                             message = message + "\nFileSystemId: {0} - NumberOfMountTargets: {1} - VpcId: {2}".format(
                                 data['FileSystemId'], 
@@ -43,9 +42,7 @@ class EFS(object):
                                 subnets['Subnets'][0]['VpcId']
                             )
 
-                message_handler("Found {0} EFS Mount Target using VPC {1} {2}".format(str(found), self.vpc_id, message),'OKBLUE')
-                
-
+                message_handler("Found {0} EFS Mount Target using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
         except Exception as e:
             message = "Can't list EFS MOUNT TARGETS\nError {0}".format(str(e))
             exit_critical(message)

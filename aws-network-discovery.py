@@ -40,20 +40,26 @@ __version__ = "0.2.1"
 def show_options(args="sys.argv[1:]"):
     parser = argparse.ArgumentParser()
     parser.add_argument(
-                        "-v", 
-                        "--vpc-id", 
-                        required=True, 
+                        "-v",
+                        "--vpc-id",
+                        required=True,
                         help="Inform VPC to analyze"
                         )
     parser.add_argument(
-                        "-r", 
-                        "--region-name", 
-                        required=False, 
+                        "-r",
+                        "--region-name",
+                        required=False,
                         help="Inform REGION to analyze. If not informed, try to get from config file"
                         )
-    options = parser.parse_args()
+    parser.add_argument(
+                        "-p",
+                        "--profile_name",
+                        required=False,
+                        help="Profile to be used"
+                        )
+    args = parser.parse_args()
 
-    return options
+    return args
 
 
 def main():
@@ -65,7 +71,7 @@ def main():
 
     args = show_options(sys.argv)
 
-    vpc = Vpc(vpc_id=args.vpc_id, region_name=args.region_name)
+    vpc = Vpc(vpc_id=args.vpc_id, region_name=args.region_name, profile_name=args.profile_name)
     vpc.run()
 
 
