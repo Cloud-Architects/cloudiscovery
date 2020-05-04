@@ -16,6 +16,7 @@ Following services are integrated
   - ELASTICACHE
   - S3 POLICY
   - ELASTICSEARCH
+  - DOCUMENTDB
 
 ### Requirements and Installation
 
