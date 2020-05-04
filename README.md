@@ -14,6 +14,8 @@ Following services are integrated
   - RDS
   - EFS 
   - ELASTICACHE
+  - S3 POLICY
+  - ELASTICSEARCH
 
 ### Requirements and Installation
 
