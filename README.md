@@ -17,6 +17,7 @@ Following services are integrated
   - S3 POLICY
   - ELASTICSEARCH
   - DOCUMENTDB
+  - SQS QUEUE POLICY
 
 ### Requirements and Installation
 
