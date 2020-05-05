@@ -10,8 +10,14 @@ class RDS(object):
         try:
             client = self.vpc_options.session.client('rds', region_name=self.vpc_options.region_name)
             
-            response = client.describe_db_instances()
-            
+            response = client.describe_db_instances(Filters=[
+                                                    {'Name': 'engine',
+                                                     'Values': ['aurora','aurora-mysql','aurora-postgresql',
+                                                                'mariadb','mysql','oracle-ee','oracle-se2',
+                                                                'oracle-se1','oracle-se','postgres','sqlserver-ee',
+                                                                'sqlserver-se','sqlserver-ex','sqlserver-web']
+                                                    }])
+
             message_handler("\nChecking RDS INSTANCES...", "HEADER")
 
             if len(response["DBInstances"]) == 0:
@@ -81,7 +87,10 @@ class DOCUMENTDB(object):
         try:
             client = self.vpc_options.session.client('docdb', region_name=self.vpc_options.region_name)
             
-            response = client.describe_db_instances()
+            response = client.describe_db_instances(Filters=[
+                                                    {'Name': 'engine',
+                                                     'Values': ['docdb']
+                                                    }])
     
             message_handler("\nChecking DOCUMENTDB INSTANCES...", "HEADER")
 
