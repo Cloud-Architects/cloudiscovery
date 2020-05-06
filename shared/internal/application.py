@@ -8,16 +8,6 @@ class SQSPOLICY(object):
 
     def run(self):
         try:
-            """ec2 = boto3.resource('ec2')
-            filters = [{'Name':'vpc-id', 'Values':['vpc-017fe3c9aa3ea404d']}]
-            subnets = ec2.subnets.filter(Filters=filters)
-            #subnet = ec2.Subnet('subnet-023da38a98c179cce')
-            for subnet in list(subnets):
-                print(subnet.cidr_block)
-                print(subnet)
-                #free_ips = subnet.available_ip_address_count
-            print(subnets)
-            quit()"""
 
             client = self.vpc_options.session.client('sqs', region_name=self.vpc_options.region_name)
             
