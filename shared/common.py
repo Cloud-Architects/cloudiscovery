@@ -1,7 +1,8 @@
 from typing import NamedTuple
 import datetime
 import boto3
-
+import re
+from ipaddress import ip_network, ip_address
 
 class bcolors:
     colors = {'HEADER': '\033[95m',
@@ -40,3 +41,44 @@ def message_handler(message, position):
 def datetime_to_string(o):
     if isinstance(o, datetime.datetime):
         return o.__str__()
+
+def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
+    
+    """ Replace json slashes """
+    document = document.replace("\\","")
+
+    """ Checking if VPC is inside document, it's a 100% true information """
+    if vpc_options.vpc_id in document:
+        return True, "No-subnet"
+    else:
+        """ 
+        Vpc_id not found, trying to discover if it's a potencial subnet IP 
+        TODO: improve this check
+        TODO: add a support to multiple ips as a list
+        """
+        try:
+            if "aws:SourceIp" in document:
+
+                """ Get ip found """
+                aws_sourceip = re.findall(r'(?<=SourceIp")(?:\s*\:\s*)(".{0,23}?(?=")")', document, re.IGNORECASE+re.DOTALL)[0]
+                aws_sourceip = ip_address(aws_sourceip.replace('"',''))
+
+                """ Get subnets cidr block """ 
+                ec2 = vpc_options.session.resource('ec2', region_name=vpc_options.region_name)
+                
+                filters = [{'Name':'vpc-id', 
+                            'Values':[vpc_options.vpc_id]}]
+                
+                subnets = ec2.subnets.filter(Filters=filters)
+
+                """ Iterate subnets to match ipaddress """
+                for subnet in list(subnets):
+                    network_addres = ip_network(subnet.cidr_block)
+
+                    if aws_sourceip in network_addres:
+                        return True, "Subnet: {0} - CIDR - {1}".format(str(subnet.subnet_id), str(subnet.cidr_block))
+
+        except:
+            return False, "No-subnet"
+
+        return False, "No-subnet"
