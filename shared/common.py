@@ -49,7 +49,7 @@ def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
 
     """ Checking if VPC is inside document, it's a 100% true information """
     if vpc_options.vpc_id in document:
-        return True, "No-subnet"
+        return True
     else:
         """ 
         Vpc_id not found, trying to discover if it's a potencial subnet IP 
@@ -61,7 +61,7 @@ def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
 
                 """ Get ip found """
                 aws_sourceip = re.findall(r'(?<=SourceIp")(?:\s*\:\s*)("?.{0,500}(?=")")', document, re.DOTALL)[0]
-                """ Piece of shit code """
+                """ Piece shit of code """
                 aws_sourceip = aws_sourceip.replace('"','').replace("[","") \
                                                            .replace("{","") \
                                                            .replace("]","") \
@@ -86,9 +86,9 @@ def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
                         network_addres = ip_network(subnet.cidr_block)
 
                         if ipfound.overlaps(network_addres):
-                            return True, "Subnet: {0} - CIDR - {1}".format(str(subnet.subnet_id), str(subnet.cidr_block))
+                            return True
 
-        except:
-            return False, "No-subnet"
+        except Exception as e:
+            print(str(e))
 
-        return False, "No-subnet"
+        return False

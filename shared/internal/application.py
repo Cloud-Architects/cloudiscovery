@@ -41,15 +41,14 @@ class SQSPOLICY(object):
                             #quit()
 
                             """ check either vpc_id or potencial subnet ip are found """
-                            ipvpc_found, message_ipvpc = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
+                            ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
 
                             if ipvpc_found is True:
                             #if self.vpc_options.vpc_id in document:
                                 found += 1
-                                message = message + "\nQueueUrl: {0} - VpcId {1} - Subnet: {2}".format(
+                                message = message + "\nQueueUrl: {0} - VpcId {1}".format(
                                     queue,
-                                    self.vpc_options.vpc_id,
-                                    message_ipvpc
+                                    self.vpc_options.vpc_id
                                 )
                         except Exception as e:
                             print(str(e))
