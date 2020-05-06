@@ -61,7 +61,7 @@ def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
 
                 """ Get ip found """
                 aws_sourceip = re.findall(r'(?<=SourceIp")(?:\s*\:\s*)(".{0,23}?(?=")")', document, re.IGNORECASE+re.DOTALL)[0]
-                aws_sourceip = ip_address(aws_sourceip.replace('"',''))
+                aws_sourceip = ip_network(aws_sourceip.replace('"',''))
 
                 """ Get subnets cidr block """ 
                 ec2 = vpc_options.session.resource('ec2', region_name=vpc_options.region_name)
@@ -75,7 +75,7 @@ def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
                 for subnet in list(subnets):
                     network_addres = ip_network(subnet.cidr_block)
 
-                    if aws_sourceip in network_addres:
+                    if aws_sourceip.overlaps(network_addres):
                         return True, "Subnet: {0} - CIDR - {1}".format(str(subnet.subnet_id), str(subnet.cidr_block))
 
         except:
