@@ -14,6 +14,10 @@ Following services are integrated
   - RDS
   - EFS 
   - ELASTICACHE
+  - S3 POLICY
+  - ELASTICSEARCH
+  - DOCUMENTDB
+  - SQS QUEUE POLICY
 
 ### Requirements and Installation
 
@@ -51,7 +55,21 @@ $ ./aws-network-discovery.py --vpc-id vpc-xxxxxxx --region-name xx-xxxx-xxx
 ```sh
 $ ./aws-network-discovery.py -h
 ```
-### Todo
+
+### Translate
+
+This project support English and Portuguese (Brazil) languages. To contribute with a translation, follow this steps:
+
+- Create a folder inside locales folder with prefix of new idiom with appropiate locale code (https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html). Copy "locales/messages.pot" to locales/newfolder/LC_MESSAGES/.
+
+- To build ".mo" file running this command from project root folder:
+
+```sh
+$ python msgfmt.py -o locales/NEWFOLDER/LC_MESSAGES/messages.mo locales/NEWFOLDER/LC_MESSAGES/messages
+```
+
+
+### TODO
 
 - Use role instance rather than aws-cli
 - Improve documentation and code comments

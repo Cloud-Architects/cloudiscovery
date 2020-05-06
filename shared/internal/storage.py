@@ -1,5 +1,5 @@
 from shared.common import *
-
+import json
 
 class EFS(object):
     
@@ -45,4 +45,48 @@ class EFS(object):
                 message_handler("Found {0} EFS Mount Target using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
         except Exception as e:
             message = "Can't list EFS MOUNT TARGETS\nError {0}".format(str(e))
+            exit_critical(message)
+
+class S3POLICY(object):
+    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    def run(self):
+        try:
+            client = self.vpc_options.session.client('s3', region_name=self.vpc_options.region_name)
+            
+            """ get buckets available """
+            response = client.list_buckets()
+
+            message_handler("\nChecking S3 BUCKET POLICY...", "HEADER")
+
+            if len(response["Buckets"]) == 0:
+                message_handler("Found 0 S3 Bucket", "OKBLUE")
+            else:
+                found = 0
+                message = ""
+
+                """ iterate buckets to get policy """
+                for data in response['Buckets']:
+                    
+                    #documentpolicy = client.get_bucket_policy(Bucket=data["Name"])
+                    try:
+                        documentpolicy = client.get_bucket_policy(Bucket=data["Name"])
+
+                        document = json.dumps(documentpolicy, default=datetime_to_string) 
+
+                        if self.vpc_options.vpc_id in document:
+                            found += 1
+                            message = message + "\nBucketName: {0} - {1}".format(
+                                data['Name'],
+                                self.vpc_options.vpc_id
+                            )
+                    except:
+                        pass
+
+                message_handler("Found {0} S3 Bucket Policy using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+        
+        except Exception as e:
+            message = "Can't list S3 BUCKETS\nError {0}".format(str(e))
             exit_critical(message)
