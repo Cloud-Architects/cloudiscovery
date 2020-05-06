@@ -54,14 +54,19 @@ def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
         """ 
         Vpc_id not found, trying to discover if it's a potencial subnet IP 
         TODO: improve this check
-        TODO: add a support to multiple ips as a list
+        TODO: improve regexp
         """
         try:
             if "aws:SourceIp" in document:
 
                 """ Get ip found """
-                aws_sourceip = re.findall(r'(?<=SourceIp")(?:\s*\:\s*)(".{0,23}?(?=")")', document, re.IGNORECASE+re.DOTALL)[0]
-                aws_sourceip = ip_network(aws_sourceip.replace('"',''))
+                aws_sourceip = re.findall(r'(?<=SourceIp")(?:\s*\:\s*)("?.{0,500}(?=")")', document, re.DOTALL)[0]
+                """ Piece of shit code """
+                aws_sourceip = aws_sourceip.replace('"','').replace("[","") \
+                                                           .replace("{","") \
+                                                           .replace("]","") \
+                                                           .replace("}","") \
+                                                           .split(",")
 
                 """ Get subnets cidr block """ 
                 ec2 = vpc_options.session.resource('ec2', region_name=vpc_options.region_name)
@@ -71,12 +76,17 @@ def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
                 
                 subnets = ec2.subnets.filter(Filters=filters)
 
-                """ Iterate subnets to match ipaddress """
-                for subnet in list(subnets):
-                    network_addres = ip_network(subnet.cidr_block)
+                """ iterate ips found """
+                for ipfound in aws_sourceip:
 
-                    if aws_sourceip.overlaps(network_addres):
-                        return True, "Subnet: {0} - CIDR - {1}".format(str(subnet.subnet_id), str(subnet.cidr_block))
+                    """ Iterate subnets to match ipaddress """
+                    for subnet in list(subnets):
+
+                        ipfound = ip_network(ipfound)
+                        network_addres = ip_network(subnet.cidr_block)
+
+                        if ipfound.overlaps(network_addres):
+                            return True, "Subnet: {0} - CIDR - {1}".format(str(subnet.subnet_id), str(subnet.cidr_block))
 
         except:
             return False, "No-subnet"
