@@ -52,11 +52,40 @@ def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
         return True
     else:
         """ 
-        Vpc_id not found, trying to discover if it's a potencial subnet IP 
+        Vpc_id not found, trying to discover if it's a potencial subnet IP or VPCE is allowed
         TODO: improve this check
         TODO: improve regexp
         """
         try:
+            """ Checking if VPCE is found. It's a more accurate info rather IP """
+            if "aws:SourceVpce" in document:
+
+                """ Get VPCE found """
+                aws_sourcevpce = re.findall(r'(?<=SourceVpce")(?:\s*\:\s*)("?.{0,500}(?=")")', document, re.DOTALL)[0]
+                """ Piece shit of code """
+                aws_sourcevpce = aws_sourcevpce.replace('"','').replace("[","") \
+                                                               .replace("{","") \
+                                                               .replace("]","") \
+                                                               .replace("}","") \
+                                                               .split(",")
+
+                """ Get all VPCE of this VPC """
+                ec2 = vpc_options.session.client('ec2', region_name=vpc_options.region_name)
+
+                filters = [{'Name':'vpc-id',
+                            'Values':[vpc_options.vpc_id]}]
+
+                vpc_endpoints = ec2.describe_vpc_endpoints(Filters=filters)
+
+                """ iterate VPCEs found found """
+                if len(vpc_endpoints['VpcEndpoints']) > 0:
+
+                    """ Iterate VPCE to match vpce in Policy Document """
+                    for data in vpc_endpoints['VpcEndpoints']:
+
+                        if data['VpcEndpointId'] in document:
+                            return True
+
             if "aws:SourceIp" in document:
 
                 """ Get ip found """
