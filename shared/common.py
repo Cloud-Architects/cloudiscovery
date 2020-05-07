@@ -90,5 +90,6 @@ def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
 
         except Exception as e:
             print(str(e))
+            return False
 
         return False
