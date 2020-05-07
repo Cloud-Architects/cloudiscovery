@@ -27,9 +27,12 @@ class ELASTICSEARCH(object):
 
                     document = json.dumps(documentpolicy, default=datetime_to_string)
 
+                    """ check either vpc_id or potencial subnet ip are found """
+                    ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
+
                     """ elasticsearch uses accesspolicies too, so check both situation """
                     if elasticsearch_domain['DomainStatus']['VPCOptions']['VPCId'] == self.vpc_options.vpc_id \
-                    or self.vpc_options.vpc_id in document:
+                    or ipvpc_found is True:
                         found += 1
                         message = message + "\nDomainId: {0} - DomainName: {1} - VpcId {2}".format(
                             elasticsearch_domain['DomainStatus']['DomainId'], 
