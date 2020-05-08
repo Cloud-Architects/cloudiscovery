@@ -44,3 +44,52 @@ class ELASTICSEARCH(object):
         except Exception as e:
             message = "Can't list ElasticSearch Domains\nError {0}".format(str(e))
             exit_critical(message)
+
+class MSK(object):
+
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    def run(self):
+        try:
+            client = self.vpc_options.session.client('kafka', region_name=self.vpc_options.region_name)
+
+            """ get all cache clusters """
+            response = client.list_clusters()
+
+            message_handler("\nChecking MSK CLUSTERS...", "HEADER")
+
+            if len(response['ClusterInfoList']) == 0:
+                message_handler("Found 0 MSK Clusters in region {0}".format(self.vpc_options.region_name), "OKBLUE")
+            else:
+                found = 0
+                message = ""
+
+                """ iterate cache clusters to get subnet groups """
+                for data in response['ClusterInfoList']:
+
+                    msk_subnets = ", ".join(data['BrokerNodeGroupInfo']['ClientSubnets'])
+
+                    ec2 = self.vpc_options.session.resource('ec2', region_name=self.vpc_options.region_name)
+
+                    filters = [{'Name':'vpc-id',
+                                'Values':[self.vpc_options.vpc_id]}]
+
+                    subnets = ec2.subnets.filter(Filters=filters)
+
+                    for subnet in list(subnets):
+
+                        if subnet.id in msk_subnets:
+
+                            found += 1
+                            message = message + "\nClusterName: {0} - VpcId: {1}".format(
+                                data['ClusterName'],
+                                self.vpc_options.vpc_id
+                            )
+                            break
+
+                message_handler("Found {0} MSK Clusters using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+
+        except Exception as e:
+            message = "Can't list MSK Clusters\nError {0}".format(str(e))
+            exit_critical(message)
