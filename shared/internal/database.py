@@ -8,7 +8,7 @@ class RDS(object):
 
     def run(self):
         try:
-            client = self.vpc_options.session.client('rds', region_name=self.vpc_options.region_name)
+            client = self.vpc_options.client('rds')
             
             response = client.describe_db_instances(Filters=[
                                                     {'Name': 'engine',
@@ -46,7 +46,7 @@ class ELASTICACHE(object):
 
     def run(self):
         try:
-            client = self.vpc_options.session.client('elasticache', region_name=self.vpc_options.region_name)
+            client = self.vpc_options.client('elasticache')
             
             """ get all cache clusters """
             response = client.describe_cache_clusters()
@@ -85,7 +85,7 @@ class DOCUMENTDB(object):
 
     def run(self):
         try:
-            client = self.vpc_options.session.client('docdb', region_name=self.vpc_options.region_name)
+            client = self.vpc_options.client('docdb')
             
             response = client.describe_db_instances(Filters=[
                                                     {'Name': 'engine',

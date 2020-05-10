@@ -8,7 +8,7 @@ class LAMBDA(object):
 
     def run(self):
         try:
-            client = self.vpc_options.session.client('lambda', region_name=self.vpc_options.region_name)
+            client = self.vpc_options.client('lambda')
             
             response = client.list_functions()
             
@@ -22,11 +22,10 @@ class LAMBDA(object):
                 for data in response["Functions"]:
                     if 'VpcConfig' in data and data['VpcConfig']['VpcId'] == self.vpc_options.vpc_id:
                         found += 1
-                        message = message + "\nFunctionName: {0} - Runtime: {1} - VpcId {2} - SubnetIds: {3}".format(
-                            data["FunctionName"], 
-                            data["Runtime"], 
-                            data['VpcConfig']['VpcId'], 
-                            ", ".join(data['VpcConfig']['SubnetIds'])
+                        message = message + "\nFunctionName: {} -> Subnet id(s): {} -> VPC id {}".format(
+                            data["FunctionName"],
+                            ", ".join(data['VpcConfig']['SubnetIds']),
+                            data['VpcConfig']['VpcId']
                         )
                 message_handler("Found {0} Lambda Functions using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
         except Exception as e:
@@ -42,7 +41,7 @@ class EC2(object):
     def run(self):
         try:
             
-            client = self.vpc_options.session.client('ec2', region_name=self.vpc_options.region_name)
+            client = self.vpc_options.client('ec2')
 
             response = client.describe_instances()
             
@@ -58,11 +57,11 @@ class EC2(object):
                         if "VpcId" in instances:
                             if instances['VpcId'] == self.vpc_options.vpc_id:
                                 found += 1
-                                message = message + "\nInstanceId: {0} - PrivateIpAddress: {1} - VpcId {2} - SubnetIds: {3}".format(
+                                message = message + "\nInstanceId: {} - PrivateIpAddress: {} -> Subnet id(s): {} - VpcId {}".format(
                                     instances["InstanceId"], 
                                     instances["PrivateIpAddress"], 
-                                    instances['VpcId'], 
-                                    instances['SubnetId']
+                                    instances['SubnetId'],
+                                    instances['VpcId']
                                 )
                 message_handler("Found {0} EC2 Instances using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
         except Exception as e:

@@ -8,7 +8,7 @@ class ELASTICSEARCH(object):
 
     def run(self):
         try:
-            client = self.vpc_options.session.client('es', region_name=self.vpc_options.region_name)
+            client = self.vpc_options.client('es')
             
             response = client.list_domain_names()
             
@@ -52,7 +52,7 @@ class MSK(object):
 
     def run(self):
         try:
-            client = self.vpc_options.session.client('kafka', region_name=self.vpc_options.region_name)
+            client = self.vpc_options.client('kafka')
 
             """ get all cache clusters """
             response = client.list_clusters()

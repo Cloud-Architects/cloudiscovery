@@ -26,7 +26,7 @@ This script has been written in python3+ using AWS-CLI and it works in Linux, Wi
 - Make sure the latest version of AWS-CLI is installed on your workstation, and other components needed, with Python pip already installed:
 
 ```sh
-$ pip install awscli boto3
+$ pip install -r requirements.txt
 ```
 
 - Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
@@ -71,7 +71,6 @@ $ python msgfmt.py -o locales/NEWFOLDER/LC_MESSAGES/messages.mo locales/NEWFOLDE
 
 ### TODO
 
-- Use role instance rather than aws-cli
 - Improve documentation and code comments
 - More services that uses VPC (I'll try add one a week)
 - Custom logging control and reporting improvement.

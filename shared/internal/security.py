@@ -1,3 +1,5 @@
+from concurrent.futures.thread import ThreadPoolExecutor
+
 from shared.common import *
 import json
 
@@ -41,26 +43,12 @@ class IAMPOLICY(object):
                 found = 0
                 message = ""
 
-                """ iterate policies to get document policy """
-                for data in response['Policies']:
-
-                    documentpolicy = client.get_policy_version(
-                        PolicyArn=data['Arn'],
-                        VersionId=data['DefaultVersionId']
-                    )
-
-                    document = json.dumps(documentpolicy, default=datetime_to_string)
-
-                    """ check either vpc_id or potencial subnet ip are found """
-                    ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
-
-                    if ipvpc_found is True:
+                with ThreadPoolExecutor(15) as executor:
+                    results = executor.map(lambda data: self.analyze_policy(client, data), response['Policies'])
+                for result in results:
+                    if result[0] is True:
                         found += 1
-                        message = message + "\nPolicyName: {0} - DefaultVersionId: {1} - VpcId: {2}".format(
-                            data['PolicyName'],
-                            data['DefaultVersionId'], 
-                            self.vpc_options.vpc_id
-                        )
+                        message += result[1]
 
                 message_handler("Found {0} Customer managed IAM Policy using VPC {1} {2}".format(str(found), 
                                                                                                             self.vpc_options.vpc_id, message),
@@ -68,3 +56,19 @@ class IAMPOLICY(object):
         except Exception as e:
             message = "Can't list IAM Policy\nError: {0}".format(str(e))
             exit_critical(message)
+
+    def analyze_policy(self, client, data):
+        documentpolicy = client.get_policy_version(
+            PolicyArn=data['Arn'],
+            VersionId=data['DefaultVersionId']
+        )
+        document = json.dumps(documentpolicy, default=datetime_to_string)
+        """ check either vpc_id or potencial subnet ip are found """
+        ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
+        if ipvpc_found is True:
+            return True, "\nPolicyName: {0} - DefaultVersionId: {1} - VpcId: {2}".format(
+                data['PolicyName'],
+                data['DefaultVersionId'],
+                self.vpc_options.vpc_id
+            )
+        return False, None
