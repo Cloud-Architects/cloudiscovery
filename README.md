@@ -18,6 +18,14 @@ Following services are integrated
   - ELASTICSEARCH
   - DOCUMENTDB
   - SQS QUEUE POLICY
+  - MSK
+  - NAT GATEWAY
+  - INTERNET GATEWAY (IGW)
+
+### News
+
+- Performs checks using thread concurrency
+- Best information provided
 
 ### Requirements and Installation
 
