@@ -8,7 +8,7 @@ class VPC(object):
 
     def run(self):
         try:
-            client = self.vpc_options.session.client('ec2', region_name=self.vpc_options.region_name)
+            client = self.vpc_options.client('ec2')
             response = client.describe_vpcs(
                 VpcIds=[self.vpc_options.vpc_id]
             )
