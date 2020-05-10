@@ -1,10 +1,10 @@
 from shared.common import *
 from shared.internal.security import IAM, IAMPOLICY
-from shared.internal.network import VPC
+from shared.internal.network import VPC, IGW, NATGATEWAY
 from shared.internal.compute import LAMBDA, EC2
 from shared.internal.database import RDS, ELASTICACHE, DOCUMENTDB
 from shared.internal.storage import EFS, S3POLICY
-from shared.internal.analytics import ELASTICSEARCH
+from shared.internal.analytics import ELASTICSEARCH, MSK
 from shared.internal.application import SQSPOLICY
 
 
@@ -26,3 +26,6 @@ class AwsCommands(object):
         ELASTICSEARCH(self.vpc_options).run()
         DOCUMENTDB(self.vpc_options).run()
         SQSPOLICY(self.vpc_options).run()
+        MSK(self.vpc_options).run()
+        IGW(self.vpc_options).run()
+        NATGATEWAY(self.vpc_options).run()
