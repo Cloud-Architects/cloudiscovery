@@ -174,6 +174,46 @@ class ELASTICLOADBALANCINGV2(object):
             message = "Can't list Application Load Balancing\nError {0}".format(str(e))
             exit_critical(message)
 
+class ROUTETABLE(object):
+    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    def run(self):
+
+        try:
+            client = self.vpc_options.client('ec2')
+
+            filters = [{'Name': 'vpc-id',
+                        'Values': [self.vpc_options.vpc_id]}]
+
+            response = client.describe_route_tables(Filters=filters)
+
+            message_handler("\nChecking ROUTE TABLES...", "HEADER")
+
+            if len(response['RouteTables']) == 0:
+                    message_handler("Found 0 Route Table in region {0}".format(self.vpc_options.region_name), "OKBLUE")
+            else:
+            
+                found = 0
+                message = ""
+
+                """ Iterate to get all route table filtered """
+                for data in response['RouteTables']:
+
+                    found += 1
+                    message = message + "\nRouteTableId: {} -> VPC id {}".format(
+                        data['RouteTableId'],
+                        self.vpc_options.vpc_id
+                        )
+
+                message_handler("Found {0} Route Tables using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+
+        except Exception as e:
+            message = "Can't list Route Table\nError {0}".format(str(e))
+            exit_critical(message)
+
+
 """ aliases """
 IGW = INTERNETGATEWAY
 ELB = ELASTICLOADBALANCING
