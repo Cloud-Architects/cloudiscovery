@@ -2,7 +2,7 @@ from shared.common import *
 from shared.internal.security import IAM, IAMPOLICY
 from shared.internal.network import VPC, IGW, NATGATEWAY, ELB, ELBV2, ROUTETABLE, SUBNET, NACL, SG, VPCPEERING
 from shared.internal.network import VPCENDPOINT
-from shared.internal.compute import LAMBDA, EC2
+from shared.internal.compute import LAMBDA, EC2, EKS
 from shared.internal.database import RDS, ELASTICACHE, DOCUMENTDB
 from shared.internal.storage import EFS, S3POLICY
 from shared.internal.analytics import ELASTICSEARCH, MSK
@@ -15,19 +15,36 @@ class AwsCommands(object):
         self.vpc_options = vpc_options
 
     def run(self):
+
+        """ IAM and VPC validations """
         IAM(self.vpc_options).run()
         VPC(self.vpc_options).run()
-        LAMBDA(self.vpc_options).run()
+
+        """ Compute resources """
         EC2(self.vpc_options).run()
+        LAMBDA(self.vpc_options).run()
+        EKS(self.vpc_options).run()
+
+        """ Database resources """
         RDS(self.vpc_options).run()
-        EFS(self.vpc_options).run()
         ELASTICACHE(self.vpc_options).run()
-        IAMPOLICY(self.vpc_options).run()
-        S3POLICY(self.vpc_options).run()
-        ELASTICSEARCH(self.vpc_options).run()
         DOCUMENTDB(self.vpc_options).run()
+
+        """ Application resources """
         SQSPOLICY(self.vpc_options).run()
+
+        """ Storage resources """
+        EFS(self.vpc_options).run()
+        S3POLICY(self.vpc_options).run()
+        
+        """ Analytics resources """
+        ELASTICSEARCH(self.vpc_options).run()
         MSK(self.vpc_options).run()
+
+        """ Security resources """
+        IAMPOLICY(self.vpc_options).run()
+        
+        """ Network resources """
         IGW(self.vpc_options).run()
         NATGATEWAY(self.vpc_options).run()
         ELB(self.vpc_options).run()
@@ -38,3 +55,4 @@ class AwsCommands(object):
         SG(self.vpc_options).run()
         VPCPEERING(self.vpc_options).run()
         VPCENDPOINT(self.vpc_options).run()
+        
