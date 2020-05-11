@@ -290,8 +290,49 @@ class NACL(object):
         except Exception as e:
             message = "Can't list NACL\nError {0}".format(str(e))
             exit_critical(message)
+
+class SECURITYGROUP(object):
+    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    def run(self):
+
+        try:
+            client = self.vpc_options.client('ec2')
+
+            filters = [{'Name': 'vpc-id',
+                        'Values': [self.vpc_options.vpc_id]}]
+
+            response = client.describe_security_groups(Filters=filters)
+
+            message_handler("\nChecking SECURITY GROUPS...", "HEADER")
+
+            if len(response['SecurityGroups']) == 0:
+                    message_handler("Found 0 Security Group in region {0}".format(self.vpc_options.region_name), "OKBLUE")
+            else:
             
+                found = 0
+                message = ""
+
+                """ Iterate to get all SG filtered """
+                for data in response['SecurityGroups']:
+
+                    found += 1
+                    message = message + "\nGroupName: {} -> VPC id {}".format(
+                        data['GroupName'],
+                        self.vpc_options.vpc_id
+                        )
+
+                message_handler("Found {0} Security Groups using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+
+        except Exception as e:
+            message = "Can't list SECURITY GROUPS\nError {0}".format(str(e))
+            exit_critical(message)
+
+  
 """ aliases """
 IGW = INTERNETGATEWAY
 ELB = ELASTICLOADBALANCING
 ELBV2 = ELASTICLOADBALANCINGV2
+SG = SECURITYGROUP
