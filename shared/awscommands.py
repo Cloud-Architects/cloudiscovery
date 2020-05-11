@@ -1,6 +1,6 @@
 from shared.common import *
 from shared.internal.security import IAM, IAMPOLICY
-from shared.internal.network import VPC, IGW, NATGATEWAY
+from shared.internal.network import VPC, IGW, NATGATEWAY, ELB, ELBV2
 from shared.internal.compute import LAMBDA, EC2
 from shared.internal.database import RDS, ELASTICACHE, DOCUMENTDB
 from shared.internal.storage import EFS, S3POLICY
@@ -29,3 +29,5 @@ class AwsCommands(object):
         MSK(self.vpc_options).run()
         IGW(self.vpc_options).run()
         NATGATEWAY(self.vpc_options).run()
+        ELB(self.vpc_options).run()
+        ELBV2(self.vpc_options).run()

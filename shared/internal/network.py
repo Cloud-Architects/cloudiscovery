@@ -100,5 +100,81 @@ class NATGATEWAY(object):
             message = "Can't list NAT Gateways\nError {0}".format(str(e))
             exit_critical(message)
 
-""" alias """
+class ELASTICLOADBALANCING(object):
+    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    def run(self):
+
+        try:
+            client = self.vpc_options.client('elb')
+
+            response = client.describe_load_balancers()
+
+            message_handler("\nChecking CLASSIC LOAD BALANCING...", "HEADER")
+
+            if len(response['LoadBalancerDescriptions']) == 0:
+                    message_handler("Found 0 Classic Load Balancing in region {0}".format(self.vpc_options.region_name), "OKBLUE")
+            else:
+            
+                found = 0
+                message = ""
+
+                for data in response['LoadBalancerDescriptions']:
+
+                    if data['VPCId'] == self.vpc_options.vpc_id:
+
+                        found += 1
+                        message = message + "\nLoadBalancerName: {} -> VPC id {}".format(
+                            data['LoadBalancerName'],
+                            self.vpc_options.vpc_id
+                            )
+
+                message_handler("Found {0} Classic Load Balancing using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+
+        except Exception as e:
+            message = "Can't list Classic Load Balancing\nError {0}".format(str(e))
+            exit_critical(message)
+
+class ELASTICLOADBALANCINGV2(object):
+    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    def run(self):
+
+        try:
+            client = self.vpc_options.client('elbv2')
+
+            response = client.describe_load_balancers()
+
+            message_handler("\nChecking APPLICATION LOAD BALANCING...", "HEADER")
+
+            if len(response['LoadBalancers']) == 0:
+                    message_handler("Found 0 Application Load Balancing in region {0}".format(self.vpc_options.region_name), "OKBLUE")
+            else:
+            
+                found = 0
+                message = ""
+
+                for data in response['LoadBalancers']:
+
+                    if data['VpcId'] == self.vpc_options.vpc_id:
+
+                        found += 1
+                        message = message + "\nLoadBalancerName: {} -> VPC id {}".format(
+                            data['LoadBalancerName'],
+                            self.vpc_options.vpc_id
+                            )
+
+                message_handler("Found {0} Application Load Balancing using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+
+        except Exception as e:
+            message = "Can't list Application Load Balancing\nError {0}".format(str(e))
+            exit_critical(message)
+
+""" aliases """
 IGW = INTERNETGATEWAY
+ELB = ELASTICLOADBALANCING
+ELBV2 = ELASTICLOADBALANCINGV2
