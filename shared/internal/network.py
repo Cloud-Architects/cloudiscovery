@@ -330,6 +330,44 @@ class SECURITYGROUP(object):
             message = "Can't list SECURITY GROUPS\nError {0}".format(str(e))
             exit_critical(message)
 
+class VPCPEERING(object):
+    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    def run(self):
+
+        try:
+            client = self.vpc_options.client('ec2')
+
+            response = client.describe_vpc_peering_connections()
+
+            message_handler("\nChecking VPC PEERING...", "HEADER")
+
+            if len(response['VpcPeeringConnections']) == 0:
+                    message_handler("Found 0 VPC Peering in region {0}".format(self.vpc_options.region_name), "OKBLUE")
+            else:
+            
+                found = 0
+                message = ""
+
+                """ Iterate to get all vpc peering and check either accepter or requester """
+                for data in response['VpcPeeringConnections']:
+
+                    if data['AccepterVpcInfo']['VpcId'] == self.vpc_options.vpc_id \
+                    or data['RequesterVpcInfo']['VpcId'] == self.vpc_options.vpc_id:
+                        
+                        found += 1
+                        message = message + "\nVpcPeeringConnectionId: {} -> VPC id {}".format(
+                            data['VpcPeeringConnectionId'],
+                            self.vpc_options.vpc_id
+                            )
+
+                message_handler("Found {0} VPC Peering using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+
+        except Exception as e:
+            message = "Can't list VPC PEERING\nError {0}".format(str(e))
+            exit_critical(message)
   
 """ aliases """
 IGW = INTERNETGATEWAY
