@@ -1,6 +1,7 @@
 from shared.common import *
 from shared.internal.security import IAM, IAMPOLICY
 from shared.internal.network import VPC, IGW, NATGATEWAY, ELB, ELBV2, ROUTETABLE, SUBNET, NACL, SG, VPCPEERING
+from shared.internal.network import VPCENDPOINT
 from shared.internal.compute import LAMBDA, EC2
 from shared.internal.database import RDS, ELASTICACHE, DOCUMENTDB
 from shared.internal.storage import EFS, S3POLICY
@@ -36,3 +37,4 @@ class AwsCommands(object):
         NACL(self.vpc_options).run()
         SG(self.vpc_options).run()
         VPCPEERING(self.vpc_options).run()
+        VPCENDPOINT(self.vpc_options).run()

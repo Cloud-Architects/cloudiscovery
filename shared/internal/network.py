@@ -368,7 +368,47 @@ class VPCPEERING(object):
         except Exception as e:
             message = "Can't list VPC PEERING\nError {0}".format(str(e))
             exit_critical(message)
-  
+
+class VPCENDPOINT(object):
+    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    def run(self):
+
+        try:
+            client = self.vpc_options.client('ec2')
+
+            filters = [{'Name': 'vpc-id',
+                        'Values': [self.vpc_options.vpc_id]}]
+
+            response = client.describe_vpc_endpoints(Filters=filters)
+
+            message_handler("\nChecking VPC ENDPOINTS...", "HEADER")
+
+            if len(response['VpcEndpoints']) == 0:
+                    message_handler("Found 0 VPC Endpoints in region {0}".format(self.vpc_options.region_name), "OKBLUE")
+            else:
+            
+                found = 0
+                message = ""
+
+                """ Iterate to get all VPCE filtered """
+                for data in response['VpcEndpoints']:
+
+                    if data['VpcId'] == self.vpc_options.vpc_id:
+                        found += 1
+                        message = message + "\nVpcEndpointId: {} -> VPC id {}".format(
+                            data['VpcEndpointId'],
+                            self.vpc_options.vpc_id
+                            )
+
+                message_handler("Found {0} VPC Endpoints using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+
+        except Exception as e:
+            message = "Can't list VPC ENDPOINTS\nError {0}".format(str(e))
+            exit_critical(message)
+
 """ aliases """
 IGW = INTERNETGATEWAY
 ELB = ELASTICLOADBALANCING
