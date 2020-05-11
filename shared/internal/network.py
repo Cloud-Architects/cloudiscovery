@@ -252,6 +252,45 @@ class SUBNET(object):
             message = "Can't list Subnets\nError {0}".format(str(e))
             exit_critical(message)
 
+class NACL(object):
+    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    def run(self):
+
+        try:
+            client = self.vpc_options.client('ec2')
+
+            filters = [{'Name': 'vpc-id',
+                        'Values': [self.vpc_options.vpc_id]}]
+
+            response = client.describe_network_acls(Filters=filters)
+
+            message_handler("\nChecking NACLs...", "HEADER")
+
+            if len(response['NetworkAcls']) == 0:
+                    message_handler("Found 0 NACL in region {0}".format(self.vpc_options.region_name), "OKBLUE")
+            else:
+            
+                found = 0
+                message = ""
+
+                """ Iterate to get all NACL filtered """
+                for data in response['NetworkAcls']:
+
+                    found += 1
+                    message = message + "\nNetworkAclId: {} -> VPC id {}".format(
+                        data['NetworkAclId'],
+                        self.vpc_options.vpc_id
+                        )
+
+                message_handler("Found {0} NACL using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+
+        except Exception as e:
+            message = "Can't list NACL\nError {0}".format(str(e))
+            exit_critical(message)
+            
 """ aliases """
 IGW = INTERNETGATEWAY
 ELB = ELASTICLOADBALANCING
