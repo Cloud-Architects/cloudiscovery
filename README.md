@@ -21,6 +21,14 @@ Following services are integrated
   - MSK
   - NAT GATEWAY
   - INTERNET GATEWAY (IGW)
+  - CLASSIC/NETWORK/APPLICATION LOAD BALANCING
+  - ROUTE TABLE
+  - SUBNET
+  - NACL
+  - SECURITY GROUP
+  - VPC PEERING
+  - VPC ENDPOINT
+  - EKS
 
 ### News
 

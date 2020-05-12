@@ -67,3 +67,38 @@ class EC2(object):
         except Exception as e:
             message = "Can't list EC2 Instances\nError {0}".format(str(e))
             exit_critical(message)
+
+class EKS(object):
+    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    def run(self):
+        try:
+            client = self.vpc_options.client('eks')
+            
+            response = client.list_clusters()
+            
+            message_handler("\nChecking EKS CLUSTERS...", "HEADER")
+
+            if len(response["clusters"]) == 0:
+                message_handler("Found 0 EKS Clusters in region {0}".format(self.vpc_options.region_name), "OKBLUE")
+            else:
+                found = 0
+                message = ""
+                for data in response["clusters"]:
+
+                    cluster = client.describe_cluster(name=data)
+
+                    if cluster['cluster']['resourcesVpcConfig']['vpcId'] == self.vpc_options.vpc_id:
+                        found += 1
+                        message = message + "\ncluster: {} - VpcId {}".format(
+                            data, 
+                            self.vpc_options.vpc_id
+                        )
+
+                message_handler("Found {0} EKS Clusters using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+        
+        except Exception as e:
+            message = "Can't list EKS Clusters\nError {0}".format(str(e))
+            exit_critical(message)
