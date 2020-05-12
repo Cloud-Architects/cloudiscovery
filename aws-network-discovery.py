@@ -36,7 +36,7 @@ if sys.version_info < (3, 6):
 
 from commands.vpc import Vpc
 
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 AVAILABLE_LANGUAGES = ['en_US','pt_BR']
 
