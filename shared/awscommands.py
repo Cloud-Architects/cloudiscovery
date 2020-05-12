@@ -7,6 +7,7 @@ from shared.internal.database import RDS, ELASTICACHE, DOCUMENTDB
 from shared.internal.storage import EFS, S3POLICY
 from shared.internal.analytics import ELASTICSEARCH, MSK
 from shared.internal.application import SQSPOLICY
+from shared.internal.management import CLOUDFORMATION
 
 
 class AwsCommands(object):
@@ -55,4 +56,7 @@ class AwsCommands(object):
         SG(self.vpc_options).run()
         VPCPEERING(self.vpc_options).run()
         VPCENDPOINT(self.vpc_options).run()
+
+        """ Management resources """
+        CLOUDFORMATION(self.vpc_options).run()
         
