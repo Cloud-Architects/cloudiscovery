@@ -16,7 +16,7 @@ class AwsCommands(object):
         self.vpc_options = vpc_options
 
     def run(self):
-
+        
         """ IAM and VPC validations """
         IAM(self.vpc_options).run()
         VPC(self.vpc_options).run()
