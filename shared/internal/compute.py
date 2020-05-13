@@ -102,3 +102,44 @@ class EKS(object):
         except Exception as e:
             message = "Can't list EKS Clusters\nError {0}".format(str(e))
             exit_critical(message)
+
+class EMR(object):
+    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    def run(self):
+        try:
+            client = self.vpc_options.client('emr')
+            
+            response = client.list_clusters()
+
+            message_handler("\nChecking EMR CLUSTERS...", "HEADER")
+
+            if len(response["Clusters"]) == 0:
+                message_handler("Found 0 EMR Clusters in region {0}".format(self.vpc_options.region_name), "OKBLUE")
+            else:
+                found = 0
+                message = ""
+                for data in response["Clusters"]:
+
+                    cluster = client.describe_cluster(ClusterId=data['Id'])
+
+                    """ Using subnet to check VPC """
+                    ec2 = self.vpc_options.client('ec2')
+                        
+                    subnets = ec2.describe_subnets(SubnetIds=[cluster['Cluster']['Ec2InstanceAttributes']['Ec2SubnetId']])
+
+
+                    if subnets['Subnets'][0]['VpcId'] == self.vpc_options.vpc_id:
+                        found += 1
+                        message = message + "\nClusterId: {} - VpcId {}".format(
+                            data['Id'], 
+                            self.vpc_options.vpc_id
+                        )
+
+                message_handler("Found {0} EMR Clusters using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+        
+        except Exception as e:
+            message = "Can't list EMR Clusters\nError {0}".format(str(e))
+            exit_critical(message)
