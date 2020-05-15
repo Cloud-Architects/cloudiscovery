@@ -387,9 +387,3 @@ class VPCENDPOINT(object):
             message_handler("Found {0} VPC Endpoints using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
 
         return True
-
-""" aliases """
-IGW = INTERNETGATEWAY
-ELB = ELASTICLOADBALANCING
-ELBV2 = ELASTICLOADBALANCINGV2
-SG = SECURITYGROUP

@@ -1,5 +1,6 @@
 from shared.common import *
 from shared.error_handler import exception
+from typing import List
 
 
 class LAMBDA(object):
@@ -40,7 +41,7 @@ class EC2(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
 
@@ -66,7 +67,8 @@ class EC2(object):
                             )
             message_handler("Found {0} EC2 Instances using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
     
-        return True
+        
+        return Resource(id='1',name='2',type='3',details='4')
 
 class EKS(object):
     
@@ -74,7 +76,7 @@ class EKS(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('eks')
         
@@ -100,7 +102,8 @@ class EKS(object):
 
             message_handler("Found {0} EKS Clusters using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
     
-        return True
+        
+        return Resource(id='5', name='6',type='7',details='8')
 
 class EMR(object):
     

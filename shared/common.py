@@ -28,6 +28,14 @@ class VpcOptions(NamedTuple):
     def client(self, service_name: str):
         return self.session.client(service_name, region_name=self.region_name)
 
+class Resource(NamedTuple):
+
+    id: str
+    name: str
+    type: str
+    details: str
+
+
 
 def generate_session(profile_name):
     try:
