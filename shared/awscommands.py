@@ -8,6 +8,7 @@ from shared.internal.storage import EFS, S3POLICY
 from shared.internal.analytics import ELASTICSEARCH, MSK
 from shared.internal.application import SQSPOLICY
 from shared.internal.management import CLOUDFORMATION, CANARIES
+from shared.internal.containers import ECS
 
 
 class AwsCommands(object):
@@ -61,4 +62,7 @@ class AwsCommands(object):
         """ Management resources """
         CLOUDFORMATION(self.vpc_options).run()
         CANARIES(self.vpc_options).run()
+
+        """ Containers """
+        ECS(self.vpc_options).run()
         
