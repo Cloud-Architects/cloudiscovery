@@ -141,3 +141,49 @@ class EMR(object):
             message_handler("Found {0} EMR Clusters using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
 
         return True
+
+class AUTOSCALING(object):
+    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    @exception
+    def run(self):
+
+        client = self.vpc_options.client('autoscaling')
+        
+        response = client.describe_auto_scaling_groups()
+
+        message_handler("\nChecking AUTOSCALING GROUPS...", "HEADER")
+
+        if len(response["AutoScalingGroups"]) == 0:
+            message_handler("Found 0 Autoscaling groups in region {0}".format(self.vpc_options.region_name), "OKBLUE")
+        else:
+            found = 0
+            message = ""
+            for data in response["AutoScalingGroups"]:
+
+                asg_subnets = data['VPCZoneIdentifier'].split(",")
+
+                """ describe subnet to get VpcId """
+                ec2 = self.vpc_options.client('ec2')
+                
+                subnets = ec2.describe_subnets(SubnetIds=asg_subnets)
+
+                """ Iterate subnet to get VPC """
+                for data_subnet in subnets['Subnets']:
+
+                    if data_subnet['VpcId'] == self.vpc_options.vpc_id:
+
+                        found += 1
+                        message = message + "\nAutoScalingGroupName: {} -> LaunchConfigurationName: {} -> VPC id {}".format(
+                            data["AutoScalingGroupName"],
+                            data["LaunchConfigurationName"],
+                            self.vpc_options.vpc_id
+                        )
+
+            message_handler("Found {0} Autoscaling groups using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+
+        return True
+
+ASG = AUTOSCALING

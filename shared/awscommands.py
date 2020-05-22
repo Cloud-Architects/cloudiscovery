@@ -2,7 +2,7 @@ from shared.common import *
 from shared.internal.security import IAM, IAMPOLICY
 from shared.internal.network import VPC, IGW, NATGATEWAY, ELB, ELBV2, ROUTETABLE, SUBNET, NACL, SG, VPCPEERING
 from shared.internal.network import VPCENDPOINT
-from shared.internal.compute import LAMBDA, EC2, EKS, EMR
+from shared.internal.compute import LAMBDA, EC2, EKS, EMR, ASG
 from shared.internal.database import RDS, ELASTICACHE, DOCUMENTDB
 from shared.internal.storage import EFS, S3POLICY
 from shared.internal.analytics import ELASTICSEARCH, MSK
@@ -17,7 +17,7 @@ class AwsCommands(object):
         self.vpc_options = vpc_options
 
     def run(self):
-        
+
         """ IAM and VPC validations """
         IAM(self.vpc_options).run()
         VPC(self.vpc_options).run()
@@ -27,6 +27,7 @@ class AwsCommands(object):
         LAMBDA(self.vpc_options).run()
         EKS(self.vpc_options).run()
         EMR(self.vpc_options).run()
+        ASG(self.vpc_options).run()
 
         """ Database resources """
         RDS(self.vpc_options).run()
