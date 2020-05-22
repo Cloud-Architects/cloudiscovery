@@ -36,7 +36,7 @@ if sys.version_info < (3, 6):
 
 from commands.vpc import Vpc
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 
 AVAILABLE_LANGUAGES = ['en_US','pt_BR']
 
@@ -97,4 +97,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Finishing script...')
+        sys.exit(0)

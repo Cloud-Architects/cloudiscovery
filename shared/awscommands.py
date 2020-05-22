@@ -2,11 +2,13 @@ from shared.common import *
 from shared.internal.security import IAM, IAMPOLICY
 from shared.internal.network import VPC, IGW, NATGATEWAY, ELB, ELBV2, ROUTETABLE, SUBNET, NACL, SG, VPCPEERING
 from shared.internal.network import VPCENDPOINT
-from shared.internal.compute import LAMBDA, EC2, EKS
+from shared.internal.compute import LAMBDA, EC2, EKS, EMR, ASG
 from shared.internal.database import RDS, ELASTICACHE, DOCUMENTDB
 from shared.internal.storage import EFS, S3POLICY
 from shared.internal.analytics import ELASTICSEARCH, MSK
 from shared.internal.application import SQSPOLICY
+from shared.internal.management import CLOUDFORMATION, CANARIES
+from shared.internal.containers import ECS
 
 
 class AwsCommands(object):
@@ -24,6 +26,8 @@ class AwsCommands(object):
         EC2(self.vpc_options).run()
         LAMBDA(self.vpc_options).run()
         EKS(self.vpc_options).run()
+        EMR(self.vpc_options).run()
+        ASG(self.vpc_options).run()
 
         """ Database resources """
         RDS(self.vpc_options).run()
@@ -55,4 +59,11 @@ class AwsCommands(object):
         SG(self.vpc_options).run()
         VPCPEERING(self.vpc_options).run()
         VPCENDPOINT(self.vpc_options).run()
+
+        """ Management resources """
+        CLOUDFORMATION(self.vpc_options).run()
+        CANARIES(self.vpc_options).run()
+
+        """ Containers """
+        ECS(self.vpc_options).run()
         
