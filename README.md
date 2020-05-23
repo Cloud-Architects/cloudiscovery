@@ -29,7 +29,6 @@ Following services are integrated
 - VPC PEERING
 - VPC ENDPOINT
 - EKS
-- CLOUDFORMATION 
 - SYNTHETIC CANARIES
 - EMR 
 - ECS
