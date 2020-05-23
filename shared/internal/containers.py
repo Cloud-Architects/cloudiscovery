@@ -11,6 +11,7 @@ class ECS(object):
     def run(self):
 
         client = self.vpc_options.client('ecs')
+        ec2_client = self.vpc_options.client('ec2')
 
         clusters_list = client.list_clusters()
         response = client.describe_clusters(
@@ -60,6 +61,39 @@ class ECS(object):
                         else:
                             """ EC2 services require container instances, list of them should be fine for now """
                             pass
+
+                """ Looking for container instances - they are dynamically associated, so manual review is necessary """
+                list_paginator = client.get_paginator('list_container_instances')
+                list_pages = list_paginator.paginate(
+                    cluster=data['clusterName']
+                )
+                for list_page in list_pages:
+                    container_instances = client.describe_container_instances(
+                        cluster=data['clusterName'],
+                        containerInstances=list_page['containerInstanceArns']
+                    )
+                    ec2_ids = []
+                    for instance_details in container_instances['containerInstances']:
+                        ec2_ids.append(instance_details['ec2InstanceId'])
+                    paginator = ec2_client.get_paginator('describe_instances')
+                    pages = paginator.paginate(
+                        InstanceIds=ec2_ids
+                    )
+                    for page in pages:
+                        for reservation in page['Reservations']:
+                            for instance in reservation['Instances']:
+                                for network_interfaces in instance['NetworkInterfaces']:
+                                    if network_interfaces['VpcId'] == self.vpc_options.vpc_id:
+                                        found += 1
+                                        message = message + "\nclusterName: {} -> Instance Id: {} -> Subnet id: {} -> VPC id {}".format(
+                                            data["clusterName"],
+                                            instance['InstanceId'],
+                                            network_interfaces['SubnetId'],
+                                            self.vpc_options.vpc_id
+                                        )
+                                    pass
+                            pass
+                        pass
 
 
             message_handler("Found {0} ECS Cluster using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
