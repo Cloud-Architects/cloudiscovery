@@ -15,9 +15,10 @@ class VPC(object):
         )
 
         dataresponse = response['Vpcs'][0]
-        message = "VPC: {0}\nCIDR Block: {1}\nTenancy: {2}".format(self.vpc_options.vpc_id,
+        message = "VPC: {}\nCIDR Block: {}\nTenancy: {}\nIs default: {}".format(self.vpc_options.vpc_id,
                                                                     dataresponse['CidrBlock'], 
-                                                                    dataresponse['InstanceTenancy'])
+                                                                    dataresponse['InstanceTenancy'],
+                                                                    dataresponse['IsDefault'])
         print(message)
 
         return True
@@ -121,8 +122,9 @@ class ELASTICLOADBALANCING(object):
                 if data['VPCId'] == self.vpc_options.vpc_id:
 
                     found += 1
-                    message = message + "\nLoadBalancerName: {} -> VPC id {}".format(
+                    message = message + "\nLoadBalancerName: {} - Subnet id: {} -> VPC id {}".format(
                         data['LoadBalancerName'],
+                        ', '.join(data['Subnets']),
                         self.vpc_options.vpc_id
                         )
 
@@ -154,10 +156,14 @@ class ELASTICLOADBALANCINGV2(object):
             for data in response['LoadBalancers']:
 
                 if data['VpcId'] == self.vpc_options.vpc_id:
+                    subnet_ids = []
+                    for availabilityZone in data['AvailabilityZones']:
+                        subnet_ids.append(availabilityZone['SubnetId'])
 
                     found += 1
                     message = message + "\nLoadBalancerName: {} -> VPC id {}".format(
                         data['LoadBalancerName'],
+                        ', '.join(subnet_ids),
                         self.vpc_options.vpc_id
                         )
 
@@ -230,8 +236,10 @@ class SUBNET(object):
             for data in response['Subnets']:
 
                 found += 1
-                message = message + "\nSubnetId: {} -> VPC id {}".format(
+                message = message + "\nSubnetId: {} - CIDR block: {} - AZ: {} -> VPC id {}".format(
                     data['SubnetId'],
+                    data['CidrBlock'],
+                    data['AvailabilityZone'],
                     self.vpc_options.vpc_id
                     )
 
@@ -265,10 +273,14 @@ class NACL(object):
 
             """ Iterate to get all NACL filtered """
             for data in response['NetworkAcls']:
+                subnet_ids = []
+                for subnet in data['Associations']:
+                    subnet_ids.append(subnet['SubnetId'])
 
                 found += 1
-                message = message + "\nNetworkAclId: {} -> VPC id {}".format(
+                message = message + "\nNetworkAclId: {} -> Subnet Id: {} -> VPC Id: {}".format(
                     data['NetworkAclId'],
+                    ', '.join(subnet_ids),
                     self.vpc_options.vpc_id
                     )
 
@@ -341,9 +353,14 @@ class VPCPEERING(object):
                 or data['RequesterVpcInfo']['VpcId'] == self.vpc_options.vpc_id:
                     
                     found += 1
-                    message = message + "\nVpcPeeringConnectionId: {} -> VPC id {}".format(
+                    message = message + "\nVpcPeeringConnectionId: {} -> Owner: {} - Region: {} - Requester VPC id: {} -> Owner: {} - Region: {} - Accepter VPC id: {}".format(
                         data['VpcPeeringConnectionId'],
-                        self.vpc_options.vpc_id
+                        data['AccepterVpcInfo']['OwnerId'],
+                        data['AccepterVpcInfo']['Region'],
+                        data['AccepterVpcInfo']['VpcId'],
+                        data['RequesterVpcInfo']['OwnerId'],
+                        data['RequesterVpcInfo']['Region'],
+                        data['RequesterVpcInfo']['VpcId']
                         )
 
             message_handler("Found {0} VPC Peering using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
@@ -379,10 +396,20 @@ class VPCENDPOINT(object):
 
                 if data['VpcId'] == self.vpc_options.vpc_id:
                     found += 1
-                    message = message + "\nVpcEndpointId: {} -> VPC id {}".format(
-                        data['VpcEndpointId'],
-                        self.vpc_options.vpc_id
-                        )
+                    if data['VpcEndpointType'] == 'Gateway':
+                        message = message + "\nGateway VpcEndpointId: {} - Service: {} -> Route table Id: {} -> VPC id: {}".format(
+                            data['VpcEndpointId'],
+                            data['ServiceName'],
+                            ', '.join(data['RouteTableIds']),
+                            self.vpc_options.vpc_id
+                            )
+                    else:
+                        message = message + "\nInterface VpcEndpointId: {} - Service: {} -> Subnet Id: {} -> VPC id: {}".format(
+                            data['VpcEndpointId'],
+                            data['ServiceName'],
+                            ', '.join(data['SubnetIds']),
+                            self.vpc_options.vpc_id
+                            )
 
             message_handler("Found {0} VPC Endpoints using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
 

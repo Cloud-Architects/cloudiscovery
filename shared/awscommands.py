@@ -66,4 +66,3 @@ class AwsCommands(object):
 
         """ Containers """
         ECS(self.vpc_options).run()
-        
