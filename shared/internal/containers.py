@@ -62,6 +62,6 @@ class ECS(object):
                             pass
 
 
-            message_handler("Found {0} ECS Cluster using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+            message_handler("Found {0} ECS Cluster relations using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
 
         return True
