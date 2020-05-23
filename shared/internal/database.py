@@ -28,10 +28,15 @@ class RDS(object):
             message = ""
             for data in response["DBInstances"]:
                 if data['DBSubnetGroup']['VpcId'] == self.vpc_options.vpc_id:
+                    subnet_ids = []
+                    for subnet in data['DBSubnetGroup']['Subnets']:
+                        subnet_ids.append(subnet['SubnetIdentifier'])
+
                     found += 1
-                    message = message + "\nDBInstanceIdentifier: {0} - Engine: {1} - VpcId {2}".format(
+                    message = message + "\nDBInstanceIdentifier: {} - Engine: {} -> Subnet id: {} -> VpcId {}".format(
                         data["DBInstanceIdentifier"], 
-                        data["Engine"], 
+                        data["Engine"],
+                        ', '.join(subnet_ids),
                         data['DBSubnetGroup']['VpcId']
                     )
             message_handler("Found {0} RDS Instances using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
@@ -66,11 +71,16 @@ class ELASTICACHE(object):
                 cachesubnet = client.describe_cache_subnet_groups(CacheSubnetGroupName=data['CacheSubnetGroupName'])
 
                 if cachesubnet['CacheSubnetGroups'][0]['VpcId'] == self.vpc_options.vpc_id:
+                    subnet_ids = []
+                    for subnet in cachesubnet['CacheSubnetGroups'][0]['Subnets']:
+                        subnet_ids.append(subnet['SubnetIdentifier'])
+
                     found += 1
-                    message = message + "\nCacheClusterId: {0} - CacheSubnetGroupName: {1} - Engine: {2} - VpcId: {3}".format(
+                    message = message + "\nCacheClusterId: {} - CacheSubnetGroupName: {} - Engine: {} -> Subnet id: {} -> VpcId: {}".format(
                         data["CacheClusterId"],
-                        data["CacheSubnetGroupName"], 
-                        data["Engine"], 
+                        data["CacheSubnetGroupName"],
+                        data["Engine"],
+                        ', '.join(subnet_ids),
                         cachesubnet['CacheSubnetGroups'][0]['VpcId']
                     )
             message_handler("Found {0} Elasticache Clusters using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
@@ -105,11 +115,16 @@ class DOCUMENTDB(object):
             for data in response['DBInstances']:
 
                 if data['DBSubnetGroup']['VpcId'] == self.vpc_options.vpc_id:
+                    subnet_ids = []
+                    for subnet in data['DBSubnetGroup']['Subnets']:
+                        subnet_ids.append(subnet['SubnetIdentifier'])
+
                     found += 1
-                    message = message + "\nDBInstanceIdentifier: {0} - DBInstanceClass: {1} - Engine: {2} - VpcId: {3}".format(
+                    message = message + "\nDBInstanceIdentifier: {} - DBInstanceClass: {} - Engine: {} -> Subnet id: {} -> VpcId: {}".format(
                         data['DBInstanceIdentifier'],
                         data["DBInstanceClass"], 
-                        data["Engine"], 
+                        data["Engine"],
+                        ', '.join(subnet_ids),
                         self.vpc_options.vpc_id
                     )
             message_handler("Found {0} DocumentoDB Instances using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')

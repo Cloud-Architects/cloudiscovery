@@ -58,7 +58,7 @@ class EC2(object):
                     if "VpcId" in instances:
                         if instances['VpcId'] == self.vpc_options.vpc_id:
                             found += 1
-                            message = message + "\nInstanceId: {} - PrivateIpAddress: {} -> Subnet id(s): {} - VpcId {}".format(
+                            message = message + "\nInstanceId: {} - PrivateIpAddress: {} -> Subnet id(s): {} -> VpcId {}".format(
                                 instances["InstanceId"], 
                                 instances["PrivateIpAddress"], 
                                 instances['SubnetId'],
@@ -176,13 +176,14 @@ class AUTOSCALING(object):
                     if data_subnet['VpcId'] == self.vpc_options.vpc_id:
 
                         found += 1
-                        message = message + "\nAutoScalingGroupName: {} -> LaunchConfigurationName: {} -> VPC id {}".format(
+                        message = message + "\nAutoScalingGroupName: {} -> LaunchConfigurationName: {} -> subnet: {} -> VPC id {}".format(
                             data["AutoScalingGroupName"],
                             data["LaunchConfigurationName"],
+                            data_subnet["SubnetId"],
                             self.vpc_options.vpc_id
                         )
 
-            message_handler("Found {0} Autoscaling groups using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+            message_handler("Found {0} Autoscaling groups associations using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
 
         return True
 
