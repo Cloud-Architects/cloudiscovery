@@ -7,7 +7,7 @@ from shared.internal.database import RDS, ELASTICACHE, DOCUMENTDB
 from shared.internal.storage import EFS, S3POLICY
 from shared.internal.analytics import ELASTICSEARCH, MSK
 from shared.internal.application import SQSPOLICY
-from shared.internal.management import CLOUDFORMATION, CANARIES
+from shared.internal.management import CANARIES
 from shared.internal.containers import ECS
 
 
@@ -61,7 +61,6 @@ class AwsCommands(object):
         VPCENDPOINT(self.vpc_options).run()
 
         """ Management resources """
-        CLOUDFORMATION(self.vpc_options).run()
         CANARIES(self.vpc_options).run()
 
         """ Containers """
