@@ -36,7 +36,7 @@ class ELASTICSEARCH(object):
                 if elasticsearch_domain['DomainStatus']['VPCOptions']['VPCId'] == self.vpc_options.vpc_id \
                 or ipvpc_found is True:
                     found += 1
-                    message = message + "\nDomainId: {0} - DomainName: {1} - VpcId {2}".format(
+                    message = message + "\nDomainId: {0} - DomainName: {1} -> VPC Id: {2}".format(
                         elasticsearch_domain['DomainStatus']['DomainId'], 
                         elasticsearch_domain['DomainStatus']['DomainName'], 
                         self.vpc_options.vpc_id
