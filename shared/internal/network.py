@@ -87,8 +87,11 @@ class NATGATEWAY(object):
                 if data['VpcId'] == self.vpc_options.vpc_id:
 
                     found += 1
-                    message = message + "\nNatGatewayId: {} -> VPC id {}".format(
+                    message = message + "\nNatGatewayId: {} -> Private IP {} - Public IP {} -> Subnet Id: {} -> VPC id {}".format(
                         data['NatGatewayId'],
+                        data['NatGatewayAddresses'][0]['PrivateIp'],
+                        data['NatGatewayAddresses'][0]['PublicIp'],
+                        data['SubnetId'],
                         self.vpc_options.vpc_id
                         )
 

@@ -29,7 +29,6 @@ Following services are integrated
 - VPC PEERING
 - VPC ENDPOINT
 - EKS
-- CLOUDFORMATION 
 - SYNTHETIC CANARIES
 - EMR 
 - ECS
@@ -63,12 +62,14 @@ arn:aws:iam::aws:policy/job-function/ViewOnlyAccess
 arn:aws:iam::aws:policy/SecurityAudit
 ```
 
+- (Optional) If you want to be able to switch between multiple AWS credentials and settings, you can configure [named profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) and later pass profile name when running the tool.
+
 ### Usage
 
 1. Run the aws-network-discovery command with follow options (if a region not informed, this script will try to get from ~/.aws/credentials):
 
 ```sh
-$ ./aws-network-discovery.py --vpc-id vpc-xxxxxxx --region-name xx-xxxx-xxx
+$ ./aws-network-discovery.py --vpc-id vpc-xxxxxxx --region-name xx-xxxx-xxx [--profile-name profile]
 ```
 
 2. For help use:
