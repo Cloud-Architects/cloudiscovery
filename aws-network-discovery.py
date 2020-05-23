@@ -56,7 +56,7 @@ def show_options(args="sys.argv[1:]"):
                         )
     parser.add_argument(
                         "-p",
-                        "--profile_name",
+                        "--profile-name",
                         required=False,
                         help="Profile to be used"
                         )
