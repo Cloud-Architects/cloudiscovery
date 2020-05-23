@@ -53,9 +53,10 @@ class ECS(object):
                                 if data_subnet['VpcId'] == self.vpc_options.vpc_id:
 
                                     found += 1
-                                    message = message + "\nclusterName: {} -> ServiceName: {} -> VPC id {}".format(
+                                    message = message + "\nclusterName: {} -> ServiceName: {} -> Subnet Id: {} -> VPC id {}".format(
                                         data["clusterName"],
                                         data_service_detail['serviceName'],
+                                        data_subnet['SubnetId'],
                                         self.vpc_options.vpc_id
                                     )
                         else:
@@ -68,6 +69,9 @@ class ECS(object):
                     cluster=data['clusterName']
                 )
                 for list_page in list_pages:
+                    if len(list_page['containerInstanceArns']) == 0:
+                        continue
+
                     container_instances = client.describe_container_instances(
                         cluster=data['clusterName'],
                         containerInstances=list_page['containerInstanceArns']
