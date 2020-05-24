@@ -1,5 +1,6 @@
 from shared.common import *
 from shared.error_handler import exception
+from typing import List
 
 class VPC(object):
     
@@ -29,34 +30,28 @@ class INTERNETGATEWAY(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
+
+        resources_found = []
 
         filters = [{'Name': 'attachment.vpc-id',
                     'Values': [self.vpc_options.vpc_id]}]
 
         response = client.describe_internet_gateways(Filters=filters)
 
-        message_handler("\nChecking INTERNET GATEWAYS...", "HEADER")
+        message_handler("Collecting data from INTERNET GATEWAYS...", "HEADER")
 
         """ One VPC has only 1 IGW then it's a direct check """
-        if len(response["InternetGateways"]) == 0:
-                message_handler("Found 0 Internet Gateway in region {0}".format(self.vpc_options.region_name), "OKBLUE")
-        else:
-        
-            found = 1
+        if len(response["InternetGateways"]) > 0:
 
-            message = "\nInternetGatewayId: {} -> VPC id {}".format(
-                        response['InternetGateways'][0]['InternetGatewayId'],
-                        self.vpc_options.vpc_id
-                        )
-            
-            message_handler("Found {0} Internet Gateway using VPC {1} {2}".format(str(found), \
-                                                                                self.vpc_options.vpc_id, message), \
-                                                                                'OKBLUE')
+            resources_found.append(Resource(id=response['InternetGateways'][0]['InternetGatewayId'],
+                                            name=response['InternetGateways'][0]['InternetGatewayId'],
+                                            type='aws_internet_gateway',
+                                            details=''))
 
-        return True
+        return resources_found
 
 class NATGATEWAY(object):
     
@@ -64,40 +59,34 @@ class NATGATEWAY(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
+
+        resources_found = []
 
         filters = [{'Name': 'vpc-id',
                     'Values': [self.vpc_options.vpc_id]}]
 
         response = client.describe_nat_gateways(Filters=filters)
 
-        message_handler("\nChecking NAT GATEWAYS...", "HEADER")
+        message_handler("Collecting data from NAT GATEWAYS...", "HEADER")
 
-        if len(response["NatGateways"]) == 0:
-                message_handler("Found 0 NAT Gateways in region {0}".format(self.vpc_options.region_name), "OKBLUE")
-        else:
-        
-            found = 0
-            message = ""
+        if len(response["NatGateways"]) > 0:
 
             for data in response["NatGateways"]:
 
                 if data['VpcId'] == self.vpc_options.vpc_id:
 
-                    found += 1
-                    message = message + "\nNatGatewayId: {} -> Private IP {} - Public IP {} -> Subnet Id: {} -> VPC id {}".format(
-                        data['NatGatewayId'],
-                        data['NatGatewayAddresses'][0]['PrivateIp'],
-                        data['NatGatewayAddresses'][0]['PublicIp'],
-                        data['SubnetId'],
-                        self.vpc_options.vpc_id
-                        )
+                    resources_found.append(Resource(id=data['NatGatewayId'],
+                                                    name=data['NatGatewayId'],
+                                                    type='aws_nat_gateway',
+                                                    details='NAT Gateway Private IP {}, Public IP {}, Subnet id {}' \
+                                                    .format(data['NatGatewayAddresses'][0]['PrivateIp'],
+                                                            data['NatGatewayAddresses'][0]['PublicIp'],
+                                                            data['SubnetId'])))
 
-            message_handler("Found {0} NAT Gateways using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
-
-        return True
+        return resources_found
 
 class ELASTICLOADBALANCING(object):
     
@@ -105,35 +94,28 @@ class ELASTICLOADBALANCING(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('elb')
 
+        resources_found = []
+
         response = client.describe_load_balancers()
 
-        message_handler("\nChecking CLASSIC LOAD BALANCING...", "HEADER")
+        message_handler("Collecting data from CLASSIC LOAD BALANCING...", "HEADER")
 
-        if len(response['LoadBalancerDescriptions']) == 0:
-                message_handler("Found 0 Classic Load Balancing in region {0}".format(self.vpc_options.region_name), "OKBLUE")
-        else:
-        
-            found = 0
-            message = ""
+        if len(response['LoadBalancerDescriptions']) > 0:
 
             for data in response['LoadBalancerDescriptions']:
 
                 if data['VPCId'] == self.vpc_options.vpc_id:
 
-                    found += 1
-                    message = message + "\nLoadBalancerName: {} - Subnet id: {} -> VPC id {}".format(
-                        data['LoadBalancerName'],
-                        ', '.join(data['Subnets']),
-                        self.vpc_options.vpc_id
-                        )
+                    resources_found.append(Resource(id=data['LoadBalancerName'],
+                                                    name=data['LoadBalancerName'],
+                                                    type='aws_elb_classic',
+                                                    details=''))
 
-            message_handler("Found {0} Classic Load Balancing using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
-
-        return True
+        return resources_found
 
 class ELASTICLOADBALANCINGV2(object):
     
@@ -141,20 +123,17 @@ class ELASTICLOADBALANCINGV2(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('elbv2')
 
+        resources_found = []
+
         response = client.describe_load_balancers()
 
-        message_handler("\nChecking APPLICATION LOAD BALANCING...", "HEADER")
+        message_handler("Collecting data from APPLICATION LOAD BALANCING...", "HEADER")
 
-        if len(response['LoadBalancers']) == 0:
-                message_handler("Found 0 Application Load Balancing in region {0}".format(self.vpc_options.region_name), "OKBLUE")
-        else:
-        
-            found = 0
-            message = ""
+        if len(response['LoadBalancers']) > 0:
 
             for data in response['LoadBalancers']:
 
@@ -163,16 +142,12 @@ class ELASTICLOADBALANCINGV2(object):
                     for availabilityZone in data['AvailabilityZones']:
                         subnet_ids.append(availabilityZone['SubnetId'])
 
-                    found += 1
-                    message = message + "\nLoadBalancerName: {} -> VPC id {}".format(
-                        data['LoadBalancerName'],
-                        ', '.join(subnet_ids),
-                        self.vpc_options.vpc_id
-                        )
+                    resources_found.append(Resource(id=data['LoadBalancerName'],
+                                                    name=data['LoadBalancerName'],
+                                                    type='aws_elb',
+                                                    details=''))
 
-            message_handler("Found {0} Application Load Balancing using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
-
-        return True
+        return resources_found
 
 class ROUTETABLE(object):
     
@@ -180,36 +155,30 @@ class ROUTETABLE(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
+
+        resources_found = []
 
         filters = [{'Name': 'vpc-id',
                     'Values': [self.vpc_options.vpc_id]}]
 
         response = client.describe_route_tables(Filters=filters)
 
-        message_handler("\nChecking ROUTE TABLES...", "HEADER")
+        message_handler("Collecting data from ROUTE TABLES...", "HEADER")
 
-        if len(response['RouteTables']) == 0:
-                message_handler("Found 0 Route Table in region {0}".format(self.vpc_options.region_name), "OKBLUE")
-        else:
-        
-            found = 0
-            message = ""
+        if len(response['RouteTables']) > 0:
 
             """ Iterate to get all route table filtered """
             for data in response['RouteTables']:
 
-                found += 1
-                message = message + "\nRouteTableId: {} -> VPC id {}".format(
-                    data['RouteTableId'],
-                    self.vpc_options.vpc_id
-                    )
+                resources_found.append(Resource(id=data['RouteTableId'],
+                                                name=data['RouteTableId'],
+                                                type='aws_route_table',
+                                                details=''))
 
-            message_handler("Found {0} Route Tables using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
-
-        return True
+        return resources_found
 
 class SUBNET(object):
     
@@ -217,38 +186,31 @@ class SUBNET(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
+
+        resources_found = []
 
         filters = [{'Name': 'vpc-id',
                     'Values': [self.vpc_options.vpc_id]}]
 
         response = client.describe_subnets(Filters=filters)
 
-        message_handler("\nChecking SUBNETS...", "HEADER")
+        message_handler("Collecting data from SUBNETS...", "HEADER")
 
-        if len(response['Subnets']) == 0:
-                message_handler("Found 0 Subnets in region {0}".format(self.vpc_options.region_name), "OKBLUE")
-        else:
-        
-            found = 0
-            message = ""
+        if len(response['Subnets']) > 0:
 
             """ Iterate to get all route table filtered """
             for data in response['Subnets']:
 
-                found += 1
-                message = message + "\nSubnetId: {} - CIDR block: {} - AZ: {} -> VPC id {}".format(
-                    data['SubnetId'],
-                    data['CidrBlock'],
-                    data['AvailabilityZone'],
-                    self.vpc_options.vpc_id
-                    )
+                resources_found.append(Resource(id=data['SubnetId'],
+                                                name=data['SubnetId'],
+                                                type='aws_subnet',
+                                                details='Subnet using CidrBlock {} and AZ {}' \
+                                                .format(data['CidrBlock'], data['AvailabilityZone'])))
 
-            message_handler("Found {0} Subnets using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
-
-        return True
+        return resources_found
 
 class NACL(object):
     
@@ -256,23 +218,20 @@ class NACL(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
+
+        resources_found = []
 
         filters = [{'Name': 'vpc-id',
                     'Values': [self.vpc_options.vpc_id]}]
 
         response = client.describe_network_acls(Filters=filters)
 
-        message_handler("\nChecking NACLs...", "HEADER")
+        message_handler("Collecting data from NACLs...", "HEADER")
 
-        if len(response['NetworkAcls']) == 0:
-                message_handler("Found 0 NACL in region {0}".format(self.vpc_options.region_name), "OKBLUE")
-        else:
-        
-            found = 0
-            message = ""
+        if len(response['NetworkAcls']) > 0:
 
             """ Iterate to get all NACL filtered """
             for data in response['NetworkAcls']:
@@ -280,16 +239,13 @@ class NACL(object):
                 for subnet in data['Associations']:
                     subnet_ids.append(subnet['SubnetId'])
 
-                found += 1
-                message = message + "\nNetworkAclId: {} -> Subnet Id: {} -> VPC Id: {}".format(
-                    data['NetworkAclId'],
-                    ', '.join(subnet_ids),
-                    self.vpc_options.vpc_id
-                    )
+                resources_found.append(Resource(id=data['NetworkAclId'],
+                                                name=data['NetworkAclId'],
+                                                type='aws_network_acl',
+                                                details='NACL using Subnets {}' \
+                                                .format(', '.join(subnet_ids))))
 
-            message_handler("Found {0} NACL using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
-
-        return True
+        return resources_found
 
 class SECURITYGROUP(object):
     
@@ -297,36 +253,31 @@ class SECURITYGROUP(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
+
+        resources_found = []
 
         filters = [{'Name': 'vpc-id',
                     'Values': [self.vpc_options.vpc_id]}]
 
         response = client.describe_security_groups(Filters=filters)
 
-        message_handler("\nChecking SECURITY GROUPS...", "HEADER")
+        message_handler("Collecting data from SECURITY GROUPS...", "HEADER")
 
-        if len(response['SecurityGroups']) == 0:
-                message_handler("Found 0 Security Group in region {0}".format(self.vpc_options.region_name), "OKBLUE")
-        else:
-        
-            found = 0
-            message = ""
+        if len(response['SecurityGroups']) > 0:
 
             """ Iterate to get all SG filtered """
             for data in response['SecurityGroups']:
 
-                found += 1
-                message = message + "\nGroupName: {} -> VPC id {}".format(
-                    data['GroupName'],
-                    self.vpc_options.vpc_id
-                    )
+                resources_found.append(Resource(id=data['GroupId'],
+                                                name=data['GroupName'],
+                                                type='aws_security_group',
+                                                details=''))
 
-            message_handler("Found {0} Security Groups using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
 
-        return True
+        return resources_found
 
 class VPCPEERING(object):
     
@@ -334,41 +285,36 @@ class VPCPEERING(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
 
+        resources_found = []
+
         response = client.describe_vpc_peering_connections()
 
-        message_handler("\nChecking VPC PEERING...", "HEADER")
+        message_handler("Collecting data from VPC PEERING...", "HEADER")
 
-        if len(response['VpcPeeringConnections']) == 0:
-                message_handler("Found 0 VPC Peering in region {0}".format(self.vpc_options.region_name), "OKBLUE")
-        else:
-        
-            found = 0
-            message = ""
-
+        if len(response['VpcPeeringConnections']) > 0:
+                
             """ Iterate to get all vpc peering and check either accepter or requester """
             for data in response['VpcPeeringConnections']:
 
                 if data['AccepterVpcInfo']['VpcId'] == self.vpc_options.vpc_id \
                 or data['RequesterVpcInfo']['VpcId'] == self.vpc_options.vpc_id:
                     
-                    found += 1
-                    message = message + "\nVpcPeeringConnectionId: {} -> Owner: {} - Region: {} - Requester VPC id: {} -> Owner: {} - Region: {} - Accepter VPC id: {}".format(
-                        data['VpcPeeringConnectionId'],
-                        data['AccepterVpcInfo']['OwnerId'],
-                        data['AccepterVpcInfo']['Region'],
-                        data['AccepterVpcInfo']['VpcId'],
-                        data['RequesterVpcInfo']['OwnerId'],
-                        data['RequesterVpcInfo']['Region'],
-                        data['RequesterVpcInfo']['VpcId']
-                        )
-
-            message_handler("Found {0} VPC Peering using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
-
-        return True
+                    resources_found.append(Resource(id=data['VpcPeeringConnectionId'],
+                                                    name=data['VpcPeeringConnectionId'],
+                                                    type='aws_vpc_peering_connection',
+                                                    details='Vpc Peering Accepter OwnerId {}, Accepter Region {}, Accepter VpcId {} \
+                                                             Requester OwnerId {}, Requester Region {}, Requester VpcId' \
+                                                            .format(data['AccepterVpcInfo']['OwnerId'],
+                                                                    data['AccepterVpcInfo']['Region'],
+                                                                    data['AccepterVpcInfo']['VpcId'],
+                                                                    data['RequesterVpcInfo']['OwnerId'],
+                                                                    data['RequesterVpcInfo']['Region'],
+                                                                    data['RequesterVpcInfo']['VpcId'])))
+        return resources_found
 
 class VPCENDPOINT(object):
     
@@ -376,23 +322,20 @@ class VPCENDPOINT(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
+
+        resources_found = []
 
         filters = [{'Name': 'vpc-id',
                     'Values': [self.vpc_options.vpc_id]}]
 
         response = client.describe_vpc_endpoints(Filters=filters)
 
-        message_handler("\nChecking VPC ENDPOINTS...", "HEADER")
+        message_handler("Collecting data from VPC ENDPOINTS...", "HEADER")
 
-        if len(response['VpcEndpoints']) == 0:
-                message_handler("Found 0 VPC Endpoints in region {0}".format(self.vpc_options.region_name), "OKBLUE")
-        else:
-        
-            found = 0
-            message = ""
+        if len(response['VpcEndpoints']) > 0:
 
             """ Iterate to get all VPCE filtered """
             for data in response['VpcEndpoints']:
@@ -400,20 +343,16 @@ class VPCENDPOINT(object):
                 if data['VpcId'] == self.vpc_options.vpc_id:
                     found += 1
                     if data['VpcEndpointType'] == 'Gateway':
-                        message = message + "\nGateway VpcEndpointId: {} - Service: {} -> Route table Id: {} -> VPC id: {}".format(
-                            data['VpcEndpointId'],
-                            data['ServiceName'],
-                            ', '.join(data['RouteTableIds']),
-                            self.vpc_options.vpc_id
-                            )
+                        resources_found.append(Resource(id=data['VpcEndpointId'],
+                                                        name=data['ServiceName'],
+                                                        type='aws_vpc_endpoint_gateway',
+                                                        details='Vpc Endpoint Gateway RouteTable {}' \
+                                                        .format(', '.join(data['RouteTableIds']))))
                     else:
-                        message = message + "\nInterface VpcEndpointId: {} - Service: {} -> Subnet Id: {} -> VPC id: {}".format(
-                            data['VpcEndpointId'],
-                            data['ServiceName'],
-                            ', '.join(data['SubnetIds']),
-                            self.vpc_options.vpc_id
-                            )
+                        resources_found.append(Resource(id=data['VpcEndpointId'],
+                                                        name=data['ServiceName'],
+                                                        type='aws_vpc_endpoint_gateway',
+                                                        details='Vpc Endpoint Service Subnet {}' \
+                                                        .format(', '.join(data['SubnetIds']))))
 
-            message_handler("Found {0} VPC Endpoints using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
-
-        return True
+        return resources_found
