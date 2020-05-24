@@ -342,7 +342,6 @@ class VPCENDPOINT(object):
             for data in response['VpcEndpoints']:
 
                 if data['VpcId'] == self.vpc_options.vpc_id:
-                    found += 1
                     if data['VpcEndpointType'] == 'Gateway':
                         resources_found.append(Resource(id=data['VpcEndpointId'],
                                                         name=data['ServiceName'],

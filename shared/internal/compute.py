@@ -54,9 +54,13 @@ class EC2(object):
                 for instances in data['Instances']:
                     if "VpcId" in instances:
                         if instances['VpcId'] == self.vpc_options.vpc_id:
+                            instance_name = instances["InstanceId"]
+                            for tag in instances['Tags']:
+                                if tag['Key'] == 'Name':
+                                    instance_name = tag['Value']
 
                             resources_found.append(Resource(id=instances['InstanceId'],
-                                                            name=instances["InstanceId"],
+                                                            name=instance_name,
                                                             type='aws_instance',
                                                             details=''))
                             
