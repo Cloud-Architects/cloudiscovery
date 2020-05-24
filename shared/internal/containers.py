@@ -57,7 +57,8 @@ class ECS(object):
                                         resources_found.append(Resource(id=data['clusterArn'],
                                                                         name=data["clusterName"],
                                                                         type='aws_ecs_cluster',
-                                                                        details=''))
+                                                                        details='',
+                                                                        group='container'))
                             else:
                                 """ EC2 services require container instances, list of them should be fine for now """
                                 pass
@@ -91,7 +92,8 @@ class ECS(object):
                                         resources_found.append(Resource(id=instance['InstanceId'],
                                                                         name=data["clusterName"],
                                                                         type='aws_ecs_cluster',
-                                                                        details='Instance in EC2 cluster'))
+                                                                        details='Instance in EC2 cluster',
+                                                                        group='container'))
                                     pass
                             pass
                         pass

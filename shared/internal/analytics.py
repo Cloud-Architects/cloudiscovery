@@ -39,7 +39,8 @@ class ELASTICSEARCH(object):
                     resources_found.append(Resource(id=elasticsearch_domain['DomainStatus']['DomainId'],
                                                     name=elasticsearch_domain['DomainStatus']['DomainName'],
                                                     type='aws_elasticsearch_domain',
-                                                    details=''))
+                                                    details='',
+                                                    group='analytics'))
                     
         return resources_found
 
@@ -81,7 +82,8 @@ class MSK(object):
                         resources_found.append(Resource(id=data['ClusterArn'],
                                                         name=data['ClusterName'],
                                                         type='aws_msk_cluster',
-                                                        details=''))
+                                                        details='',
+                                                        group='analytics'))
                         
                         break
         return resources_found

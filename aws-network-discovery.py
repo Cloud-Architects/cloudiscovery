@@ -39,6 +39,7 @@ from commands.vpc import Vpc
 __version__ = "0.7.0"
 
 AVAILABLE_LANGUAGES = ['en_US','pt_BR']
+DIAGRAMS_OPTIONS = ['True','False']
 
 def show_options(args="sys.argv[1:]"):
     parser = argparse.ArgumentParser()
@@ -66,6 +67,13 @@ def show_options(args="sys.argv[1:]"):
                         required=False,
                         help="available languages: pt_BR, en_US"
                         )
+    parser.add_argument(
+                        "-d",
+                        "--diagram",
+                        required=False,
+                        help="print diagram with resources (need Graphviz installed). Use options \"True\" to " \
+                             "view image or \"False\" to save image to disk. Default True"
+                        )
     args = parser.parse_args()
 
     return args
@@ -85,6 +93,11 @@ def main():
     else:
         language = args.language
 
+    """ Diagram check """
+    if args.diagram is not None and args.diagram not in DIAGRAMS_OPTIONS:
+        diagram = "True"
+    else:
+        diagram = args.diagram
 
     """ defining default language to show messages """
     defaultlanguage = gettext.translation('messages', localedir='locales', languages=[language])
@@ -92,7 +105,10 @@ def main():
     _ = defaultlanguage.gettext 
 
 
-    vpc = Vpc(vpc_id=args.vpc_id, region_name=args.region_name, profile_name=args.profile_name)
+    vpc = Vpc(vpc_id=args.vpc_id, 
+              region_name=args.region_name, 
+              profile_name=args.profile_name,
+              diagram=diagram)
     vpc.run()
 
 

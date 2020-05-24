@@ -71,6 +71,7 @@ class IAMPOLICY(object):
             return True, Resource(id=data['Arn'],
                                   name=data['PolicyName'],
                                   type='aws_iam_policy',
-                                  details='IAM Policy version {}'.format(data['DefaultVersionId']))
+                                  details='IAM Policy version {}'.format(data['DefaultVersionId']),
+                                  group='security')
             
         return False, None

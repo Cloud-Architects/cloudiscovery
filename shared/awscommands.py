@@ -2,6 +2,7 @@ from shared.common import *
 from shared.internal.security import IAM
 from shared.internal.network import VPC
 from shared.report import Report
+from shared.diagram import _Diagram
 import importlib, inspect
 import os
 
@@ -9,8 +10,9 @@ PATH_CHECKS = "shared/internal"
 
 class AwsCommands(object):
 
-    def __init__(self, vpc_options: VpcOptions):
+    def __init__(self, vpc_options: VpcOptions, diagram):
         self.vpc_options = vpc_options
+        self.diagram = diagram
 
     def run(self):
 
@@ -49,9 +51,10 @@ class AwsCommands(object):
         Report(resources=resources_check).generalReport()
 
         """ 
-        TODO: Generate diagrams... future...
+        Diagram integration
         """
-        #....diagrams(checks)....
+        if self.diagram is not None:
+            _Diagram(vpc_id=self.vpc_options.vpc_id, diagram=self.diagram, resources=resources_check).generateDiagram()
 
         """
         TODO: Export in csv/json/yaml/tf... future...

@@ -34,6 +34,7 @@ class Resource(NamedTuple):
     name: str
     type: str
     details: str
+    group: str
 
 
 

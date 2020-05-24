@@ -36,7 +36,8 @@ class RDS(object):
                                                     name=data["DBInstanceIdentifier"],
                                                     type='aws_db_instance',
                                                     details='DBInstance using subnets {} and engine {}'\
-                                                    .format(', '.join(subnet_ids), data["Engine"])))
+                                                    .format(', '.join(subnet_ids), data["Engine"]),
+                                                    group='database'))
 
         return resources_found
 
@@ -74,7 +75,8 @@ class ELASTICACHE(object):
                                                     name=data["CacheSubnetGroupName"],
                                                     type='aws_elasticache_cluster',
                                                     details='Elasticache Cluster using subnets {} and engine {}' \
-                                                    .format(', '.join(subnet_ids), data["Engine"])))
+                                                    .format(', '.join(subnet_ids), data["Engine"]),
+                                                    group='database'))
                     
         return resources_found
 
@@ -112,6 +114,7 @@ class DOCUMENTDB(object):
                                                     name=data["DBInstanceIdentifier"],
                                                     type='aws_docdb_cluster',
                                                     details='Documentdb using subnets {} and engine {}'\
-                                                    .format(', '.join(subnet_ids), data["Engine"])))
+                                                    .format(', '.join(subnet_ids), data["Engine"]),
+                                                    group='database'))
                     
         return resources_found

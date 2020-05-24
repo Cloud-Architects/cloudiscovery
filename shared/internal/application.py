@@ -55,6 +55,7 @@ class SQSPOLICY(object):
                     return True, Resource(id=queuearn,
                                            name=queue,
                                            type='aws_sqs_queue_policy',
-                                           details='')
+                                           details='',
+                                           group='application')
 
         return False, None

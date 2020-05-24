@@ -31,6 +31,7 @@ class SYNTHETICSCANARIES(object):
                         resources_found.append(Resource(id=data['Id'],
                                                         name=data["Name"],
                                                         type='aws_canaries_function',
-                                                        details=''))
+                                                        details='',
+                                                        group='management'))
 
         return resources_found

@@ -41,7 +41,8 @@ class EFS(object):
                         resources_found.append(Resource(id=data['FileSystemId'],
                                                         name=data['Name'],
                                                         type='aws_efs_file_system',
-                                                        details=''))
+                                                        details='',
+                                                        group='storage'))
 
         return resources_found
 
@@ -88,7 +89,8 @@ class S3POLICY(object):
                 return True, Resource(id=data['Name'],
                                       name=data['Name'],
                                       type='aws_s3_bucket_policy',
-                                      details='')
+                                      details='',
+                                      group='storage')
         except:
             pass
         return False, None

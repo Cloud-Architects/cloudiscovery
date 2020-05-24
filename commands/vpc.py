@@ -4,10 +4,11 @@ from shared.common import *
 
 class Vpc(object):
 
-    def __init__(self, vpc_id, region_name, profile_name):
+    def __init__(self, vpc_id, region_name, profile_name, diagram):
         self.vpc_id = vpc_id
         self.region_name = region_name
         self.profile_name = profile_name
+        self.diagram = diagram
 
     def run(self):
 
@@ -29,10 +30,12 @@ class Vpc(object):
             vpcs = client.describe_vpcs()
             for data in vpcs['Vpcs']:
                 """ init class awscommands """
-                awscommands = AwsCommands(VpcOptions(session=session, vpc_id=data['VpcId'], region_name=region_name)).run()
+                awscommands = AwsCommands(VpcOptions(session=session, vpc_id=data['VpcId'], region_name=region_name),
+                                                     diagram=self.diagram).run()
         else:
             """ init class awscommands """
-            awscommands = AwsCommands(VpcOptions(session=session, vpc_id=self.vpc_id, region_name=region_name)).run()
+            awscommands = AwsCommands(VpcOptions(session=session, vpc_id=self.vpc_id, region_name=region_name),
+                                                 diagram=self.diagram).run()
 
 
         

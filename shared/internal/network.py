@@ -50,7 +50,8 @@ class INTERNETGATEWAY(object):
             resources_found.append(Resource(id=response['InternetGateways'][0]['InternetGatewayId'],
                                             name=response['InternetGateways'][0]['InternetGatewayId'],
                                             type='aws_internet_gateway',
-                                            details=''))
+                                            details='',
+                                            group='network'))
 
         return resources_found
 
@@ -85,7 +86,8 @@ class NATGATEWAY(object):
                                                     details='NAT Gateway Private IP {}, Public IP {}, Subnet id {}' \
                                                     .format(data['NatGatewayAddresses'][0]['PrivateIp'],
                                                             data['NatGatewayAddresses'][0]['PublicIp'],
-                                                            data['SubnetId'])))
+                                                            data['SubnetId']),
+                                                    group='network'))
 
         return resources_found
 
@@ -114,7 +116,8 @@ class ELASTICLOADBALANCING(object):
                     resources_found.append(Resource(id=data['LoadBalancerName'],
                                                     name=data['LoadBalancerName'],
                                                     type='aws_elb_classic',
-                                                    details=''))
+                                                    details='',
+                                                    group='network'))
 
         return resources_found
 
@@ -146,7 +149,8 @@ class ELASTICLOADBALANCINGV2(object):
                     resources_found.append(Resource(id=data['LoadBalancerName'],
                                                     name=data['LoadBalancerName'],
                                                     type='aws_elb',
-                                                    details=''))
+                                                    details='',
+                                                    group='network'))
 
         return resources_found
 
@@ -177,7 +181,8 @@ class ROUTETABLE(object):
                 resources_found.append(Resource(id=data['RouteTableId'],
                                                 name=data['RouteTableId'],
                                                 type='aws_route_table',
-                                                details=''))
+                                                details='',
+                                                group='network'))
 
         return resources_found
 
@@ -209,7 +214,8 @@ class SUBNET(object):
                                                 name=data['SubnetId'],
                                                 type='aws_subnet',
                                                 details='Subnet using CidrBlock {} and AZ {}' \
-                                                .format(data['CidrBlock'], data['AvailabilityZone'])))
+                                                .format(data['CidrBlock'], data['AvailabilityZone']),
+                                                group='network'))
 
         return resources_found
 
@@ -244,7 +250,8 @@ class NACL(object):
                                                 name=data['NetworkAclId'],
                                                 type='aws_network_acl',
                                                 details='NACL using Subnets {}' \
-                                                .format(', '.join(subnet_ids))))
+                                                .format(', '.join(subnet_ids)),
+                                                group='network'))
 
         return resources_found
 
@@ -275,7 +282,8 @@ class SECURITYGROUP(object):
                 resources_found.append(Resource(id=data['GroupId'],
                                                 name=data['GroupName'],
                                                 type='aws_security_group',
-                                                details=''))
+                                                details='',
+                                                group='network'))
 
 
         return resources_found
@@ -314,7 +322,8 @@ class VPCPEERING(object):
                                                                     data['AccepterVpcInfo']['VpcId'],
                                                                     data['RequesterVpcInfo']['OwnerId'],
                                                                     data['RequesterVpcInfo']['Region'],
-                                                                    data['RequesterVpcInfo']['VpcId'])))
+                                                                    data['RequesterVpcInfo']['VpcId']),
+                                                    group='network'))
         return resources_found
 
 class VPCENDPOINT(object):
@@ -347,12 +356,14 @@ class VPCENDPOINT(object):
                                                         name=data['ServiceName'],
                                                         type='aws_vpc_endpoint_gateway',
                                                         details='Vpc Endpoint Gateway RouteTable {}' \
-                                                        .format(', '.join(data['RouteTableIds']))))
+                                                        .format(', '.join(data['RouteTableIds'])),
+                                                        group='network'))
                     else:
                         resources_found.append(Resource(id=data['VpcEndpointId'],
                                                         name=data['ServiceName'],
                                                         type='aws_vpc_endpoint_gateway',
                                                         details='Vpc Endpoint Service Subnet {}' \
-                                                        .format(', '.join(data['SubnetIds']))))
+                                                        .format(', '.join(data['SubnetIds'])),
+                                                        group='network'))
 
         return resources_found

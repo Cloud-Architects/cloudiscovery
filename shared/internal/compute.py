@@ -27,7 +27,8 @@ class LAMBDA(object):
                     resources_found.append(Resource(id=data['FunctionArn'],
                                           name=data["FunctionName"],
                                           type='aws_lambda_function',
-                                          details=''))
+                                          details='',
+                                          group='compute'))
 
         return resources_found
 
@@ -62,7 +63,8 @@ class EC2(object):
                             resources_found.append(Resource(id=instances['InstanceId'],
                                                             name=instance_name,
                                                             type='aws_instance',
-                                                            details=''))
+                                                            details='',
+                                                            group='compute'))
                             
         
         return resources_found
@@ -94,7 +96,8 @@ class EKS(object):
                     resources_found.append(Resource(id=cluster['cluster']['arn'],
                                                     name=cluster['cluster']["name"],
                                                     type='aws_eks_cluster',
-                                                    details=''))
+                                                    details='',
+                                                    group='compute'))
                     
         return  resources_found
 
@@ -132,7 +135,8 @@ class EMR(object):
                     resources_found.append(Resource(id=data['Id'],
                                                     name=data['Name'],
                                                     type='aws_emr_cluster',
-                                                    details=''))
+                                                    details='',
+                                                    group='compute'))
 
         return resources_found
 
@@ -171,6 +175,7 @@ class AUTOSCALING(object):
                         resources_found.append(Resource(id=data['AutoScalingGroupARN'],
                                                         name=data['AutoScalingGroupName'],
                                                         type='aws_autoscaling_group',
-                                                        details='Using LaunchConfigurationName {0}'.format(data["LaunchConfigurationName"])))
+                                                        details='Using LaunchConfigurationName {0}'.format(data["LaunchConfigurationName"]),
+                                                        group='compute'))
 
         return resources_found
