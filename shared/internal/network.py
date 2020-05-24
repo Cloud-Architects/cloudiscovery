@@ -16,10 +16,11 @@ class VPC(object):
         )
 
         dataresponse = response['Vpcs'][0]
-        message = "VPC: {}\nCIDR Block: {}\nTenancy: {}\nIs default: {}".format(self.vpc_options.vpc_id,
-                                                                    dataresponse['CidrBlock'], 
-                                                                    dataresponse['InstanceTenancy'],
-                                                                    dataresponse['IsDefault'])
+        message = "------------------------------------------------------\n"
+        message = message + "VPC: {}\nCIDR Block: {}\nTenancy: {}\nIs default: {}".format(self.vpc_options.vpc_id,
+                                                                                          dataresponse['CidrBlock'], 
+                                                                                          dataresponse['InstanceTenancy'],
+                                                                                          dataresponse['IsDefault'])
         print(message)
 
         return True

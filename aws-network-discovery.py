@@ -45,8 +45,8 @@ def show_options(args="sys.argv[1:]"):
     parser.add_argument(
                         "-v",
                         "--vpc-id",
-                        required=True,
-                        help="Inform VPC to analyze"
+                        required=False,
+                        help="Inform VPC to analyze. If not informed, script try all vpcs."
                         )
     parser.add_argument(
                         "-r",
