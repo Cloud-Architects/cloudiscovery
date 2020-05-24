@@ -88,7 +88,7 @@ class ECS(object):
                                 for network_interfaces in instance['NetworkInterfaces']:
                                     if network_interfaces['VpcId'] == self.vpc_options.vpc_id:
 
-                                        resources_found.append(Resource(id=data['InstanceId'],
+                                        resources_found.append(Resource(id=instance['InstanceId'],
                                                                         name=data["clusterName"],
                                                                         type='aws_ecs_cluster',
                                                                         details='Instance in EC2 cluster'))

@@ -31,7 +31,7 @@ class AwsCommands(object):
         resources_check = []
 
         """ Iterate to get all modules """
-        message_handler("\nRESOURCES INSPECT", "HEADER")
+        message_handler("\nInspecting resources", "HEADER")
         for name in os.listdir(PATH_CHECKS):
             if name.endswith(".py"):
                 #strip the extension
