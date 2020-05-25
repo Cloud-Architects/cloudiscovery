@@ -2,6 +2,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from shared.error_handler import exception
 from shared.common import *
 import json
+from typing import List
 
 
 class IAM(object):
@@ -29,13 +30,15 @@ class IAMPOLICY(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
  
         client = self.vpc_options.session.client('iam')
 
+        resources_found = []
+
         response = client.list_policies(Scope='Local')
 
-        message_handler("\nChecking IAM POLICY...", "HEADER")
+        message_handler("Collecting data from IAM POLICY...", "HEADER")
 
         if len(response['Policies']) == 0:
             message_handler("Found 0 Customer managed IAM Policy", "OKBLUE")
@@ -47,13 +50,10 @@ class IAMPOLICY(object):
                 results = executor.map(lambda data: self.analyze_policy(client, data), response['Policies'])
             for result in results:
                 if result[0] is True:
-                    found += 1
-                    message += result[1]
 
-            message_handler("Found {0} Customer managed IAM Policy using VPC {1} {2}".format(str(found), 
-                                                                                                        self.vpc_options.vpc_id, message),
-                                                                                                        'OKBLUE')
-        return True
+                    resources_found.append(result[1])
+                    
+        return resources_found
 
     def analyze_policy(self, client, data):
 
@@ -68,10 +68,10 @@ class IAMPOLICY(object):
         ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
         
         if ipvpc_found is True:
-            return True, "\nPolicyName: {0} - DefaultVersionId: {1} - VpcId: {2}".format(
-                data['PolicyName'],
-                data['DefaultVersionId'],
-                self.vpc_options.vpc_id
-            )
+            return True, Resource(id=data['Arn'],
+                                  name=data['PolicyName'],
+                                  type='aws_iam_policy',
+                                  details='IAM Policy version {}'.format(data['DefaultVersionId']),
+                                  group='security')
             
         return False, None

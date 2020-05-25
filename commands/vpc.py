@@ -4,10 +4,11 @@ from shared.common import *
 
 class Vpc(object):
 
-    def __init__(self, vpc_id, region_name, profile_name):
+    def __init__(self, vpc_id, region_name, profile_name, diagram):
         self.vpc_id = vpc_id
         self.region_name = region_name
         self.profile_name = profile_name
+        self.diagram = diagram
 
     def run(self):
 
@@ -23,8 +24,20 @@ class Vpc(object):
         if self.region_name is not None:
             region_name = self.region_name
 
-        """ init class awscommands """
-        awscommands = AwsCommands(VpcOptions(session=session, vpc_id=self.vpc_id, region_name=region_name))
-        awscommands.run()
+        """ if vpc is none, get all vpcs and check """
+        if self.vpc_id is None:
+            client = session.client('ec2')
+            vpcs = client.describe_vpcs()
+            for data in vpcs['Vpcs']:
+                """ init class awscommands """
+                awscommands = AwsCommands(VpcOptions(session=session, vpc_id=data['VpcId'], region_name=region_name),
+                                                     diagram=self.diagram).run()
+        else:
+            """ init class awscommands """
+            awscommands = AwsCommands(VpcOptions(session=session, vpc_id=self.vpc_id, region_name=region_name),
+                                                 diagram=self.diagram).run()
+
+
+        
 
 

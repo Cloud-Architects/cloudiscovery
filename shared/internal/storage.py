@@ -2,6 +2,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from shared.error_handler import exception
 from shared.common import *
 import json
+from typing import List
 
 class EFS(object):
     
@@ -9,20 +10,18 @@ class EFS(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('efs')
+
+        resources_found = []
         
         """ get filesystems available """
         response = client.describe_file_systems()
 
-        message_handler("\nChecking EFS MOUNT TARGETS...", "HEADER")
+        message_handler("Collecting data from EFS MOUNT TARGETS...", "HEADER")
 
-        if len(response["FileSystems"]) == 0:
-            message_handler("Found 0 EFS File Systems in region {0}".format(self.vpc_options.region_name), "OKBLUE")
-        else:
-            found = 0
-            message = ""
+        if len(response["FileSystems"]) > 0:
 
             """ iterate filesystems to get mount targets """
             for data in response["FileSystems"]:
@@ -38,16 +37,14 @@ class EFS(object):
                     subnets = ec2.describe_subnets(SubnetIds=[datafilesystem['SubnetId']])
 
                     if subnets['Subnets'][0]['VpcId'] == self.vpc_options.vpc_id:
-                        found += 1
-                        message = message + "\nFileSystemId: {0} - NumberOfMountTargets: {1} - VpcId: {2}".format(
-                            data['FileSystemId'], 
-                            data['NumberOfMountTargets'], 
-                            subnets['Subnets'][0]['VpcId']
-                        )
 
-            message_handler("Found {0} EFS Mount Target using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+                        resources_found.append(Resource(id=data['FileSystemId'],
+                                                        name=data['Name'],
+                                                        type='aws_efs_file_system',
+                                                        details='',
+                                                        group='storage'))
 
-        return True
+        return resources_found
 
 class S3POLICY(object):
     
@@ -55,31 +52,28 @@ class S3POLICY(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('s3')
+
+        resources_found = []
         
         """ get buckets available """
         response = client.list_buckets()
 
-        message_handler("\nChecking S3 BUCKET POLICY...", "HEADER")
+        message_handler("Collecting data from S3 BUCKET POLICY...", "HEADER")
 
-        if len(response["Buckets"]) == 0:
-            message_handler("Found 0 S3 Buckets", "OKBLUE")
-        else:
-            found = 0
-            message = ""
+        if len(response["Buckets"]) > 0:
 
             """ iterate buckets to get policy """
             with ThreadPoolExecutor(15) as executor:
                 results = executor.map(lambda data: self.analyze_bucket(client, data), response['Buckets'])
+
             for result in results:
                 if result[0] is True:
-                    found += 1
-                    message += result[1]
-            message_handler("Found {0} S3 Bucket Policy using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
+                    resources_found.append(result[1])
 
-        return True
+        return resources_found
 
     def analyze_bucket(self, client, data):
         try:
@@ -91,10 +85,12 @@ class S3POLICY(object):
             ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
 
             if ipvpc_found is True:
-                return True, "\nBucketName: {0} - {1}".format(
-                    data['Name'],
-                    self.vpc_options.vpc_id
-                )
+
+                return True, Resource(id=data['Name'],
+                                      name=data['Name'],
+                                      type='aws_s3_bucket_policy',
+                                      details='',
+                                      group='storage')
         except:
             pass
         return False, None

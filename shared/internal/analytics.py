@@ -1,6 +1,7 @@
 from shared.common import *
 import json
 from shared.error_handler import exception
+from typing import List
 
 class ELASTICSEARCH(object):
     
@@ -8,19 +9,18 @@ class ELASTICSEARCH(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('es')
+
+        resources_found = []
         
         response = client.list_domain_names()
         
-        message_handler("\nChecking ELASTICSEARCH DOMAINS...", "HEADER")
+        message_handler("Collecting data from ELASTICSEARCH DOMAINS...", "HEADER")
 
-        if len(response["DomainNames"]) == 0:
-            message_handler("Found 0 Elastic Search Domains in region {0}".format(self.vpc_options.region_name), "OKBLUE")
-        else:
-            found = 0
-            message = ""
+        if len(response["DomainNames"]) > 0:
+
             for data in response["DomainNames"]:
 
                 elasticsearch_domain = client.describe_elasticsearch_domain(DomainName=data['DomainName'])
@@ -35,15 +35,14 @@ class ELASTICSEARCH(object):
                 """ elasticsearch uses accesspolicies too, so check both situation """
                 if elasticsearch_domain['DomainStatus']['VPCOptions']['VPCId'] == self.vpc_options.vpc_id \
                 or ipvpc_found is True:
-                    found += 1
-                    message = message + "\nDomainId: {0} - DomainName: {1} - VpcId {2}".format(
-                        elasticsearch_domain['DomainStatus']['DomainId'], 
-                        elasticsearch_domain['DomainStatus']['DomainName'], 
-                        self.vpc_options.vpc_id
-                    )
-            message_handler("Found {0} ElasticSearch Domains using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
 
-        return True
+                    resources_found.append(Resource(id=elasticsearch_domain['DomainStatus']['DomainId'],
+                                                    name=elasticsearch_domain['DomainStatus']['DomainName'],
+                                                    type='aws_elasticsearch_domain',
+                                                    details='',
+                                                    group='analytics'))
+                    
+        return resources_found
 
 class MSK(object):
 
@@ -51,20 +50,18 @@ class MSK(object):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self):
+    def run(self) -> List[Resource]:
 
         client = self.vpc_options.client('kafka')
+
+        resources_found = []
 
         """ get all cache clusters """
         response = client.list_clusters()
 
-        message_handler("\nChecking MSK CLUSTERS...", "HEADER")
+        message_handler("Collecting data from MSK CLUSTERS...", "HEADER")
 
-        if len(response['ClusterInfoList']) == 0:
-            message_handler("Found 0 MSK Clusters in region {0}".format(self.vpc_options.region_name), "OKBLUE")
-        else:
-            found = 0
-            message = ""
+        if len(response['ClusterInfoList']) > 0:
 
             """ iterate cache clusters to get subnet groups """
             for data in response['ClusterInfoList']:
@@ -82,13 +79,11 @@ class MSK(object):
 
                     if subnet.id in msk_subnets:
 
-                        found += 1
-                        message = message + "\nClusterName: {0} - VpcId: {1}".format(
-                            data['ClusterName'],
-                            self.vpc_options.vpc_id
-                        )
+                        resources_found.append(Resource(id=data['ClusterArn'],
+                                                        name=data['ClusterName'],
+                                                        type='aws_msk_cluster',
+                                                        details='',
+                                                        group='analytics'))
+                        
                         break
-
-            message_handler("Found {0} MSK Clusters using VPC {1} {2}".format(str(found), self.vpc_options.vpc_id, message),'OKBLUE')
-
-        return True
+        return resources_found

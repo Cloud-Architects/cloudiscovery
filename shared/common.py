@@ -28,6 +28,26 @@ class VpcOptions(NamedTuple):
     def client(self, service_name: str):
         return self.session.client(service_name, region_name=self.region_name)
 
+class Resource(NamedTuple):
+
+    id: str
+    name: str
+    type: str
+    details: str
+    group: str
+
+def get_name_tags(d):
+    for k, v in d.items():
+        if isinstance(v, dict):
+            get_name_tags(v)
+        else:
+            if k == "Tags":
+                for value in v:
+                    if value["Key"] == 'Name':
+                        return value["Value"]
+                    
+
+    return False
 
 def generate_session(profile_name):
     try:

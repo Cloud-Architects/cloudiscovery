@@ -1,5 +1,6 @@
 # AWS Network Discovery
 
+![python version](https://img.shields.io/badge/python-3.6%2C3.7%2C3.8-blue?logo=python)
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
 AWS Network Discovery helps you analyze what's resources are using a custom VPC.
@@ -29,7 +30,6 @@ Following services are integrated
 - VPC PEERING
 - VPC ENDPOINT
 - EKS
-- CLOUDFORMATION 
 - SYNTHETIC CANARIES
 - EMR 
 - ECS
@@ -39,6 +39,8 @@ Following services are integrated
 
 - Performs checks using thread concurrency
 - Best information provided
+- Integration with [Diagram](https://github.com/mingrammer/diagrams)
+- Now this tool can check all VPCS in the same regions
 
 ### Requirements and Installation
 
@@ -63,12 +65,32 @@ arn:aws:iam::aws:policy/job-function/ViewOnlyAccess
 arn:aws:iam::aws:policy/SecurityAudit
 ```
 
+- Due to fact AWS has not updated these policies to include Kafka Cluster and Synthetics Canaries read/list permissions, you must create a new policy with permissions bellow and attach to user.
+
+```sh
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "kafka:ListClusters",
+                "synthetics:DescribeCanaries"
+            ],
+            "Effect": "Allow",
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+- (Optional) If you want to be able to switch between multiple AWS credentials and settings, you can configure [named profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) and later pass profile name when running the tool.
+
 ### Usage
 
 1. Run the aws-network-discovery command with follow options (if a region not informed, this script will try to get from ~/.aws/credentials):
 
 ```sh
-$ ./aws-network-discovery.py --vpc-id vpc-xxxxxxx --region-name xx-xxxx-xxx
+$ ./aws-network-discovery.py [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
 ```
 
 2. For help use:
@@ -89,33 +111,11 @@ This project support English and Portuguese (Brazil) languages. To contribute wi
 $ python msgfmt.py -o locales/NEWFOLDER/LC_MESSAGES/messages.mo locales/NEWFOLDER/LC_MESSAGES/messages
 ```
 
-
 ### TODO
 
 - Improve documentation and code comments
 - More services that uses VPC (I'll try add one a week)
-- Custom logging control and reporting improvement.
 
-### License
+### Contributing
 
-Copyright 2020 Conversando Na Nuvem (https://www.youtube.com/channel/UCuI2nDGLq_yjY9JNsDYStMQ/) - Leandro Damascena
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
-following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
-disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
-following disclaimer in the documentation and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
-products derived from this software without specific prior written permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+If you have improvements or fixes, we would love to have your contributions. 
