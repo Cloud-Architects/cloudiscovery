@@ -47,8 +47,12 @@ class INTERNETGATEWAY(object):
         """ One VPC has only 1 IGW then it's a direct check """
         if len(response["InternetGateways"]) > 0:
 
+            nametags = get_name_tags(response)
+
+            name = response['InternetGateways'][0]['InternetGatewayId'] if nametags is False else nametags
+            
             resources_found.append(Resource(id=response['InternetGateways'][0]['InternetGatewayId'],
-                                            name=response['InternetGateways'][0]['InternetGatewayId'],
+                                            name=name,
                                             type='aws_internet_gateway',
                                             details='',
                                             group='network'))
@@ -80,8 +84,12 @@ class NATGATEWAY(object):
 
                 if data['VpcId'] == self.vpc_options.vpc_id:
 
+                    nametags = get_name_tags(data)
+
+                    name = data['NatGatewayId'] if nametags is False else nametags
+
                     resources_found.append(Resource(id=data['NatGatewayId'],
-                                                    name=data['NatGatewayId'],
+                                                    name=name,
                                                     type='aws_nat_gateway',
                                                     details='NAT Gateway Private IP {}, Public IP {}, Subnet id {}' \
                                                     .format(data['NatGatewayAddresses'][0]['PrivateIp'],
@@ -178,8 +186,12 @@ class ROUTETABLE(object):
             """ Iterate to get all route table filtered """
             for data in response['RouteTables']:
 
+                nametags = get_name_tags(data)
+
+                name = data['RouteTableId'] if nametags is False else nametags
+
                 resources_found.append(Resource(id=data['RouteTableId'],
-                                                name=data['RouteTableId'],
+                                                name=name,
                                                 type='aws_route_table',
                                                 details='',
                                                 group='network'))
@@ -210,8 +222,12 @@ class SUBNET(object):
             """ Iterate to get all route table filtered """
             for data in response['Subnets']:
 
+                nametags = get_name_tags(data)
+
+                name = data['SubnetId'] if nametags is False else nametags
+
                 resources_found.append(Resource(id=data['SubnetId'],
-                                                name=data['SubnetId'],
+                                                name=name,
                                                 type='aws_subnet',
                                                 details='Subnet using CidrBlock {} and AZ {}' \
                                                 .format(data['CidrBlock'], data['AvailabilityZone']),
@@ -245,9 +261,13 @@ class NACL(object):
                 subnet_ids = []
                 for subnet in data['Associations']:
                     subnet_ids.append(subnet['SubnetId'])
+                
+                nametags = get_name_tags(data)
+
+                name = data['NetworkAclId'] if nametags is False else nametags
 
                 resources_found.append(Resource(id=data['NetworkAclId'],
-                                                name=data['NetworkAclId'],
+                                                name=name,
                                                 type='aws_network_acl',
                                                 details='NACL using Subnets {}' \
                                                 .format(', '.join(subnet_ids)),
@@ -312,8 +332,12 @@ class VPCPEERING(object):
                 if data['AccepterVpcInfo']['VpcId'] == self.vpc_options.vpc_id \
                 or data['RequesterVpcInfo']['VpcId'] == self.vpc_options.vpc_id:
                     
+                    nametags = get_name_tags(data)
+
+                    name = data['VpcPeeringConnectionId'] if nametags is False else nametags
+
                     resources_found.append(Resource(id=data['VpcPeeringConnectionId'],
-                                                    name=data['VpcPeeringConnectionId'],
+                                                    name=name,
                                                     type='aws_vpc_peering_connection',
                                                     details='Vpc Peering Accepter OwnerId {}, Accepter Region {}, Accepter VpcId {} \
                                                              Requester OwnerId {}, Requester Region {}, Requester VpcId' \

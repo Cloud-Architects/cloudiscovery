@@ -53,13 +53,13 @@ class EC2(object):
             
             for data in response["Reservations"]:
                 for instances in data['Instances']:
+
                     if "VpcId" in instances:
                         if instances['VpcId'] == self.vpc_options.vpc_id:
-                            instance_name = instances["InstanceId"]
-                            for tag in instances['Tags']:
-                                if tag['Key'] == 'Name':
-                                    instance_name = tag['Value']
+                            nametags = get_name_tags(instances)
 
+                            instance_name = instances["InstanceId"] if nametags is False else nametags
+                            
                             resources_found.append(Resource(id=instances['InstanceId'],
                                                             name=instance_name,
                                                             type='aws_instance',
