@@ -44,3 +44,37 @@ class MEDIACONNECT(object):
 
         return resources_found
 
+class MEDIALIVE(object):
+    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    @exception
+    def run(self) -> List[Resource]:
+ 
+        client = self.vpc_options.client('medialive')
+
+        resources_found = []
+        
+        response = client.list_inputs()
+
+        message_handler("Collecting data from MEDIA LIVE INPUTS...", "HEADER")
+
+        if len(response['Inputs']) > 0:
+            
+            for data in response["Inputs"]:
+                for destinations in data['Destinations']:
+                    if "Vpc" in destinations:
+                        """ describe networkinterface to get VpcId """
+                        ec2 = self.vpc_options.client('ec2')
+
+                        eni = ec2.describe_network_interfaces(NetworkInterfaceIds=[destinations["Vpc"]['NetworkInterfaceId']])
+
+                        if eni['NetworkInterfaces'][0]['VpcId'] == self.vpc_options.vpc_id:
+
+                            resources_found.append(Resource(id=data['Arn'],
+                                                            name="Input " + destinations["Ip"],
+                                                            type='aws_media_live',
+                                                            details='',
+                                                            group='mediaservices'))
+        return resources_found

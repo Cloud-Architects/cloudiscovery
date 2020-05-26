@@ -34,6 +34,8 @@ Following services are integrated
 - EMR 
 - ECS
 - AUTOSCALING
+- MEDIA CONNECT
+- MEDIA LIVE
 
 ### News
 
@@ -91,7 +93,8 @@ $ aws configure
                 "Effect" : "Allow",
                 "Action" : [
                   "kafka:ListClusters",
-                  "synthetics:DescribeCanaries"
+                  "synthetics:DescribeCanaries",
+                  "medialive:ListInputs"
                 ],
                 "Resource": [ "*" ]
               }
