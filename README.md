@@ -36,6 +36,7 @@ Following services are integrated
 - AUTOSCALING
 - MEDIA CONNECT
 - MEDIA LIVE
+- MEDIA STORE POLICY
 
 ### News
 

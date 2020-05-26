@@ -1,6 +1,7 @@
 from shared.common import *
 from shared.error_handler import exception
 from typing import List
+import json
 
 class MEDIACONNECT(object):
     
@@ -77,4 +78,39 @@ class MEDIALIVE(object):
                                                             type='aws_media_live',
                                                             details='',
                                                             group='mediaservices'))
+        return resources_found
+
+class MEDIASTORE(object):
+    
+    def __init__(self, vpc_options: VpcOptions):
+        self.vpc_options = vpc_options
+
+    @exception
+    def run(self) -> List[Resource]:
+ 
+        client = self.vpc_options.client('mediastore')
+
+        resources_found = []
+        
+        response = client.list_containers()
+
+        message_handler("Collecting data from MEDIA STORE...", "HEADER")
+
+        if len(response['Containers']) > 0:
+            
+            for data in response['Containers']:
+
+                store_queue_policy = client.get_container_policy(ContainerName=data["Name"])
+
+                document = json.dumps(store_queue_policy["Policy"], default=datetime_to_string)
+
+                ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
+
+                if ipvpc_found is not False:
+
+                        resources_found.append(Resource(id=data['ARN'],
+                                                        name=data["Name"],
+                                                        type='aws_mediastore_polocy',
+                                                        details='',
+                                                        group='mediaservices'))
         return resources_found

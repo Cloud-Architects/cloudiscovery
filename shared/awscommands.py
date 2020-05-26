@@ -26,6 +26,10 @@ class AwsCommands(object):
         TODO: order by resource
         """
 
+        from shared.internal.mediaservices import MEDIASTORE
+        MEDIASTORE(self.vpc_options).run()
+        quit()
+
         """ IAM and VPC validations """
         IAM(self.vpc_options).run()
         VPC(self.vpc_options).run()
