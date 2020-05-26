@@ -58,28 +58,58 @@ $ pip install -r requirements.txt
 $ aws configure
 ```
 
-- Those credentials must be associated to a user or role with proper permissions to do all checks. To make sure, add the AWS managed policies ViewOnlyAccess and SecurityAudit, to the user or role being used. Policies ARN are:
+- The configured credentials must be associated to a user or role with proper permissions to do all checks. If you want to use a role with narrowed set of permissions just to perform network discovery, use a role from the following CF template shown below. To further increase security, you can add a block to check `aws:MultiFactorAuthPresent` condition in `AssumeRolePolicyDocument`.
 
-```sh
-arn:aws:iam::aws:policy/job-function/ViewOnlyAccess
-arn:aws:iam::aws:policy/SecurityAudit
-```
-
-- Due to fact AWS has not updated these policies to include Kafka Cluster and Synthetics Canaries read/list permissions, you must create a new policy with permissions bellow and attach to user.
-
-```sh
+```json
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": [
-                "kafka:ListClusters",
-                "synthetics:DescribeCanaries"
-            ],
-            "Effect": "Allow",
-            "Resource": "*"
-        }
-    ]
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Setups a role for diagram builder for all resources within an account",
+  "Resources": {
+    "NetworkDiscoveryRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument" : {
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Principal" : {
+                "AWS": { "Fn::Join" : [ "", [
+                  "arn:aws:iam::", { "Ref" : "AWS::AccountId" }, ":root"
+                ]]}
+              },
+              "Action" : [ "sts:AssumeRole" ]
+            }
+          ]
+        },
+        "Policies": [{
+          "PolicyName": "additional-permissions",
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement" : [
+              {
+                "Effect" : "Allow",
+                "Action" : [
+                  "kafka:ListClusters",
+                  "synthetics:DescribeCanaries"
+                ],
+                "Resource": [ "*" ]
+              }
+            ]
+          }
+        }],
+        "Path" : "/",
+        "ManagedPolicyArns" : [
+          "arn:aws:iam::aws:policy/job-function/ViewOnlyAccess",
+          "arn:aws:iam::aws:policy/SecurityAudit"
+        ]
+      }
+    }
+  },
+  "Outputs" : {
+    "NetworkDiscoveryRoleArn" : {
+      "Value" : { "Fn::GetAtt": [ "NetworkDiscoveryRole", "Arn" ]}
+    }
+  }
 }
 ```
 
