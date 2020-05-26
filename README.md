@@ -41,6 +41,7 @@ Following services are integrated
 - Best information provided
 - Integration with [Diagram](https://github.com/mingrammer/diagrams)
 - Now this tool can check all VPCS in the same regions
+- Support to Docker container
 
 ### Requirements and Installation
 
@@ -98,6 +99,27 @@ $ ./aws-network-discovery.py [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [-
 ```sh
 $ ./aws-network-discovery.py -h
 ```
+
+### Using a Docker container
+
+To build docker container using Dockerfile
+
+```sh
+$ docker build -t aws-discovery-network .
+```
+
+After build container, you must start container using follow command. The run command will mount a filesystem with your actual aws cli credentials, then you won't need configure aws cli again.
+
+```sh
+$ docker run \
+-it \
+--mount type=bind,source=$HOME/.aws/,target=/root/.aws/,readonly \
+aws-discovery-network \
+/bin/bash
+
+```
+
+- If you are using Diagram output and due to fact container is a slim image of Python image, you must run aws-network-discovery.py with "--diagram False", otherwise you'll have an error about "xdg-open". The output file will be saved in "assets/diagrams".
 
 ### Translate
 

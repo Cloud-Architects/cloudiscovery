@@ -1,6 +1,7 @@
 from shared.common import *
 from shared.error_handler import exception
 import os
+from distutils.util import strtobool
 from diagrams import Cluster, Diagram
 """ Importing all AWS nodes """
 from diagrams.aws.analytics import *
@@ -48,10 +49,8 @@ class _Diagram(object):
     @exception
     def generateDiagram(self):
        
-        #diagram = [[], [], [], [], [], [], [Resource(id='j-HCK3AB8SJ0JK', name='My cluster', type='aws_emr_cluster', details='', group='compute'), Resource(id='j-UU8T5E0AI99S', name='My cluster', type='aws_emr_cluster', details='', group='compute')], [Resource(id='arn:aws:lambda:us-east-1:200984112386:function:cwsyn-meucana-2b5c2c74-cbfc-46b5-8400-db853e98dca3', name='cwsyn-meucana-2b5c2c74-cbfc-46b5-8400-db853e98dca3', type='aws_lambda_function', details='', group='compute'), Resource(id='arn:aws:lambda:us-east-1:200984112386:function:myfnn', name='myfnn', type='aws_lambda_function', details='', group='compute'), Resource(id='arn:aws:lambda:us-east-1:200984112386:function:aaaaaaaaaaaaa', name='aaaaaaaaaaaaa', type='aws_lambda_function', details='', group='compute')], [], [], [], [], [], [], [], [Resource(id='igw-09cc041a3f6e7d38b', name='igw-09cc041a3f6e7d38b', type='aws_internet_gateway', details='', group='network')], [Resource(id='acl-01a0765c917e4e733', name='acl-01a0765c917e4e733', type='aws_network_acl', details='NACL using Subnets subnet-0267b72fb6dead183, subnet-023da38a98c179cce, subnet-0c63113a164c83e0b', group='network')], [], [Resource(id='rtb-0405795a9a7f730e8', name='rtb-0405795a9a7f730e8', type='aws_route_table', details='', group='network'), Resource(id='rtb-0bf969c6f52d3ca40', name='rtb-0bf969c6f52d3ca40', type='aws_route_table', details='', group='network')], [Resource(id='sg-0521cf0ebff65c70d', name='ElasticMapReduce-slave', type='aws_security_group', details='', group='network'), Resource(id='sg-0abf4b1f1a9ecfe9c', name='MEUSG', type='aws_security_group', details='', group='network'), Resource(id='sg-0b21dea57386a36b4', name='ElasticMapReduce-master', type='aws_security_group', details='', group='network'), Resource(id='sg-0f2d79f705ff0d97d', name='default', type='aws_security_group', details='', group='network')], [Resource(id='subnet-0c63113a164c83e0b', name='subnet-0c63113a164c83e0b', type='aws_subnet', details='Subnet using CidrBlock 10.0.2.0/24 and AZ us-east-1e', group='network'), Resource(id='subnet-0267b72fb6dead183', name='subnet-0267b72fb6dead183', type='aws_subnet', details='Subnet using CidrBlock 10.0.3.0/24 and AZ us-east-1b', group='network'), Resource(id='subnet-023da38a98c179cce', name='subnet-023da38a98c179cce', type='aws_subnet', details='Subnet using CidrBlock 10.0.1.0/24 and AZ us-east-1a', group='network')], [], [], [], [], []]
         """ Check if assets/diagram directory exists """
         if not os.path.isdir(PATH_DIAGRAM_OUTPUT):
-            print("OI")
             try:
                 os.mkdir(PATH_DIAGRAM_OUTPUT)
             except OSError:
@@ -79,7 +78,7 @@ class _Diagram(object):
         """ Start mounting Cluster """
         resource_id = list()
         with Diagram(name="AWS VPC {} Resources".format(self.vpc_id), filename=PATH_DIAGRAM_OUTPUT+self.vpc_id, 
-                     show=self.diagram, direction="TB"):
+                     show=strtobool(self.diagram.lower()), direction="TB"):
    
             """ VPC to represent main resource """
             _vpc = VPC("VPC {}".format(self.vpc_id))
