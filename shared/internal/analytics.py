@@ -1,10 +1,12 @@
-from shared.common import *
 import json
-from shared.error_handler import exception
 from typing import List
 
+from shared.common import *
+from shared.error_handler import exception
+
+
 class ELASTICSEARCH(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
@@ -14,9 +16,9 @@ class ELASTICSEARCH(object):
         client = self.vpc_options.client('es')
 
         resources_found = []
-        
+
         response = client.list_domain_names()
-        
+
         message_handler("Collecting data from ELASTICSEARCH DOMAINS...", "HEADER")
 
         if len(response["DomainNames"]) > 0:
@@ -34,15 +36,15 @@ class ELASTICSEARCH(object):
 
                 """ elasticsearch uses accesspolicies too, so check both situation """
                 if elasticsearch_domain['DomainStatus']['VPCOptions']['VPCId'] == self.vpc_options.vpc_id \
-                or ipvpc_found is True:
-
+                        or ipvpc_found is True:
                     resources_found.append(Resource(id=elasticsearch_domain['DomainStatus']['DomainId'],
                                                     name=elasticsearch_domain['DomainStatus']['DomainName'],
                                                     type='aws_elasticsearch_domain',
                                                     details='',
                                                     group='analytics'))
-                    
+
         return resources_found
+
 
 class MSK(object):
 
@@ -70,20 +72,19 @@ class MSK(object):
 
                 ec2 = self.vpc_options.session.resource('ec2', region_name=self.vpc_options.region_name)
 
-                filters = [{'Name':'vpc-id',
-                            'Values':[self.vpc_options.vpc_id]}]
+                filters = [{'Name': 'vpc-id',
+                            'Values': [self.vpc_options.vpc_id]}]
 
                 subnets = ec2.subnets.filter(Filters=filters)
 
                 for subnet in list(subnets):
 
                     if subnet.id in msk_subnets:
-
                         resources_found.append(Resource(id=data['ClusterArn'],
                                                         name=data['ClusterName'],
                                                         type='aws_msk_cluster',
                                                         details='',
                                                         group='analytics'))
-                        
+
                         break
         return resources_found

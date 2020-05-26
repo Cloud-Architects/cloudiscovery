@@ -31,13 +31,8 @@ class Vpc(object):
             for data in vpcs['Vpcs']:
                 """ init class awscommands """
                 awscommands = AwsCommands(VpcOptions(session=session, vpc_id=data['VpcId'], region_name=region_name),
-                                                     diagram=self.diagram).run()
+                                          diagram=self.diagram).run()
         else:
             """ init class awscommands """
             awscommands = AwsCommands(VpcOptions(session=session, vpc_id=self.vpc_id, region_name=region_name),
-                                                 diagram=self.diagram).run()
-
-
-        
-
-
+                                      diagram=self.diagram).run()

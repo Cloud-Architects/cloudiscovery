@@ -1,11 +1,13 @@
-from concurrent.futures.thread import ThreadPoolExecutor
-from shared.error_handler import exception
-from shared.common import *
 import json
+from concurrent.futures.thread import ThreadPoolExecutor
 from typing import List
 
+from shared.common import *
+from shared.error_handler import exception
+
+
 class EFS(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
@@ -15,7 +17,7 @@ class EFS(object):
         client = self.vpc_options.client('efs')
 
         resources_found = []
-        
+
         """ get filesystems available """
         response = client.describe_file_systems()
 
@@ -25,7 +27,7 @@ class EFS(object):
 
             """ iterate filesystems to get mount targets """
             for data in response["FileSystems"]:
-                
+
                 filesystem = client.describe_mount_targets(FileSystemId=data["FileSystemId"])
 
                 """ iterate filesystems to get mount targets """
@@ -33,11 +35,10 @@ class EFS(object):
 
                     """ describe subnet to get VpcId """
                     ec2 = self.vpc_options.client('ec2')
-                    
+
                     subnets = ec2.describe_subnets(SubnetIds=[datafilesystem['SubnetId']])
 
                     if subnets['Subnets'][0]['VpcId'] == self.vpc_options.vpc_id:
-
                         resources_found.append(Resource(id=data['FileSystemId'],
                                                         name=data['Name'],
                                                         type='aws_efs_file_system',
@@ -46,8 +47,9 @@ class EFS(object):
 
         return resources_found
 
+
 class S3POLICY(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
@@ -57,7 +59,7 @@ class S3POLICY(object):
         client = self.vpc_options.client('s3')
 
         resources_found = []
-        
+
         """ get buckets available """
         response = client.list_buckets()
 
@@ -85,7 +87,6 @@ class S3POLICY(object):
             ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
 
             if ipvpc_found is True:
-
                 return True, Resource(id=data['Name'],
                                       name=data['Name'],
                                       type='aws_s3_bucket_policy',

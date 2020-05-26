@@ -1,15 +1,16 @@
-from shared.common import *
-from shared.error_handler import exception
 from typing import List
 
+from shared.common import *
+from shared.error_handler import exception
+
+
 class VPC(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
     def run(self):
-
         client = self.vpc_options.client('ec2')
         response = client.describe_vpcs(
             VpcIds=[self.vpc_options.vpc_id]
@@ -18,21 +19,22 @@ class VPC(object):
         dataresponse = response['Vpcs'][0]
         message = "------------------------------------------------------\n"
         message = message + "VPC: {}\nCIDR Block: {}\nTenancy: {}\nIs default: {}".format(self.vpc_options.vpc_id,
-                                                                                          dataresponse['CidrBlock'], 
-                                                                                          dataresponse['InstanceTenancy'],
+                                                                                          dataresponse['CidrBlock'],
+                                                                                          dataresponse[
+                                                                                              'InstanceTenancy'],
                                                                                           dataresponse['IsDefault'])
         print(message)
 
         return True
 
+
 class INTERNETGATEWAY(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
     def run(self) -> List[Resource]:
-
         client = self.vpc_options.client('ec2')
 
         resources_found = []
@@ -46,11 +48,10 @@ class INTERNETGATEWAY(object):
 
         """ One VPC has only 1 IGW then it's a direct check """
         if len(response["InternetGateways"]) > 0:
-
             nametags = get_name_tags(response)
 
             name = response['InternetGateways'][0]['InternetGatewayId'] if nametags is False else nametags
-            
+
             resources_found.append(Resource(id=response['InternetGateways'][0]['InternetGatewayId'],
                                             name=name,
                                             type='aws_internet_gateway',
@@ -59,8 +60,9 @@ class INTERNETGATEWAY(object):
 
         return resources_found
 
+
 class NATGATEWAY(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
@@ -83,7 +85,6 @@ class NATGATEWAY(object):
             for data in response["NatGateways"]:
 
                 if data['VpcId'] == self.vpc_options.vpc_id:
-
                     nametags = get_name_tags(data)
 
                     name = data['NatGatewayId'] if nametags is False else nametags
@@ -99,8 +100,9 @@ class NATGATEWAY(object):
 
         return resources_found
 
+
 class ELASTICLOADBALANCING(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
@@ -120,7 +122,6 @@ class ELASTICLOADBALANCING(object):
             for data in response['LoadBalancerDescriptions']:
 
                 if data['VPCId'] == self.vpc_options.vpc_id:
-
                     resources_found.append(Resource(id=data['LoadBalancerName'],
                                                     name=data['LoadBalancerName'],
                                                     type='aws_elb_classic',
@@ -129,8 +130,9 @@ class ELASTICLOADBALANCING(object):
 
         return resources_found
 
+
 class ELASTICLOADBALANCINGV2(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
@@ -162,8 +164,9 @@ class ELASTICLOADBALANCINGV2(object):
 
         return resources_found
 
+
 class ROUTETABLE(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
@@ -185,7 +188,6 @@ class ROUTETABLE(object):
 
             """ Iterate to get all route table filtered """
             for data in response['RouteTables']:
-
                 nametags = get_name_tags(data)
 
                 name = data['RouteTableId'] if nametags is False else nametags
@@ -198,8 +200,9 @@ class ROUTETABLE(object):
 
         return resources_found
 
+
 class SUBNET(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
@@ -221,7 +224,6 @@ class SUBNET(object):
 
             """ Iterate to get all route table filtered """
             for data in response['Subnets']:
-
                 nametags = get_name_tags(data)
 
                 name = data['SubnetId'] if nametags is False else nametags
@@ -235,8 +237,9 @@ class SUBNET(object):
 
         return resources_found
 
+
 class NACL(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
@@ -261,7 +264,7 @@ class NACL(object):
                 subnet_ids = []
                 for subnet in data['Associations']:
                     subnet_ids.append(subnet['SubnetId'])
-                
+
                 nametags = get_name_tags(data)
 
                 name = data['NetworkAclId'] if nametags is False else nametags
@@ -275,8 +278,9 @@ class NACL(object):
 
         return resources_found
 
+
 class SECURITYGROUP(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
@@ -298,18 +302,17 @@ class SECURITYGROUP(object):
 
             """ Iterate to get all SG filtered """
             for data in response['SecurityGroups']:
-
                 resources_found.append(Resource(id=data['GroupId'],
                                                 name=data['GroupName'],
                                                 type='aws_security_group',
                                                 details='',
                                                 group='network'))
 
-
         return resources_found
 
+
 class VPCPEERING(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
@@ -325,13 +328,12 @@ class VPCPEERING(object):
         message_handler("Collecting data from VPC PEERING...", "HEADER")
 
         if len(response['VpcPeeringConnections']) > 0:
-                
+
             """ Iterate to get all vpc peering and check either accepter or requester """
             for data in response['VpcPeeringConnections']:
 
                 if data['AccepterVpcInfo']['VpcId'] == self.vpc_options.vpc_id \
-                or data['RequesterVpcInfo']['VpcId'] == self.vpc_options.vpc_id:
-                    
+                        or data['RequesterVpcInfo']['VpcId'] == self.vpc_options.vpc_id:
                     nametags = get_name_tags(data)
 
                     name = data['VpcPeeringConnectionId'] if nametags is False else nametags
@@ -341,17 +343,18 @@ class VPCPEERING(object):
                                                     type='aws_vpc_peering_connection',
                                                     details='Vpc Peering Accepter OwnerId {}, Accepter Region {}, Accepter VpcId {} \
                                                              Requester OwnerId {}, Requester Region {}, Requester VpcId' \
-                                                            .format(data['AccepterVpcInfo']['OwnerId'],
-                                                                    data['AccepterVpcInfo']['Region'],
-                                                                    data['AccepterVpcInfo']['VpcId'],
-                                                                    data['RequesterVpcInfo']['OwnerId'],
-                                                                    data['RequesterVpcInfo']['Region'],
-                                                                    data['RequesterVpcInfo']['VpcId']),
+                                                    .format(data['AccepterVpcInfo']['OwnerId'],
+                                                            data['AccepterVpcInfo']['Region'],
+                                                            data['AccepterVpcInfo']['VpcId'],
+                                                            data['RequesterVpcInfo']['OwnerId'],
+                                                            data['RequesterVpcInfo']['Region'],
+                                                            data['RequesterVpcInfo']['VpcId']),
                                                     group='network'))
         return resources_found
 
+
 class VPCENDPOINT(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
