@@ -6,8 +6,20 @@ from diagrams import Cluster, Diagram
 from shared.error_handler import exception
 
 """ Importing all AWS nodes """
+from diagrams.aws.analytics import *
+from diagrams.aws.compute import *
+from diagrams.aws.database import *
+from diagrams.aws.devtools import *
+from diagrams.aws.engagement import *
+from diagrams.aws.integration import *
+from diagrams.aws.iot import *
+from diagrams.aws.management import *
+from diagrams.aws.media import *
+from diagrams.aws.migration import *
+from diagrams.aws.ml import *
 from diagrams.aws.network import *
-
+from diagrams.aws.security import *
+from diagrams.aws.storage import *
 PATH_DIAGRAM_OUTPUT = "./assets/diagrams/"
 
 
