@@ -14,56 +14,56 @@ limitations under the License.
 
 This script manages aws-network-discovery, a tool for analyzing VPC dependencies.
 """
-import sys
 import argparse
 import gettext
+import sys
 
 # Check version
 if sys.version_info < (3, 6):
     print(_("Python 3.6 or newer is required"), file=sys.stderr)
     sys.exit(1)
 
-
 from commands.vpc import Vpc
 
 __version__ = "0.8.0"
 
-AVAILABLE_LANGUAGES = ['en_US','pt_BR']
-DIAGRAMS_OPTIONS = ['True','False']
+AVAILABLE_LANGUAGES = ['en_US', 'pt_BR']
+DIAGRAMS_OPTIONS = ['True', 'False']
+
 
 def show_options(args="sys.argv[1:]"):
     parser = argparse.ArgumentParser()
     parser.add_argument(
-                        "-v",
-                        "--vpc-id",
-                        required=False,
-                        help="Inform VPC to analyze. If not informed, script will check all vpcs."
-                        )
+        "-v",
+        "--vpc-id",
+        required=False,
+        help="Inform VPC to analyze. If not informed, script will check all vpcs."
+    )
     parser.add_argument(
-                        "-r",
-                        "--region-name",
-                        required=False,
-                        help="Inform REGION to analyze. If not informed, try to get from config file"
-                        )
+        "-r",
+        "--region-name",
+        required=False,
+        help="Inform REGION to analyze. If not informed, try to get from config file"
+    )
     parser.add_argument(
-                        "-p",
-                        "--profile-name",
-                        required=False,
-                        help="Profile to be used"
-                        )
+        "-p",
+        "--profile-name",
+        required=False,
+        help="Profile to be used"
+    )
     parser.add_argument(
-                        "-l",
-                        "--language",
-                        required=False,
-                        help="available languages: pt_BR, en_US"
-                        )
+        "-l",
+        "--language",
+        required=False,
+        help="available languages: pt_BR, en_US"
+    )
     parser.add_argument(
-                        "-d",
-                        "--diagram",
-                        required=False,
-                        help="print diagram with resources (need Graphviz installed). Use options \"True\" to " \
-                             "view image or \"False\" to save image to disk. Default True"
-                        )
+        "-d",
+        "--diagram",
+        required=False,
+        help="print diagram with resources (need Graphviz installed). Use options \"True\" to " \
+             "view image or \"False\" to save image to disk. Default True"
+    )
     args = parser.parse_args()
 
     return args
@@ -92,11 +92,10 @@ def main():
     """ defining default language to show messages """
     defaultlanguage = gettext.translation('messages', localedir='locales', languages=[language])
     defaultlanguage.install()
-    _ = defaultlanguage.gettext 
+    _ = defaultlanguage.gettext
 
-
-    vpc = Vpc(vpc_id=args.vpc_id, 
-              region_name=args.region_name, 
+    vpc = Vpc(vpc_id=args.vpc_id,
+              region_name=args.region_name,
               profile_name=args.profile_name,
               diagram=diagram)
     vpc.run()

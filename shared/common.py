@@ -1,9 +1,9 @@
-from typing import NamedTuple
 import datetime
-import boto3
 import re
-from ipaddress import ip_network, ip_address
+from typing import NamedTuple
 
+import boto3
+from ipaddress import ip_network
 
 VPCE_REGEX = re.compile(r'(?<=sourcevpce")(\s*:\s*")(vpce-[a-zA-Z0-9]+)', re.DOTALL)
 SOURCE_IP_ADDRESS_REGEX = re.compile(r'(?<=sourceip")(\s*:\s*")([a-fA-F0-9.:/%]+)', re.DOTALL)
@@ -28,13 +28,14 @@ class VpcOptions(NamedTuple):
     def client(self, service_name: str):
         return self.session.client(service_name, region_name=self.region_name)
 
-class Resource(NamedTuple):
 
+class Resource(NamedTuple):
     id: str
     name: str
     type: str
     details: str
     group: str
+
 
 def get_name_tags(d):
     for k, v in d.items():
@@ -45,9 +46,9 @@ def get_name_tags(d):
                 for value in v:
                     if value["Key"] == 'Name':
                         return value["Value"]
-                    
 
     return False
+
 
 def generate_session(profile_name):
     try:
@@ -134,7 +135,7 @@ def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
                     if ipfound.overlaps(network_addres):
                         overlapping_subnets.append("{} ({})".format(str(network_addres), subnet['SubnetId']))
             if len(overlapping_subnets) != 0:
-                return "source IP(s): {} -> subnet CIDR(s): {}"\
+                return "source IP(s): {} -> subnet CIDR(s): {}" \
                     .format(", ".join(aws_sourceips), ", ".join(overlapping_subnets))
 
         return False

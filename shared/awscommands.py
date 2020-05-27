@@ -1,12 +1,15 @@
-from shared.common import *
-from shared.internal.security import IAM
-from shared.internal.network import VPC
-from shared.report import Report
-from shared.diagram import _Diagram
-import importlib, inspect
+import importlib
+import inspect
 import os
 
+from shared.common import *
+from shared.diagram import _Diagram
+from shared.internal.network import VPC
+from shared.internal.security import IAM
+from shared.report import Report
+
 PATH_CHECKS = "shared/internal"
+
 
 class AwsCommands(object):
 
@@ -33,22 +36,22 @@ class AwsCommands(object):
         """ IAM and VPC validations """
         IAM(self.vpc_options).run()
         VPC(self.vpc_options).run()
-        
+
         resources_check = []
 
         """ Iterate to get all modules """
         message_handler("\nInspecting resources", "HEADER")
         for name in os.listdir(PATH_CHECKS):
             if name.endswith(".py"):
-                #strip the extension
+                # strip the extension
                 module = name[:-3]
 
                 """ Load and call all run check """
-                for nameclass, cls in inspect.getmembers(importlib.import_module("shared.internal."+module), inspect.isclass):
-                    if hasattr(cls, 'run') and callable(getattr(cls, 'run')) and nameclass not in ['VPC','IAM']:
+                for nameclass, cls in inspect.getmembers(importlib.import_module("shared.internal." + module),
+                                                         inspect.isclass):
+                    if hasattr(cls, 'run') and callable(getattr(cls, 'run')) and nameclass not in ['VPC', 'IAM']:
                         resources_check.append(cls(self.vpc_options).run())
-        
-        
+
         """ 
         TODO: Generate reports in json/csv/pdf/xls 
         """
@@ -63,4 +66,4 @@ class AwsCommands(object):
         """
         TODO: Export in csv/json/yaml/tf... future...
         """
-        #....exporttf(checks)....
+        # ....exporttf(checks)....

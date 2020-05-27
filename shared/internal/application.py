@@ -1,8 +1,9 @@
-from concurrent.futures.thread import ThreadPoolExecutor
-from shared.error_handler import exception
-from shared.common import *
 import json
+from concurrent.futures.thread import ThreadPoolExecutor
 from typing import List
+
+from shared.common import *
+from shared.error_handler import exception
 
 
 class SQSPOLICY(object):
@@ -12,32 +13,32 @@ class SQSPOLICY(object):
 
     @exception
     def run(self) -> List[Resource]:
-        
+
         client = self.vpc_options.client('sqs')
 
         resources_found = []
 
         response = client.list_queues()
-       
+
         message_handler("Collecting data from SQS QUEUE POLICY...", "HEADER")
 
         if "QueueUrls" in response:
 
             with ThreadPoolExecutor(15) as executor:
-                results = executor.map(lambda data: self.analyze_queues(client, data[1]), enumerate(response["QueueUrls"]))
+                results = executor.map(lambda data: self.analyze_queues(client, data[1]),
+                                       enumerate(response["QueueUrls"]))
 
             for result in results:
 
                 if result[0] is True:
-
                     resources_found.append(result[1])
-                    
+
         return resources_found
-        
+
     @exception
     def analyze_queues(self, client, queue):
 
-        sqs_queue_policy = client.get_queue_attributes(QueueUrl=queue, AttributeNames=['QueueArn','Policy'])
+        sqs_queue_policy = client.get_queue_attributes(QueueUrl=queue, AttributeNames=['QueueArn', 'Policy'])
 
         if "Attributes" in sqs_queue_policy:
 
@@ -51,11 +52,10 @@ class SQSPOLICY(object):
                 ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
 
                 if ipvpc_found is not False:
-
                     return True, Resource(id=queuearn,
-                                           name=queue,
-                                           type='aws_sqs_queue_policy',
-                                           details='',
-                                           group='application')
+                                          name=queue,
+                                          type='aws_sqs_queue_policy',
+                                          details='',
+                                          group='application')
 
         return False, None

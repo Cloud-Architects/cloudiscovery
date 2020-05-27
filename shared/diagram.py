@@ -1,8 +1,10 @@
-from shared.common import *
-from shared.error_handler import exception
 import os
 from distutils.util import strtobool
+
 from diagrams import Cluster, Diagram
+
+from shared.error_handler import exception
+
 """ Importing all AWS nodes """
 from diagrams.aws.analytics import *
 from diagrams.aws.compute import *
@@ -18,12 +20,10 @@ from diagrams.aws.ml import *
 from diagrams.aws.network import *
 from diagrams.aws.security import *
 from diagrams.aws.storage import *
-
-
 PATH_DIAGRAM_OUTPUT = "./assets/diagrams/"
 
-class Mapsources:
 
+class Mapsources:
     """ Class to mapping type resource from Terraform to Diagram Nodes """
     mapresources = {"aws_lambda_function": "Lambda", "aws_emr_cluster": "EMRCluster",
                     "aws_elasticsearch_domain": "ES", "aws_msk_cluster": "ManagedStreamingForKafka",
@@ -42,22 +42,22 @@ class Mapsources:
 
 class _Diagram(object):
 
-    def __init__ (self, vpc_id, diagram, resources):
+    def __init__(self, vpc_id, diagram, resources):
         self.resources = resources
         self.vpc_id = vpc_id
         self.diagram = diagram
 
     @exception
     def generateDiagram(self):
-       
+
         """ Check if assets/diagram directory exists """
         if not os.path.isdir(PATH_DIAGRAM_OUTPUT):
             try:
                 os.mkdir(PATH_DIAGRAM_OUTPUT)
             except OSError:
-                print ("Creation of the directory %s failed" % PATH_DIAGRAM_OUTPUT)
+                print("Creation of the directory %s failed" % PATH_DIAGRAM_OUTPUT)
             else:
-                print ("Successfully created the directory %s " % PATH_DIAGRAM_OUTPUT)
+                print("Successfully created the directory %s " % PATH_DIAGRAM_OUTPUT)
 
         """ Ordering Resource list to group resources into cluster """
         ordered_resources = dict()
@@ -67,20 +67,20 @@ class _Diagram(object):
                     if Mapsources.mapresources.get(rundata.type) is not None:
                         if rundata.group in ordered_resources:
                             ordered_resources[rundata.group].append({"id": rundata.id,
-                                                                    "type": rundata.type,
-                                                                    "name": rundata.name,
-                                                                    "details": rundata.details})
+                                                                     "type": rundata.type,
+                                                                     "name": rundata.name,
+                                                                     "details": rundata.details})
                         else:
                             ordered_resources[rundata.group] = [{"id": rundata.id,
-                                                                "type": rundata.type,
-                                                                "name": rundata.name,
-                                                                "details": rundata.details}]
+                                                                 "type": rundata.type,
+                                                                 "name": rundata.name,
+                                                                 "details": rundata.details}]
 
         """ Start mounting Cluster """
         resource_id = list()
-        with Diagram(name="AWS VPC {} Resources".format(self.vpc_id), filename=PATH_DIAGRAM_OUTPUT+self.vpc_id, 
+        with Diagram(name="AWS VPC {} Resources".format(self.vpc_id), filename=PATH_DIAGRAM_OUTPUT + self.vpc_id,
                      show=strtobool(self.diagram.lower()), direction="TB"):
-   
+
             """ VPC to represent main resource """
             _vpc = VPC("VPC {}".format(self.vpc_id))
 
@@ -89,7 +89,6 @@ class _Diagram(object):
                 with Cluster(alldata.capitalize() + " resources"):
                     for rundata in ordered_resources[alldata]:
                         resource_id.append(eval(Mapsources.mapresources.get(rundata["type"]))(rundata["name"]))
-
 
             """ Connecting resources and vpc """
             for resource in resource_id:

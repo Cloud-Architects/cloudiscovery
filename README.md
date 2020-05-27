@@ -174,4 +174,4 @@ $ python msgfmt.py -o locales/NEWFOLDER/LC_MESSAGES/messages.mo locales/NEWFOLDE
 
 ### Contributing
 
-If you have improvements or fixes, we would love to have your contributions. 
+If you have improvements or fixes, we would love to have your contributions. Please use [PEP 8](https://pycodestyle.readthedocs.io/en/latest/) code style.

@@ -1,9 +1,11 @@
-from shared.common import *
-from shared.error_handler import exception
 from typing import List
 
+from shared.common import *
+from shared.error_handler import exception
+
+
 class ECS(object):
-    
+
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
@@ -23,7 +25,7 @@ class ECS(object):
         message_handler("Collecting data from ECS CLUSTER...", "HEADER")
 
         if len(response['clusters']) > 0:
-            
+
             for data in response['clusters']:
 
                 """ Searching all cluster services """
@@ -42,7 +44,8 @@ class ECS(object):
 
                         for data_service_detail in service_details['services']:
                             if data_service_detail['launchType'] == 'FARGATE':
-                                service_subnets = data_service_detail["networkConfiguration"]["awsvpcConfiguration"]["subnets"]
+                                service_subnets = data_service_detail["networkConfiguration"]["awsvpcConfiguration"][
+                                    "subnets"]
 
                                 """ describe subnet to get VpcId """
                                 ec2 = self.vpc_options.client('ec2')
@@ -53,7 +56,6 @@ class ECS(object):
                                 for data_subnet in subnets['Subnets']:
 
                                     if data_subnet['VpcId'] == self.vpc_options.vpc_id:
-
                                         resources_found.append(Resource(id=data['clusterArn'],
                                                                         name=data["clusterName"],
                                                                         type='aws_ecs_cluster',
@@ -88,7 +90,6 @@ class ECS(object):
                             for instance in reservation['Instances']:
                                 for network_interfaces in instance['NetworkInterfaces']:
                                     if network_interfaces['VpcId'] == self.vpc_options.vpc_id:
-
                                         resources_found.append(Resource(id=instance['InstanceId'],
                                                                         name=data["clusterName"],
                                                                         type='aws_ecs_cluster',
