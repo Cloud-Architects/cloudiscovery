@@ -12,11 +12,8 @@ class Report(object):
 
         message_handler("\n\nRESOURCES FOUND", "HEADER")
 
-        for alldata in self.resources:
-            """ In case of some resource check failure, response may be None"""
-            if isinstance(alldata, list):
-                for rundata in alldata:
-                    message = "resource type: {} -> resource id: {} -> resource name: {} -> resource details: {}" \
-                        .format(rundata.type, rundata.id, rundata.name, rundata.details)
+        for rundata in self.resources:
+            message = "resource type: {} -> resource id: {} -> resource name: {} -> resource details: {}" \
+                .format(rundata.type, rundata.id, rundata.name, rundata.details)
 
-                    message_handler(message, "OKBLUE")
+            message_handler(message, "OKBLUE")
