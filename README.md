@@ -1,39 +1,50 @@
 # AWS Network Discovery
 
+![python version](https://img.shields.io/badge/python-3.6%2C3.7%2C3.8-blue?logo=python)
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
-AWS Network Discovery helps you analyze what's resources are using a custom VPC.
+AWS Network Discovery helps you analyze resources in an AWS account.
 
 ### Features
 
 Following services are integrated
 
-  - EC2
-  - IAM POLICY
-  - Lambda
-  - RDS
-  - EFS 
-  - ELASTICACHE
-  - S3 POLICY
-  - ELASTICSEARCH
-  - DOCUMENTDB
-  - SQS QUEUE POLICY
-  - MSK
-  - NAT GATEWAY
-  - INTERNET GATEWAY (IGW)
-  - CLASSIC/NETWORK/APPLICATION LOAD BALANCING
-  - ROUTE TABLE
-  - SUBNET
-  - NACL
-  - SECURITY GROUP
-  - VPC PEERING
-  - VPC ENDPOINT
-  - EKS
+- EC2
+- IAM POLICY
+- Lambda
+- RDS
+- EFS 
+- ELASTICACHE
+- S3 POLICY
+- ELASTICSEARCH
+- DOCUMENTDB
+- SQS QUEUE POLICY
+- MSK
+- NAT GATEWAY
+- INTERNET GATEWAY (IGW)
+- CLASSIC/NETWORK/APPLICATION LOAD BALANCING
+- ROUTE TABLE
+- SUBNET
+- NACL
+- SECURITY GROUP
+- VPC PEERING
+- VPC ENDPOINT
+- EKS
+- SYNTHETIC CANARIES
+- EMR 
+- ECS
+- AUTOSCALING
+- MEDIA CONNECT
+- MEDIA LIVE
+- MEDIA STORE POLICY
 
 ### News
 
 - Performs checks using thread concurrency
 - Best information provided
+- Integration with [Diagram](https://github.com/mingrammer/diagrams)
+- Now this tool can check all VPCS in the same regions
+- Support to Docker container
 
 ### Requirements and Installation
 
@@ -51,26 +62,105 @@ $ pip install -r requirements.txt
 $ aws configure
 ```
 
-- Those credentials must be associated to a user or role with proper permissions to do all checks. To make sure, add the AWS managed policies ViewOnlyAccess and SecurityAudit, to the user or role being used. Policies ARN are:
+- The configured credentials must be associated to a user or role with proper permissions to do all checks. If you want to use a role with narrowed set of permissions just to perform network discovery, use a role from the following CF template shown below. To further increase security, you can add a block to check `aws:MultiFactorAuthPresent` condition in `AssumeRolePolicyDocument`. More on using IAM roles in the [configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html).
 
-```sh
-arn:aws:iam::aws:policy/job-function/ViewOnlyAccess
-arn:aws:iam::aws:policy/SecurityAudit
+```json
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Setups a role for diagram builder for all resources within an account",
+  "Resources": {
+    "NetworkDiscoveryRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument" : {
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Principal" : {
+                "AWS": { "Fn::Join" : [ "", [
+                  "arn:aws:iam::", { "Ref" : "AWS::AccountId" }, ":root"
+                ]]}
+              },
+              "Action" : [ "sts:AssumeRole" ]
+            }
+          ]
+        },
+        "Policies": [{
+          "PolicyName": "additional-permissions",
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement" : [
+              {
+                "Effect" : "Allow",
+                "Action" : [
+                  "kafka:ListClusters",
+                  "synthetics:DescribeCanaries",
+                  "medialive:ListInputs"
+                ],
+                "Resource": [ "*" ]
+              }
+            ]
+          }
+        }],
+        "Path" : "/",
+        "ManagedPolicyArns" : [
+          "arn:aws:iam::aws:policy/job-function/ViewOnlyAccess",
+          "arn:aws:iam::aws:policy/SecurityAudit"
+        ]
+      }
+    }
+  },
+  "Outputs" : {
+    "NetworkDiscoveryRoleArn" : {
+      "Value" : { "Fn::GetAtt": [ "NetworkDiscoveryRole", "Arn" ]}
+    }
+  }
+}
 ```
+
+- (Optional) If you want to be able to switch between multiple AWS credentials and settings, you can configure [named profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) and later pass profile name when running the tool.
 
 ### Usage
 
-1. Run the aws-network-discovery command with follow options (if a region not informed, this script will try to get from ~/.aws/credentials):
+1. Run the aws-network-discovery command with following options (if a region not informed, this script will try to get from ~/.aws/credentials):
+
+1.1 To detect VPC resources:
 
 ```sh
-$ ./aws-network-discovery.py --vpc-id vpc-xxxxxxx --region-name xx-xxxx-xxx
+$ ./aws-network-discovery.py vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+```
+1.2 To detect policy resources:
+
+```sh
+$ ./aws-network-discovery.py policy [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
 ```
 
 2. For help use:
 
 ```sh
-$ ./aws-network-discovery.py -h
+$ ./aws-network-discovery.py [vpc|policy] -h
 ```
+
+### Using a Docker container
+
+To build docker container using Dockerfile
+
+```sh
+$ docker build -t aws-discovery-network .
+```
+
+After build container, you must start container using follow command. The run command will mount a filesystem with your actual aws cli credentials, then you won't need configure aws cli again.
+
+```sh
+$ docker run \
+-it \
+--mount type=bind,source=$HOME/.aws/,target=/root/.aws/,readonly \
+aws-discovery-network \
+/bin/bash
+
+```
+
+- If you are using Diagram output and due to fact container is a slim image of Python image, you must run aws-network-discovery.py with "--diagram False", otherwise you'll have an error about "xdg-open". The output file will be saved in "assets/diagrams".
 
 ### Translate
 
@@ -84,33 +174,11 @@ This project support English and Portuguese (Brazil) languages. To contribute wi
 $ python msgfmt.py -o locales/NEWFOLDER/LC_MESSAGES/messages.mo locales/NEWFOLDER/LC_MESSAGES/messages
 ```
 
-
 ### TODO
 
 - Improve documentation and code comments
 - More services that uses VPC (I'll try add one a week)
-- Custom logging control and reporting improvement.
 
-### License
+### Contributing
 
-Copyright 2020 Conversando Na Nuvem (https://www.youtube.com/channel/UCuI2nDGLq_yjY9JNsDYStMQ/) - Leandro Damascena
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
-following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
-disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
-following disclaimer in the documentation and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
-products derived from this software without specific prior written permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+If you have improvements or fixes, we would love to have your contributions. Please use [PEP 8](https://pycodestyle.readthedocs.io/en/latest/) code style.

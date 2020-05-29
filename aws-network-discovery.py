@@ -1,100 +1,145 @@
 #!/usr/bin/env python3
 """
-Copyright 2020 Conversando Na Nuvem (https://www.youtube.com/channel/UCuI2nDGLq_yjY9JNsDYStMQ/) - Leandro Damascena
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
-following conditions are met:
+      http://www.apache.org/licenses/LICENSE-2.0
 
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following
-disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
-following disclaimer in the documentation and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
-products derived from this software without specific prior written permission.
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
----------------------------------------------------------------------------
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 This script manages aws-network-discovery, a tool for analyzing VPC dependencies.
 """
-import sys
 import argparse
 import gettext
+import sys
+
+from provider.policy.command import Policy
+from provider.vpc.command import Vpc
+from shared.common import *
 
 # Check version
 if sys.version_info < (3, 6):
     print(_("Python 3.6 or newer is required"), file=sys.stderr)
     sys.exit(1)
 
+__version__ = "1.0.0"
 
-from commands.vpc import Vpc
+AVAILABLE_LANGUAGES = ['en_US', 'pt_BR']
+DIAGRAMS_OPTIONS = ['True', 'False']
 
-__version__ = "0.6.0"
 
-AVAILABLE_LANGUAGES = ['en_US','pt_BR']
-
-def show_options(args="sys.argv[1:]"):
+def generate_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-                        "-v",
-                        "--vpc-id",
-                        required=True,
-                        help="Inform VPC to analyze"
-                        )
-    parser.add_argument(
-                        "-r",
-                        "--region-name",
-                        required=False,
-                        help="Inform REGION to analyze. If not informed, try to get from config file"
-                        )
-    parser.add_argument(
-                        "-p",
-                        "--profile_name",
-                        required=False,
-                        help="Profile to be used"
-                        )
-    parser.add_argument(
-                        "-l",
-                        "--language",
-                        required=False,
-                        help="available languages: pt_BR, en_US"
-                        )
-    args = parser.parse_args()
 
-    return args
+    subparsers = parser.add_subparsers(help='commands', dest="command")
+
+    vpc_parser = subparsers.add_parser(
+        'vpc', help='Analyze VPCs')
+    add_default_arguments(vpc_parser)
+    vpc_parser.add_argument(
+        "-v",
+        "--vpc-id",
+        required=False,
+        help="Inform VPC to analyze. If not informed, script will check all vpcs."
+    )
+
+    policy_parser = subparsers.add_parser(
+        'policy', help='Analyze policies')
+
+    add_default_arguments(policy_parser)
+
+    return parser
+
+
+def add_default_arguments(parser):
+    parser.add_argument(
+        "-r",
+        "--region-name",
+        required=False,
+        help="Inform REGION to analyze. If not informed, try to get from config file"
+    )
+    parser.add_argument(
+        "-p",
+        "--profile-name",
+        required=False,
+        help="Profile to be used"
+    )
+    parser.add_argument(
+        "-l",
+        "--language",
+        required=False,
+        help="available languages: pt_BR, en_US"
+    )
+    parser.add_argument(
+        "-d",
+        "--diagram",
+        required=False,
+        help="print diagram with resources (need Graphviz installed). Use options \"True\" to " \
+             "view image or \"False\" to save image to disk. Default True"
+    )
 
 
 def main():
     """Entry point for the CLI."""
 
     # Load commands
+    parser = generate_parser()
     if len(sys.argv) <= 1:
-        options = show_options(args=['-h'])
+        parser.print_help()
+        return
 
-    args = show_options(sys.argv)
+    args = parser.parse_args()
 
     if args.language is None or args.language not in AVAILABLE_LANGUAGES:
         language = "en_US"
     else:
         language = args.language
 
+    """ Diagram check """
+    if args.diagram is not None and args.diagram not in DIAGRAMS_OPTIONS:
+        diagram = "True"
+    else:
+        diagram = args.diagram
 
     """ defining default language to show messages """
     defaultlanguage = gettext.translation('messages', localedir='locales', languages=[language])
     defaultlanguage.install()
-    _ = defaultlanguage.gettext 
+    _ = defaultlanguage.gettext
 
+    """ aws profile check """
+    session = generate_session(args.profile_name)
+    session.get_credentials()
+    region_name = session.region_name
 
-    vpc = Vpc(vpc_id=args.vpc_id, region_name=args.region_name, profile_name=args.profile_name)
-    vpc.run()
+    if args.region_name is None and region_name is None:
+        exit_critical(_("Neither region parameter or region config were informed"))
+
+    """ assuming region parameter precedes region configuration """
+    if args.region_name is not None:
+        region_name = args.region_name
+
+    if args.command == "vpc":
+        command = Vpc(vpc_id=args.vpc_id,
+                      region_name=region_name,
+                      session=session,
+                      diagram=diagram)
+    elif args.command == "policy":
+        command = Policy(region_name=region_name,
+                         session=session,
+                         diagram=diagram)
+    else:
+        raise NotImplementedError("Unknown command")
+    command.run()
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Finishing script...')
+        sys.exit(0)
