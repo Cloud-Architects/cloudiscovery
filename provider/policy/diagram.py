@@ -21,10 +21,6 @@ class ProfileDiagram(BaseDiagram):
         nodes: Dict[ResourceDigest, any] = {}
         with Diagram(name="AWS Permissions map", filename=PATH_DIAGRAM_OUTPUT + "account_policies", direction="TB"):
 
-            # TODO: add account
-            # """ VPC to represent main resource """
-            # _vpc = eval("VPC")("VPC {}".format(self.vpc_id))
-
             """ Iterate resources to draw it """
             for alldata in ordered_resources:
                 with Cluster(alldata.capitalize() + " resources"):
