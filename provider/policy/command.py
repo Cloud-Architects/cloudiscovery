@@ -1,7 +1,7 @@
 from provider.policy.diagram import ProfileDiagram
 from shared.command import BaseCommand, CommandRunner
 from shared.common import *
-from shared.diagram import NoDiagram, BaseDiagram
+from shared.diagram import BaseDiagram
 
 
 class ProfileOptions(BaseOptions):
