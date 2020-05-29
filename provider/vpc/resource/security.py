@@ -1,25 +1,24 @@
 import json
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import List
 
 from provider.vpc.command import VpcOptions, check_ipvpc_inpolicy
 from shared.common import *
 from shared.error_handler import exception
 
 
-class IAMPOLICY(object):
+class IAMPOLICY(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.session.client('iam')
 
         resources_found = []
 
-        message_handler("Collecting data from IAM POLICY...", "HEADER")
+        message_handler("Collecting data from IAM Policies...", "HEADER")
         paginator = client.get_paginator('list_policies')
         pages = paginator.paginate(
             Scope='Local'
@@ -42,13 +41,12 @@ class IAMPOLICY(object):
 
         document = json.dumps(documentpolicy, default=datetime_to_string)
 
-        """ check either vpc_id or potencial subnet ip are found """
+        """ check either vpc_id or potential subnet ip are found """
         ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
 
         if ipvpc_found is True:
-            return True, Resource(id=data['Arn'],
+            return True, Resource(digest=ResourceDigest(id=data['Arn'], type='aws_iam_policy'),
                                   name=data['PolicyName'],
-                                  type='aws_iam_policy',
                                   details='IAM Policy version {}'.format(data['DefaultVersionId']),
                                   group='security')
 

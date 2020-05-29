@@ -1,17 +1,15 @@
-from typing import List
-
 from provider.vpc.command import VpcOptions
 from shared.common import *
 from shared.error_handler import exception
 
 
-class INTERNETGATEWAY(object):
+class INTERNETGATEWAY(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
         client = self.vpc_options.client('ec2')
 
         resources_found = []
@@ -21,7 +19,7 @@ class INTERNETGATEWAY(object):
 
         response = client.describe_internet_gateways(Filters=filters)
 
-        message_handler("Collecting data from INTERNET GATEWAYS...", "HEADER")
+        message_handler("Collecting data from Internet Gateways...", "HEADER")
 
         """ One VPC has only 1 IGW then it's a direct check """
         if len(response["InternetGateways"]) > 0:
@@ -29,22 +27,23 @@ class INTERNETGATEWAY(object):
 
             name = response['InternetGateways'][0]['InternetGatewayId'] if nametags is False else nametags
 
-            resources_found.append(Resource(id=response['InternetGateways'][0]['InternetGatewayId'],
-                                            name=name,
-                                            type='aws_internet_gateway',
-                                            details='',
-                                            group='network'))
+            resources_found.append(Resource(
+                digest=ResourceDigest(id=response['InternetGateways'][0]['InternetGatewayId'],
+                                      type='aws_internet_gateway'),
+                name=name,
+                details='',
+                group='network'))
 
         return resources_found
 
 
-class NATGATEWAY(object):
+class NATGATEWAY(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
 
@@ -55,7 +54,7 @@ class NATGATEWAY(object):
 
         response = client.describe_nat_gateways(Filters=filters)
 
-        message_handler("Collecting data from NAT GATEWAYS...", "HEADER")
+        message_handler("Collecting data from NAT Gateways...", "HEADER")
 
         if len(response["NatGateways"]) > 0:
 
@@ -66,25 +65,27 @@ class NATGATEWAY(object):
 
                     name = data['NatGatewayId'] if nametags is False else nametags
 
-                    resources_found.append(Resource(id=data['NatGatewayId'],
-                                                    name=name,
-                                                    type='aws_nat_gateway',
-                                                    details='NAT Gateway Private IP {}, Public IP {}, Subnet id {}' \
-                                                    .format(data['NatGatewayAddresses'][0]['PrivateIp'],
-                                                            data['NatGatewayAddresses'][0]['PublicIp'],
-                                                            data['SubnetId']),
-                                                    group='network'))
+                    resources_found.append(
+                        Resource(digest=ResourceDigest(id=data['NatGatewayId'], type='aws_nat_gateway'),
+                                 name=name,
+                                 details='NAT Gateway Private IP {}, Public IP {}, Subnet id {}'.format(
+                                     data['NatGatewayAddresses'][0][
+                                         'PrivateIp'],
+                                     data['NatGatewayAddresses'][0][
+                                         'PublicIp'],
+                                     data['SubnetId']),
+                                 group='network'))
 
         return resources_found
 
 
-class ELASTICLOADBALANCING(object):
+class ELASTICLOADBALANCING(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('elb')
 
@@ -92,29 +93,29 @@ class ELASTICLOADBALANCING(object):
 
         response = client.describe_load_balancers()
 
-        message_handler("Collecting data from CLASSIC LOAD BALANCING...", "HEADER")
+        message_handler("Collecting data from Classic Load Balancers...", "HEADER")
 
         if len(response['LoadBalancerDescriptions']) > 0:
 
             for data in response['LoadBalancerDescriptions']:
 
                 if data['VPCId'] == self.vpc_options.vpc_id:
-                    resources_found.append(Resource(id=data['LoadBalancerName'],
+                    resources_found.append(Resource(digest=ResourceDigest(id=data['LoadBalancerName'],
+                                                                          type='aws_elb_classic'),
                                                     name=data['LoadBalancerName'],
-                                                    type='aws_elb_classic',
                                                     details='',
                                                     group='network'))
 
         return resources_found
 
 
-class ELASTICLOADBALANCINGV2(object):
+class ELASTICLOADBALANCINGV2(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('elbv2')
 
@@ -122,7 +123,7 @@ class ELASTICLOADBALANCINGV2(object):
 
         response = client.describe_load_balancers()
 
-        message_handler("Collecting data from APPLICATION LOAD BALANCING...", "HEADER")
+        message_handler("Collecting data from Application Load Balancers...", "HEADER")
 
         if len(response['LoadBalancers']) > 0:
 
@@ -133,22 +134,21 @@ class ELASTICLOADBALANCINGV2(object):
                     for availabilityZone in data['AvailabilityZones']:
                         subnet_ids.append(availabilityZone['SubnetId'])
 
-                    resources_found.append(Resource(id=data['LoadBalancerName'],
+                    resources_found.append(Resource(digest=ResourceDigest(id=data['LoadBalancerName'], type='aws_elb'),
                                                     name=data['LoadBalancerName'],
-                                                    type='aws_elb',
                                                     details='',
                                                     group='network'))
 
         return resources_found
 
 
-class ROUTETABLE(object):
+class ROUTETABLE(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
 
@@ -159,7 +159,7 @@ class ROUTETABLE(object):
 
         response = client.describe_route_tables(Filters=filters)
 
-        message_handler("Collecting data from ROUTE TABLES...", "HEADER")
+        message_handler("Collecting data from Route Tables...", "HEADER")
 
         if len(response['RouteTables']) > 0:
 
@@ -169,22 +169,22 @@ class ROUTETABLE(object):
 
                 name = data['RouteTableId'] if nametags is False else nametags
 
-                resources_found.append(Resource(id=data['RouteTableId'],
+                resources_found.append(Resource(digest=ResourceDigest(id=data['RouteTableId'],
+                                                                      type='aws_route_table'),
                                                 name=name,
-                                                type='aws_route_table',
                                                 details='',
                                                 group='network'))
 
         return resources_found
 
 
-class SUBNET(object):
+class SUBNET(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
 
@@ -195,7 +195,7 @@ class SUBNET(object):
 
         response = client.describe_subnets(Filters=filters)
 
-        message_handler("Collecting data from SUBNETS...", "HEADER")
+        message_handler("Collecting data from Subnets...", "HEADER")
 
         if len(response['Subnets']) > 0:
 
@@ -205,23 +205,24 @@ class SUBNET(object):
 
                 name = data['SubnetId'] if nametags is False else nametags
 
-                resources_found.append(Resource(id=data['SubnetId'],
+                resources_found.append(Resource(digest=ResourceDigest(id=data['SubnetId'],
+                                                                      type='aws_subnet'),
                                                 name=name,
-                                                type='aws_subnet',
                                                 details='Subnet using CidrBlock {} and AZ {}' \
-                                                .format(data['CidrBlock'], data['AvailabilityZone']),
+                                                .format(data['CidrBlock'],
+                                                        data['AvailabilityZone']),
                                                 group='network'))
 
         return resources_found
 
 
-class NACL(object):
+class NACL(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
 
@@ -246,9 +247,8 @@ class NACL(object):
 
                 name = data['NetworkAclId'] if nametags is False else nametags
 
-                resources_found.append(Resource(id=data['NetworkAclId'],
+                resources_found.append(Resource(digest=ResourceDigest(id=data['NetworkAclId'], type='aws_network_acl'),
                                                 name=name,
-                                                type='aws_network_acl',
                                                 details='NACL using Subnets {}' \
                                                 .format(', '.join(subnet_ids)),
                                                 group='network'))
@@ -256,13 +256,13 @@ class NACL(object):
         return resources_found
 
 
-class SECURITYGROUP(object):
+class SECURITYGROUP(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
 
@@ -273,28 +273,27 @@ class SECURITYGROUP(object):
 
         response = client.describe_security_groups(Filters=filters)
 
-        message_handler("Collecting data from SECURITY GROUPS...", "HEADER")
+        message_handler("Collecting data from Security Groups...", "HEADER")
 
         if len(response['SecurityGroups']) > 0:
 
             """ Iterate to get all SG filtered """
             for data in response['SecurityGroups']:
-                resources_found.append(Resource(id=data['GroupId'],
+                resources_found.append(Resource(digest=ResourceDigest(id=data['GroupId'], type='aws_security_group'),
                                                 name=data['GroupName'],
-                                                type='aws_security_group',
                                                 details='',
                                                 group='network'))
 
         return resources_found
 
 
-class VPCPEERING(object):
+class VPCPEERING(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
 
@@ -302,7 +301,7 @@ class VPCPEERING(object):
 
         response = client.describe_vpc_peering_connections()
 
-        message_handler("Collecting data from VPC PEERING...", "HEADER")
+        message_handler("Collecting data from VPC Peering...", "HEADER")
 
         if len(response['VpcPeeringConnections']) > 0:
 
@@ -315,28 +314,28 @@ class VPCPEERING(object):
 
                     name = data['VpcPeeringConnectionId'] if nametags is False else nametags
 
-                    resources_found.append(Resource(id=data['VpcPeeringConnectionId'],
-                                                    name=name,
-                                                    type='aws_vpc_peering_connection',
-                                                    details='Vpc Peering Accepter OwnerId {}, Accepter Region {}, Accepter VpcId {} \
+                    resources_found.append(Resource(
+                        digest=ResourceDigest(id=data['VpcPeeringConnectionId'], type='aws_vpc_peering_connection'),
+                        name=name,
+                        details='Vpc Peering Accepter OwnerId {}, Accepter Region {}, Accepter VpcId {} \
                                                              Requester OwnerId {}, Requester Region {}, Requester VpcId' \
-                                                    .format(data['AccepterVpcInfo']['OwnerId'],
-                                                            data['AccepterVpcInfo']['Region'],
-                                                            data['AccepterVpcInfo']['VpcId'],
-                                                            data['RequesterVpcInfo']['OwnerId'],
-                                                            data['RequesterVpcInfo']['Region'],
-                                                            data['RequesterVpcInfo']['VpcId']),
-                                                    group='network'))
+                            .format(data['AccepterVpcInfo']['OwnerId'],
+                                    data['AccepterVpcInfo']['Region'],
+                                    data['AccepterVpcInfo']['VpcId'],
+                                    data['RequesterVpcInfo']['OwnerId'],
+                                    data['RequesterVpcInfo']['Region'],
+                                    data['RequesterVpcInfo']['VpcId']),
+                        group='network'))
         return resources_found
 
 
-class VPCENDPOINT(object):
+class VPCENDPOINT(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
 
@@ -347,7 +346,7 @@ class VPCENDPOINT(object):
 
         response = client.describe_vpc_endpoints(Filters=filters)
 
-        message_handler("Collecting data from VPC ENDPOINTS...", "HEADER")
+        message_handler("Collecting data from VPC Endpoints...", "HEADER")
 
         if len(response['VpcEndpoints']) > 0:
 
@@ -356,18 +355,17 @@ class VPCENDPOINT(object):
 
                 if data['VpcId'] == self.vpc_options.vpc_id:
                     if data['VpcEndpointType'] == 'Gateway':
-                        resources_found.append(Resource(id=data['VpcEndpointId'],
-                                                        name=data['ServiceName'],
-                                                        type='aws_vpc_endpoint_gateway',
-                                                        details='Vpc Endpoint Gateway RouteTable {}' \
-                                                        .format(', '.join(data['RouteTableIds'])),
-                                                        group='network'))
+                        resources_found.append(
+                            Resource(digest=ResourceDigest(id=data['VpcEndpointId'], type='aws_vpc_endpoint_gateway'),
+                                     name=data['ServiceName'],
+                                     details='Vpc Endpoint Gateway RouteTable {}'.format(
+                                         ', '.join(data['RouteTableIds'])),
+                                     group='network'))
                     else:
-                        resources_found.append(Resource(id=data['VpcEndpointId'],
-                                                        name=data['ServiceName'],
-                                                        type='aws_vpc_endpoint_gateway',
-                                                        details='Vpc Endpoint Service Subnet {}' \
-                                                        .format(', '.join(data['SubnetIds'])),
-                                                        group='network'))
+                        resources_found.append(
+                            Resource(digest=ResourceDigest(id=data['VpcEndpointId'], type='aws_vpc_endpoint_gateway'),
+                                     name=data['ServiceName'],
+                                     details='Vpc Endpoint Service Subnet {}'.format(', '.join(data['SubnetIds'])),
+                                     group='network'))
 
         return resources_found

@@ -1,8 +1,8 @@
-from typing import List
+from typing import List, Dict
 
 from diagrams import Cluster, Diagram
 
-from shared.common import Resource
+from shared.common import Resource, ResourceEdge, ResourceDigest
 from shared.diagram import BaseDiagram, Mapsources, PATH_DIAGRAM_OUTPUT
 from shared.error_handler import exception
 
@@ -10,28 +10,15 @@ from shared.error_handler import exception
 class ProfileDiagram(BaseDiagram):
 
     @exception
-    def generate_diagram(self, resources: List[Resource]):
+    def generate_diagram(self, resources: List[Resource], resource_relations: List[ResourceEdge]):
         """ Importing all AWS nodes """
         for module in Mapsources.diagrams_modules:
             exec('from diagrams.aws.' + module + ' import *')
 
-        """ Ordering Resource list to group resources into cluster """
-        ordered_resources = dict()
-        for rundata in resources:
-            if Mapsources.mapresources.get(rundata.type) is not None:
-                if rundata.group in ordered_resources:
-                    ordered_resources[rundata.group].append({"id": rundata.id,
-                                                             "type": rundata.type,
-                                                             "name": rundata.name,
-                                                             "details": rundata.details})
-                else:
-                    ordered_resources[rundata.group] = [{"id": rundata.id,
-                                                         "type": rundata.type,
-                                                         "name": rundata.name,
-                                                         "details": rundata.details}]
+        ordered_resources = self.group_by_group(resources)
 
         """ Start mounting Cluster """
-        resource_id = list()
+        nodes: Dict[ResourceDigest, any] = {}
         with Diagram(name="AWS Permissions map", filename=PATH_DIAGRAM_OUTPUT + "account_policies", direction="TB"):
 
             # TODO: add account
@@ -41,9 +28,11 @@ class ProfileDiagram(BaseDiagram):
             """ Iterate resources to draw it """
             for alldata in ordered_resources:
                 with Cluster(alldata.capitalize() + " resources"):
-                    for rundata in ordered_resources[alldata]:
-                        resource_id.append(eval(Mapsources.mapresources.get(rundata["type"]))(rundata["name"]))
+                    for resource in ordered_resources[alldata]:
+                        node = eval(Mapsources.mapresources.get(resource.digest.type))(resource.name)
+                        nodes[resource.digest] = node
 
-            # """ Connecting resources and vpc """
-            # for resource in resource_id:
-            #     resource >> _vpc
+            for resource_relation in resource_relations:
+                from_node = nodes[resource_relation.from_node]
+                to_node = nodes[resource_relation.to_node]
+                from_node >> to_node

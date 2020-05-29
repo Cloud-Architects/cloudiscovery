@@ -79,7 +79,7 @@ def add_default_arguments(parser):
         "-d",
         "--diagram",
         required=False,
-        help="print diagram with resources (need Graphviz installed). Use options \"True\" to " \
+        help="print diagram with resources (need Graphviz installed). Use options \"True\" to "
              "view image or \"False\" to save image to disk. Default True"
     )
 

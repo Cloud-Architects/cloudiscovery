@@ -1,17 +1,15 @@
-from typing import List
-
 from provider.vpc.command import VpcOptions
 from shared.common import *
 from shared.error_handler import exception
 
 
-class RDS(object):
+class RDS(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('rds')
 
@@ -25,7 +23,7 @@ class RDS(object):
                         'sqlserver-se', 'sqlserver-ex', 'sqlserver-web']
              }])
 
-        message_handler("Collecting data from RDS INSTANCES...", "HEADER")
+        message_handler("Collecting data from RDS Instances...", "HEADER")
 
         if len(response["DBInstances"]) > 0:
 
@@ -35,23 +33,23 @@ class RDS(object):
                     for subnet in data['DBSubnetGroup']['Subnets']:
                         subnet_ids.append(subnet['SubnetIdentifier'])
 
-                    resources_found.append(Resource(id=data['DBInstanceArn'],
+                    resources_found.append(Resource(digest=ResourceDigest(id=data['DBInstanceArn'],
+                                                                          type='aws_db_instance'),
                                                     name=data["DBInstanceIdentifier"],
-                                                    type='aws_db_instance',
-                                                    details='DBInstance using subnets {} and engine {}' \
-                                                    .format(', '.join(subnet_ids), data["Engine"]),
+                                                    details='DBInstance using subnets {} and engine {}'.format(
+                                                        ', '.join(subnet_ids), data["Engine"]),
                                                     group='database'))
 
         return resources_found
 
 
-class ELASTICACHE(object):
+class ELASTICACHE(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('elasticache')
 
@@ -60,7 +58,7 @@ class ELASTICACHE(object):
         """ get all cache clusters """
         response = client.describe_cache_clusters()
 
-        message_handler("Collecting data from ELASTICACHE CLUSTERS...", "HEADER")
+        message_handler("Collecting data from Elasticache Clusters...", "HEADER")
 
         if len(response['CacheClusters']) > 0:
 
@@ -74,23 +72,23 @@ class ELASTICACHE(object):
                     for subnet in cachesubnet['CacheSubnetGroups'][0]['Subnets']:
                         subnet_ids.append(subnet['SubnetIdentifier'])
 
-                    resources_found.append(Resource(id=data['CacheClusterId'],
+                    resources_found.append(Resource(digest=ResourceDigest(id=data['CacheClusterId'],
+                                                                          type='aws_elasticache_cluster'),
                                                     name=data["CacheSubnetGroupName"],
-                                                    type='aws_elasticache_cluster',
-                                                    details='Elasticache Cluster using subnets {} and engine {}' \
-                                                    .format(', '.join(subnet_ids), data["Engine"]),
+                                                    details='Elasticache Cluster using subnets {} and engine {}'.format(
+                                                        ', '.join(subnet_ids), data["Engine"]),
                                                     group='database'))
 
         return resources_found
 
 
-class DOCUMENTDB(object):
+class DOCUMENTDB(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('docdb')
 
@@ -101,7 +99,7 @@ class DOCUMENTDB(object):
              'Values': ['docdb']
              }])
 
-        message_handler("Collecting data from DOCUMENTDB INSTANCES...", "HEADER")
+        message_handler("Collecting data from DocumentDB Instances...", "HEADER")
 
         if len(response['DBInstances']) > 0:
 
@@ -113,11 +111,11 @@ class DOCUMENTDB(object):
                     for subnet in data['DBSubnetGroup']['Subnets']:
                         subnet_ids.append(subnet['SubnetIdentifier'])
 
-                    resources_found.append(Resource(id=data['DBInstanceArn'],
-                                                    name=data["DBInstanceIdentifier"],
-                                                    type='aws_docdb_cluster',
-                                                    details='Documentdb using subnets {} and engine {}' \
-                                                    .format(', '.join(subnet_ids), data["Engine"]),
-                                                    group='database'))
+                    resources_found.append(
+                        Resource(digest=ResourceDigest(id=data['DBInstanceArn'], type='aws_docdb_cluster'),
+                                 name=data["DBInstanceIdentifier"],
+                                 details='Documentdb using subnets {} and engine {}'.format(', '.join(subnet_ids),
+                                                                                            data["Engine"]),
+                                 group='database'))
 
-        return resources_found
+            return resources_found

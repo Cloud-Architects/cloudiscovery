@@ -43,28 +43,36 @@ class CommandRunner(object):
                 """ Load and call all run check """
                 for nameclass, cls in inspect.getmembers(
                         importlib.import_module("provider." + provider + ".resource." + module), inspect.isclass):
-                    if hasattr(cls, 'run') and callable(getattr(cls, 'run')):
+                    if issubclass(cls, ResourceProvider) and cls is not ResourceProvider:
                         providers.append((nameclass, cls))
         providers.sort(key=lambda x: x[0])
 
-        resources = []
+        resources: List[Resource] = []
+        resource_relations: List[ResourceEdge] = []
 
         for provider in providers:
-            provider_resources = provider[1](options).run()
+            provider_instance = provider[1](options)
+
+            provider_resources = provider_instance.get_resources()
             if provider_resources is not None:
                 resources.extend(provider_resources)
 
-        resources.sort(key=lambda x: x.group + x.type + x.name)
+            provider_resource_relations = provider_instance.get_relations()
+            if provider_resource_relations is not None:
+                resource_relations.extend(provider_resource_relations)
+
+        resources.sort(key=lambda x: x.group + x.digest.type + x.name)
+        resource_relations.sort(key=lambda x: x.from_node.type + x.from_node.id + x.to_node.type + x.to_node.id)
 
         """ 
         TODO: Generate reports in json/csv/pdf/xls 
         """
-        Report(resources=resources).generalReport()
+        Report().general_report(resources=resources, resource_relations=resource_relations)
 
         """ 
         Diagram integration
         """
-        diagram_builder.build(resources)
+        diagram_builder.build(resources=resources, resource_relations=resource_relations)
 
         """
         TODO: Export in csv/json/yaml/tf... future...

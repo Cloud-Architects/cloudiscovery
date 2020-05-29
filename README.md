@@ -7,44 +7,44 @@ AWS Network Discovery helps you analyze resources in an AWS account.
 
 ### Features
 
-Following services are integrated
+Following resources are checked in VPC command:
 
-- EC2
-- IAM POLICY
+- EC2 Instance
+- IAM Policy
 - Lambda
 - RDS
 - EFS 
-- ELASTICACHE
-- S3 POLICY
-- ELASTICSEARCH
-- DOCUMENTDB
-- SQS QUEUE POLICY
+- ElastiCache
+- S3 Policy
+- Elasticsearch
+- DocumentDB
+- SQS Queue Policy
 - MSK
-- NAT GATEWAY
-- INTERNET GATEWAY (IGW)
-- CLASSIC/NETWORK/APPLICATION LOAD BALANCING
-- ROUTE TABLE
-- SUBNET
+- NAT Gateway
+- Internet Gateway (IGW)
+- Classic/Network/Application Load Balancer
+- Route Table
+- Subnet
 - NACL
-- SECURITY GROUP
-- VPC PEERING
-- VPC ENDPOINT
+- Security Group
+- VPC Peering
+- VPC Endpoint
 - EKS
-- SYNTHETIC CANARIES
+- Synthetic Canary
 - EMR 
 - ECS
-- AUTOSCALING
-- MEDIA CONNECT
-- MEDIA LIVE
-- MEDIA STORE POLICY
+- Autoscaling Group
+- Media Connect
+- Media Live
+- Media Store Policy
 
-### News
+Following resources are checked in Policy command:
 
-- Performs checks using thread concurrency
-- Best information provided
-- Integration with [Diagram](https://github.com/mingrammer/diagrams)
-- Now this tool can check all VPCS in the same regions
-- Support to Docker container
+- IAM User
+- IAM Group
+- IAM Policy
+- IAM User to group relationship
+
 
 ### Requirements and Installation
 
@@ -176,8 +176,9 @@ $ python msgfmt.py -o locales/NEWFOLDER/LC_MESSAGES/messages.mo locales/NEWFOLDE
 
 ### TODO
 
-- Improve documentation and code comments
-- More services that uses VPC (I'll try add one a week)
+- Unit tests
+- More types of resources
+- Improved diagram plotting 
 
 ### Contributing
 

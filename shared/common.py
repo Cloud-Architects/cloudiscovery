@@ -1,6 +1,6 @@
 import datetime
 import re
-from typing import NamedTuple
+from typing import NamedTuple, List
 
 import boto3
 
@@ -27,12 +27,29 @@ class BaseOptions(NamedTuple):
         return self.session.client(service_name, region_name=self.region_name)
 
 
-class Resource(NamedTuple):
+class ResourceDigest(NamedTuple):
     id: str
-    name: str
     type: str
+
+
+class ResourceEdge(NamedTuple):
+    from_node: ResourceDigest
+    to_node: ResourceDigest
+
+
+class Resource(NamedTuple):
+    digest: ResourceDigest
+    name: str
     details: str
     group: str
+
+
+class ResourceProvider:
+    def get_resources(self) -> List[Resource]:
+        return []
+
+    def get_relations(self) -> List[ResourceEdge]:
+        return []
 
 
 def get_name_tags(d):
