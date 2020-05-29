@@ -1,5 +1,6 @@
 from typing import List
 
+from provider.vpc.command import VpcOptions
 from shared.common import *
 from shared.error_handler import exception
 
@@ -35,7 +36,6 @@ class ECS(object):
                 )
 
                 for services in pages:
-
                     if len(services['serviceArns']) > 0:
                         service_details = client.describe_services(
                             cluster=data['clusterName'],

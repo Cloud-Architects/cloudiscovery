@@ -1,31 +1,8 @@
 from typing import List
 
+from provider.vpc.command import VpcOptions
 from shared.common import *
 from shared.error_handler import exception
-
-
-class VPC(object):
-
-    def __init__(self, vpc_options: VpcOptions):
-        self.vpc_options = vpc_options
-
-    @exception
-    def run(self):
-        client = self.vpc_options.client('ec2')
-        response = client.describe_vpcs(
-            VpcIds=[self.vpc_options.vpc_id]
-        )
-
-        dataresponse = response['Vpcs'][0]
-        message = "------------------------------------------------------\n"
-        message = message + "VPC: {}\nCIDR Block: {}\nTenancy: {}\nIs default: {}".format(self.vpc_options.vpc_id,
-                                                                                          dataresponse['CidrBlock'],
-                                                                                          dataresponse[
-                                                                                              'InstanceTenancy'],
-                                                                                          dataresponse['IsDefault'])
-        print(message)
-
-        return True
 
 
 class INTERNETGATEWAY(object):

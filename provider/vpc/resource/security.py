@@ -2,26 +2,9 @@ import json
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import List
 
+from provider.vpc.command import VpcOptions, check_ipvpc_inpolicy
 from shared.common import *
 from shared.error_handler import exception
-
-
-class IAM(object):
-
-    def __init__(self, vpc_options: VpcOptions):
-        self.vpc_options = vpc_options
-
-    @exception
-    def run(self):
-        client = self.vpc_options.session.client('ec2')
-
-        regions = [region['RegionName'] for region in client.describe_regions()['Regions']]
-
-        if self.vpc_options.region_name not in regions:
-            message = "There is no region named: {0}".format(self.vpc_options.region_name)
-            exit_critical(message)
-
-        return True
 
 
 class IAMPOLICY(object):
@@ -36,18 +19,14 @@ class IAMPOLICY(object):
 
         resources_found = []
 
-        response = client.list_policies(Scope='Local')
-
         message_handler("Collecting data from IAM POLICY...", "HEADER")
-
-        if len(response['Policies']) == 0:
-            message_handler("Found 0 Customer managed IAM Policy", "OKBLUE")
-        else:
-            found = 0
-            message = ""
-
+        paginator = client.get_paginator('list_policies')
+        pages = paginator.paginate(
+            Scope='Local'
+        )
+        for policies in pages:
             with ThreadPoolExecutor(15) as executor:
-                results = executor.map(lambda data: self.analyze_policy(client, data), response['Policies'])
+                results = executor.map(lambda data: self.analyze_policy(client, data), policies['Policies'])
             for result in results:
                 if result[0] is True:
                     resources_found.append(result[1])

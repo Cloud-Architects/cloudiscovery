@@ -3,7 +3,6 @@ import re
 from typing import NamedTuple
 
 import boto3
-from ipaddress import ip_network
 
 VPCE_REGEX = re.compile(r'(?<=sourcevpce")(\s*:\s*")(vpce-[a-zA-Z0-9]+)', re.DOTALL)
 SOURCE_IP_ADDRESS_REGEX = re.compile(r'(?<=sourceip")(\s*:\s*")([a-fA-F0-9.:/%]+)', re.DOTALL)
@@ -20,9 +19,8 @@ class bcolors:
               'UNDERLINE': '\033[4m'}
 
 
-class VpcOptions(NamedTuple):
+class BaseOptions(NamedTuple):
     session: boto3.Session
-    vpc_id: str
     region_name: str
 
     def client(self, service_name: str):
@@ -76,66 +74,3 @@ def datetime_to_string(o):
         return o.__str__()
 
 
-def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
-    document = document.replace("\\", "").lower()
-
-    """ Checking if VPC is inside document, it's a 100% true information """
-    if vpc_options.vpc_id in document:
-        return "direct VPC reference"
-    else:
-        """ 
-        Vpc_id not found, trying to discover if it's a potencial subnet IP or VPCE is allowed
-        """
-        if "aws:sourcevpce" in document:
-
-            """ Get VPCE found """
-            aws_sourcevpces = []
-            for vpce_tuple in VPCE_REGEX.findall(document):
-                aws_sourcevpces.append(vpce_tuple[1])
-
-            """ Get all VPCE of this VPC """
-            ec2 = vpc_options.client('ec2')
-
-            filters = [{'Name': 'vpc-id',
-                        'Values': [vpc_options.vpc_id]}]
-
-            vpc_endpoints = ec2.describe_vpc_endpoints(Filters=filters)
-
-            """ iterate VPCEs found found """
-            if len(vpc_endpoints['VpcEndpoints']) > 0:
-                matching_vpces = []
-                """ Iterate VPCE to match vpce in Policy Document """
-                for data in vpc_endpoints['VpcEndpoints']:
-                    if data['VpcEndpointId'] in aws_sourcevpces:
-                        matching_vpces.append(data['VpcEndpointId'])
-                return "VPC Endpoint(s): " + (", ".join(matching_vpces))
-
-        if "aws:sourceip" in document:
-
-            """ Get ip found """
-            aws_sourceips = []
-            for vpce_tuple in SOURCE_IP_ADDRESS_REGEX.findall(document):
-                aws_sourceips.append(vpce_tuple[1])
-            """ Get subnets cidr block """
-            ec2 = vpc_options.client('ec2')
-
-            filters = [{'Name': 'vpc-id',
-                        'Values': [vpc_options.vpc_id]}]
-
-            subnets = ec2.describe_subnets(Filters=filters)
-            overlapping_subnets = []
-            """ iterate ips found """
-            for ipfound in aws_sourceips:
-
-                """ Iterate subnets to match ipaddress """
-                for subnet in list(subnets['Subnets']):
-                    ipfound = ip_network(ipfound)
-                    network_addres = ip_network(subnet['CidrBlock'])
-
-                    if ipfound.overlaps(network_addres):
-                        overlapping_subnets.append("{} ({})".format(str(network_addres), subnet['SubnetId']))
-            if len(overlapping_subnets) != 0:
-                return "source IP(s): {} -> subnet CIDR(s): {}" \
-                    .format(", ".join(aws_sourceips), ", ".join(overlapping_subnets))
-
-        return False

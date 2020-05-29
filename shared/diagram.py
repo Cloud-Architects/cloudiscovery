@@ -1,29 +1,17 @@
 import os
-from distutils.util import strtobool
+from typing import List
 
-from diagrams import Cluster, Diagram
-
+from shared.common import Resource
 from shared.error_handler import exception
 
-""" Importing all AWS nodes """
-from diagrams.aws.analytics import *
-from diagrams.aws.compute import *
-from diagrams.aws.database import *
-from diagrams.aws.devtools import *
-from diagrams.aws.engagement import *
-from diagrams.aws.integration import *
-from diagrams.aws.iot import *
-from diagrams.aws.management import *
-from diagrams.aws.media import *
-from diagrams.aws.migration import *
-from diagrams.aws.ml import *
-from diagrams.aws.network import *
-from diagrams.aws.security import *
-from diagrams.aws.storage import *
 PATH_DIAGRAM_OUTPUT = "./assets/diagrams/"
 
 
 class Mapsources:
+    """ diagrams modules that store classes that represent diagram elements """
+    diagrams_modules = ["analytics", "compute", "database", "devtools", "engagement", "integration", "iot",
+                        "management", "media", "migration", "ml", "network", "security", "storage"]
+
     """ Class to mapping type resource from Terraform to Diagram Nodes """
     mapresources = {"aws_lambda_function": "Lambda", "aws_emr_cluster": "EMRCluster",
                     "aws_elasticsearch_domain": "ES", "aws_msk_cluster": "ManagedStreamingForKafka",
@@ -40,16 +28,14 @@ class Mapsources:
                     "aws_media_connect": "ElementalMediaconnect", "aws_media_live": "ElementalMedialive"}
 
 
-class _Diagram(object):
+class BaseDiagram(object):
 
-    def __init__(self, vpc_id, diagram, resources):
-        self.resources = resources
-        self.vpc_id = vpc_id
-        self.diagram = diagram
+    def build(self, resources: List[Resource]):
+        self.make_directories()
+        self.generate_diagram(resources)
 
-    @exception
-    def generateDiagram(self):
-
+    @staticmethod
+    def make_directories():
         """ Check if assets/diagram directory exists """
         if not os.path.isdir(PATH_DIAGRAM_OUTPUT):
             try:
@@ -59,37 +45,14 @@ class _Diagram(object):
             else:
                 print("Successfully created the directory %s " % PATH_DIAGRAM_OUTPUT)
 
-        """ Ordering Resource list to group resources into cluster """
-        ordered_resources = dict()
-        for alldata in self.resources:
-            if isinstance(alldata, list):
-                for rundata in alldata:
-                    if Mapsources.mapresources.get(rundata.type) is not None:
-                        if rundata.group in ordered_resources:
-                            ordered_resources[rundata.group].append({"id": rundata.id,
-                                                                     "type": rundata.type,
-                                                                     "name": rundata.name,
-                                                                     "details": rundata.details})
-                        else:
-                            ordered_resources[rundata.group] = [{"id": rundata.id,
-                                                                 "type": rundata.type,
-                                                                 "name": rundata.name,
-                                                                 "details": rundata.details}]
+    @exception
+    def generate_diagram(self, resources: List[Resource]):
+        raise NotImplementedError("Implement the diagram generation logic")
 
-        """ Start mounting Cluster """
-        resource_id = list()
-        with Diagram(name="AWS VPC {} Resources".format(self.vpc_id), filename=PATH_DIAGRAM_OUTPUT + self.vpc_id,
-                     show=strtobool(self.diagram.lower()), direction="TB"):
 
-            """ VPC to represent main resource """
-            _vpc = VPC("VPC {}".format(self.vpc_id))
+class NoDiagram(BaseDiagram):
+    def generate_diagram(self, resources: List[Resource]):
+        pass
 
-            """ Iterate resources to draw it """
-            for alldata in ordered_resources:
-                with Cluster(alldata.capitalize() + " resources"):
-                    for rundata in ordered_resources[alldata]:
-                        resource_id.append(eval(Mapsources.mapresources.get(rundata["type"]))(rundata["name"]))
-
-            """ Connecting resources and vpc """
-            for resource in resource_id:
-                resource >> _vpc
+    def build(self, resources: List[Resource]):
+        pass

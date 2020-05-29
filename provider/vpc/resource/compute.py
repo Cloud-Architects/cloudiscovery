@@ -1,5 +1,6 @@
 from typing import List
 
+from provider.vpc.command import VpcOptions
 from shared.common import *
 from shared.error_handler import exception
 
