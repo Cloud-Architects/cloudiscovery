@@ -27,7 +27,7 @@ if sys.version_info < (3, 6):
     print(_("Python 3.6 or newer is required"), file=sys.stderr)
     sys.exit(1)
 
-__version__ = "0.8.0"
+__version__ = "1.0.0"
 
 AVAILABLE_LANGUAGES = ['en_US', 'pt_BR']
 DIAGRAMS_OPTIONS = ['True', 'False']
