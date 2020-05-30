@@ -1,7 +1,9 @@
 import os
 from typing import List, Dict
 
-from shared.common import Resource, ResourceEdge
+from diagrams import Diagram, Cluster
+
+from shared.common import Resource, ResourceEdge, ResourceDigest
 from shared.error_handler import exception
 
 PATH_DIAGRAM_OUTPUT = "./assets/diagrams/"
@@ -59,7 +61,32 @@ class BaseDiagram(object):
 
     @exception
     def generate_diagram(self, resources: List[Resource], resource_relations: List[ResourceEdge]):
-        raise NotImplementedError("Implement the diagram generation logic")
+        """ Importing all AWS nodes """
+        for module in Mapsources.diagrams_modules:
+            exec('from diagrams.aws.' + module + ' import *')
+
+        ordered_resources = self.group_by_group(resources)
+
+        """ Start mounting Cluster """
+        nodes: Dict[ResourceDigest, any] = {}
+        with Diagram(name="AWS Permissions map", filename=PATH_DIAGRAM_OUTPUT + "account_policies", direction="TB"):
+
+            """ Iterate resources to draw it """
+            for alldata in ordered_resources:
+                with Cluster(alldata.capitalize() + " resources"):
+                    for resource in ordered_resources[alldata]:
+                        node = eval(Mapsources.mapresources.get(resource.digest.type))(resource.name)
+                        nodes[resource.digest] = node
+
+            for resource_relation in resource_relations:
+                from_node = nodes[resource_relation.from_node]
+                to_node = nodes[resource_relation.to_node]
+                from_node >> to_node
+
+            self.customize_diagram(nodes)
+
+    def customize_diagram(self, nodes: Dict[ResourceDigest, any]):
+        pass
 
 
 class NoDiagram(BaseDiagram):
