@@ -3,7 +3,7 @@ from shared.common import *
 from shared.error_handler import exception
 
 
-class IAMUSER(ResourceProvider):
+class IamUser(ResourceProvider):
 
     def __init__(self, options: ProfileOptions):
         self.client = options.session.client('iam')
@@ -21,7 +21,7 @@ class IAMUSER(ResourceProvider):
                 users_found.append(Resource(digest=ResourceDigest(id=data['UserName'], type='aws_iam_user'),
                                             name=data['UserName'],
                                             details='',
-                                            group='general'))
+                                            group='User'))
         self.users_found = users_found
         return users_found
 

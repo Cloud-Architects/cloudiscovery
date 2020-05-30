@@ -26,7 +26,8 @@ class Mapsources:
                     "aws_route_table": "RouteTable", "aws_subnet": "PublicSubnet",
                     "aws_network_acl": "Nacl", "aws_vpc_peering_connection": "VPCPeering",
                     "aws_vpc_endpoint_gateway": "Endpoint", "aws_iam_policy": "IAM", "aws_iam_user": "User",
-                    "aws_iam_group": "IAM", "aws_efs_file_system": "EFS", "aws_s3_bucket_policy": "S3",
+                    "aws_iam_group": "IAM", "aws_iam_role": "IAM", "aws_efs_file_system": "EFS",
+                    "aws_s3_bucket_policy": "S3",
                     "aws_media_connect": "ElementalMediaconnect", "aws_media_live": "ElementalMedialive"}
 
 
@@ -82,9 +83,10 @@ class BaseDiagram(object):
                         nodes[resource.digest] = node
 
             for resource_relation in resource_relations:
-                from_node = nodes[resource_relation.from_node]
-                to_node = nodes[resource_relation.to_node]
-                from_node >> to_node
+                if resource_relation.from_node in nodes and resource_relation.to_node in nodes:
+                    from_node = nodes[resource_relation.from_node]
+                    to_node = nodes[resource_relation.to_node]
+                    from_node >> to_node
 
             self.customize_diagram(nodes)
 
