@@ -1,4 +1,3 @@
-from provider.policy.diagram import ProfileDiagram
 from shared.command import BaseCommand, CommandRunner
 from shared.common import *
 from shared.diagram import BaseDiagram
@@ -17,8 +16,6 @@ class Policy(BaseCommand):
         self.check_region()
 
         command_runner = CommandRunner()
-
-        diagram_builder: BaseDiagram = ProfileDiagram()
+        diagram = BaseDiagram("AWS Permissions map", "account_policies")
         options = ProfileOptions(session=self.session, region_name=self.region_name)
-
-        command_runner.run("policy", options, diagram_builder)
+        command_runner.run("policy", options, diagram)

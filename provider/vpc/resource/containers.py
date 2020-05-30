@@ -1,17 +1,15 @@
-from typing import List
-
 from provider.vpc.command import VpcOptions
 from shared.common import *
 from shared.error_handler import exception
 
 
-class ECS(object):
+class ECS(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('ecs')
         ec2_client = self.vpc_options.client('ec2')
@@ -23,7 +21,7 @@ class ECS(object):
             clusters=clusters_list['clusterArns']
         )
 
-        message_handler("Collecting data from ECS CLUSTER...", "HEADER")
+        message_handler("Collecting data from ECS Cluster...", "HEADER")
 
         if len(response['clusters']) > 0:
 
@@ -56,9 +54,10 @@ class ECS(object):
                                 for data_subnet in subnets['Subnets']:
 
                                     if data_subnet['VpcId'] == self.vpc_options.vpc_id:
-                                        resources_found.append(Resource(id=data['clusterArn'],
+                                        resources_found.append(Resource(digest=ResourceDigest(id=data['clusterArn'],
+                                                                                              type='aws_ecs_cluster'),
                                                                         name=data["clusterName"],
-                                                                        type='aws_ecs_cluster',
+
                                                                         details='',
                                                                         group='container'))
                             else:
@@ -90,9 +89,10 @@ class ECS(object):
                             for instance in reservation['Instances']:
                                 for network_interfaces in instance['NetworkInterfaces']:
                                     if network_interfaces['VpcId'] == self.vpc_options.vpc_id:
-                                        resources_found.append(Resource(id=instance['InstanceId'],
+                                        resources_found.append(Resource(digest=ResourceDigest(id=instance['InstanceId'],
+                                                                                              type='aws_ecs_cluster'),
                                                                         name=data["clusterName"],
-                                                                        type='aws_ecs_cluster',
+
                                                                         details='Instance in EC2 cluster',
                                                                         group='container'))
                                     pass

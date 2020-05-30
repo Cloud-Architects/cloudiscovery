@@ -1,17 +1,15 @@
-from typing import List
-
 from provider.vpc.command import VpcOptions
 from shared.common import *
 from shared.error_handler import exception
 
 
-class LAMBDA(object):
+class LAMBDA(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('lambda')
 
@@ -19,28 +17,28 @@ class LAMBDA(object):
 
         response = client.list_functions()
 
-        message_handler("Collecting data from LAMBDA FUNCTIONS...", "HEADER")
+        message_handler("Collecting data from Lambda Functions...", "HEADER")
 
         if len(response["Functions"]) > 0:
 
             for data in response["Functions"]:
                 if 'VpcConfig' in data and data['VpcConfig']['VpcId'] == self.vpc_options.vpc_id:
-                    resources_found.append(Resource(id=data['FunctionArn'],
+                    resources_found.append(Resource(digest=ResourceDigest(id=data['FunctionArn'],
+                                                                          type='aws_lambda_function'),
                                                     name=data["FunctionName"],
-                                                    type='aws_lambda_function',
                                                     details='',
                                                     group='compute'))
 
         return resources_found
 
 
-class EC2(object):
+class EC2(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('ec2')
 
@@ -61,22 +59,22 @@ class EC2(object):
 
                             instance_name = instances["InstanceId"] if nametags is False else nametags
 
-                            resources_found.append(Resource(id=instances['InstanceId'],
+                            resources_found.append(Resource(digest=ResourceDigest(id=instances['InstanceId'],
+                                                                                  type='aws_instance'),
                                                             name=instance_name,
-                                                            type='aws_instance',
                                                             details='',
                                                             group='compute'))
 
         return resources_found
 
 
-class EKS(object):
+class EKS(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('eks')
 
@@ -84,7 +82,7 @@ class EKS(object):
 
         response = client.list_clusters()
 
-        message_handler("Collecting data from EKS CLUSTERS...", "HEADER")
+        message_handler("Collecting data from EKS Clusters...", "HEADER")
 
         if len(response["clusters"]) > 0:
 
@@ -93,22 +91,22 @@ class EKS(object):
                 cluster = client.describe_cluster(name=data)
 
                 if cluster['cluster']['resourcesVpcConfig']['vpcId'] == self.vpc_options.vpc_id:
-                    resources_found.append(Resource(id=cluster['cluster']['arn'],
+                    resources_found.append(Resource(digest=ResourceDigest(id=cluster['cluster']['arn'],
+                                                                          type='aws_eks_cluster'),
                                                     name=cluster['cluster']["name"],
-                                                    type='aws_eks_cluster',
                                                     details='',
                                                     group='compute'))
 
         return resources_found
 
 
-class EMR(object):
+class EMR(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('emr')
 
@@ -116,7 +114,7 @@ class EMR(object):
 
         response = client.list_clusters()
 
-        message_handler("Collecting data from EMR CLUSTERS...", "HEADER")
+        message_handler("Collecting data from EMR Clusters...", "HEADER")
 
         if len(response["Clusters"]) > 0:
 
@@ -130,22 +128,22 @@ class EMR(object):
                 subnets = ec2.describe_subnets(SubnetIds=[cluster['Cluster']['Ec2InstanceAttributes']['Ec2SubnetId']])
 
                 if subnets['Subnets'][0]['VpcId'] == self.vpc_options.vpc_id:
-                    resources_found.append(Resource(id=data['Id'],
+                    resources_found.append(Resource(digest=ResourceDigest(id=data['Id'],
+                                                                          type='aws_emr_cluster'),
                                                     name=data['Name'],
-                                                    type='aws_emr_cluster',
                                                     details='',
                                                     group='compute'))
 
         return resources_found
 
 
-class AUTOSCALING(object):
+class AUTOSCALING(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('autoscaling')
 
@@ -153,7 +151,7 @@ class AUTOSCALING(object):
 
         response = client.describe_auto_scaling_groups()
 
-        message_handler("Collecting data from AUTOSCALING GROUPS...", "HEADER")
+        message_handler("Collecting data from Autoscaling Groups...", "HEADER")
 
         if len(response["AutoScalingGroups"]) == 0:
 
@@ -170,11 +168,11 @@ class AUTOSCALING(object):
                 for data_subnet in subnets['Subnets']:
 
                     if data_subnet['VpcId'] == self.vpc_options.vpc_id:
-                        resources_found.append(Resource(id=data['AutoScalingGroupARN'],
-                                                        name=data['AutoScalingGroupName'],
-                                                        type='aws_autoscaling_group',
-                                                        details='Using LaunchConfigurationName {0}'.format(
-                                                            data["LaunchConfigurationName"]),
-                                                        group='compute'))
+                        resources_found.append(Resource(
+                            digest=ResourceDigest(id=data['AutoScalingGroupARN'], type='aws_autoscaling_group'),
+                            name=data['AutoScalingGroupName'],
+                            details='Using LaunchConfigurationName {0}'.format(
+                                data["LaunchConfigurationName"]),
+                            group='compute'))
 
         return resources_found

@@ -1,19 +1,18 @@
 import json
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import List
 
 from provider.vpc.command import VpcOptions, check_ipvpc_inpolicy
 from shared.common import *
 from shared.error_handler import exception
 
 
-class SQSPOLICY(object):
+class SQSPOLICY(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('sqs')
 
@@ -21,7 +20,7 @@ class SQSPOLICY(object):
 
         response = client.list_queues()
 
-        message_handler("Collecting data from SQS QUEUE POLICY...", "HEADER")
+        message_handler("Collecting data from SQS Queue Policy...", "HEADER")
 
         if "QueueUrls" in response:
 
@@ -53,9 +52,9 @@ class SQSPOLICY(object):
                 ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
 
                 if ipvpc_found is not False:
-                    return True, Resource(id=queuearn,
+                    return True, Resource(digest=ResourceDigest(id=queuearn,
+                                                                type='aws_sqs_queue_policy'),
                                           name=queue,
-                                          type='aws_sqs_queue_policy',
                                           details='',
                                           group='application')
 

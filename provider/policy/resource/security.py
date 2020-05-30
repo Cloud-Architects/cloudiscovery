@@ -1,40 +1,49 @@
-from concurrent.futures.thread import ThreadPoolExecutor
-from typing import List
-
 from provider.policy.command import ProfileOptions
 from shared.common import *
 from shared.error_handler import exception
 
 
-class IAMPOLICY(object):
+class IAMPOLICY(ResourceProvider):
 
     def __init__(self, options: ProfileOptions):
         self.options = options
 
     @exception
-    def run(self) -> List[Resource]:
-
+    def get_resources(self) -> List[Resource]:
         client = self.options.session.client('iam')
-
-        resources_found = []
-
-        message_handler("Collecting data from IAM POLICY...", "HEADER")
+        message_handler("Collecting data from IAM Local Policies...", "HEADER")
         paginator = client.get_paginator('list_policies')
         pages = paginator.paginate(
             Scope='Local'
         )
-        for policies in pages:
-            with ThreadPoolExecutor(15) as executor:
-                results = executor.map(lambda data: self.analyze_policy(data), policies['Policies'])
-            for result in results:
-                if result[0] is True:
-                    resources_found.append(result[1])
 
+        resources_found = []
+        for policies in pages:
+            for data in policies['Policies']:
+                resources_found.append(Resource(digest=ResourceDigest(id=data['Arn'], type='aws_iam_policy'),
+                                                name=data['PolicyName'],
+                                                details='IAM Policy version {}'.format(data['DefaultVersionId']),
+                                                group='security'))
         return resources_found
 
-    def analyze_policy(self, data):
-        return True, Resource(id=data['Arn'],
-                              name=data['PolicyName'],
-                              type='aws_iam_policy',
-                              details='IAM Policy version {}'.format(data['DefaultVersionId']),
-                              group='security')
+
+class IAMGROUP(ResourceProvider):
+
+    def __init__(self, options: ProfileOptions):
+        self.client = options.session.client('iam')
+
+    @exception
+    def get_resources(self) -> List[Resource]:
+
+        message_handler("Collecting data from IAM Groups...", "HEADER")
+        paginator = self.client.get_paginator('list_groups')
+        pages = paginator.paginate()
+
+        resources_found = []
+        for groups in pages:
+            for data in groups['Groups']:
+                resources_found.append(Resource(digest=ResourceDigest(id=data['GroupName'], type='aws_iam_group'),
+                                                name=data['GroupName'],
+                                                details='',
+                                                group='security'))
+        return resources_found

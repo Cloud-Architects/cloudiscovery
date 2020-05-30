@@ -1,18 +1,17 @@
 import json
-from typing import List
 
 from provider.vpc.command import VpcOptions, check_ipvpc_inpolicy
 from shared.common import *
 from shared.error_handler import exception
 
 
-class ELASTICSEARCH(object):
+class ELASTICSEARCH(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('es')
 
@@ -20,7 +19,7 @@ class ELASTICSEARCH(object):
 
         response = client.list_domain_names()
 
-        message_handler("Collecting data from ELASTICSEARCH DOMAINS...", "HEADER")
+        message_handler("Collecting data from Elasticsearch Domains...", "HEADER")
 
         if len(response["DomainNames"]) > 0:
 
@@ -38,22 +37,23 @@ class ELASTICSEARCH(object):
                 """ elasticsearch uses accesspolicies too, so check both situation """
                 if elasticsearch_domain['DomainStatus']['VPCOptions']['VPCId'] == self.vpc_options.vpc_id \
                         or ipvpc_found is True:
-                    resources_found.append(Resource(id=elasticsearch_domain['DomainStatus']['DomainId'],
-                                                    name=elasticsearch_domain['DomainStatus']['DomainName'],
-                                                    type='aws_elasticsearch_domain',
-                                                    details='',
-                                                    group='analytics'))
+                    resources_found.append(
+                        Resource(digest=ResourceDigest(id=elasticsearch_domain['DomainStatus']['DomainId'],
+                                                       type='aws_elasticsearch_domain'),
+                                 name=elasticsearch_domain['DomainStatus']['DomainName'],
+                                 details='',
+                                 group='analytics'))
 
         return resources_found
 
 
-class MSK(object):
+class MSK(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('kafka')
 
@@ -62,7 +62,7 @@ class MSK(object):
         """ get all cache clusters """
         response = client.list_clusters()
 
-        message_handler("Collecting data from MSK CLUSTERS...", "HEADER")
+        message_handler("Collecting data from MSK Clusters...", "HEADER")
 
         if len(response['ClusterInfoList']) > 0:
 
@@ -81,9 +81,9 @@ class MSK(object):
                 for subnet in list(subnets):
 
                     if subnet.id in msk_subnets:
-                        resources_found.append(Resource(id=data['ClusterArn'],
+                        resources_found.append(Resource(digest=ResourceDigest(id=data['ClusterArn'],
+                                                                              type='aws_msk_cluster'),
                                                         name=data['ClusterName'],
-                                                        type='aws_msk_cluster',
                                                         details='',
                                                         group='analytics'))
 

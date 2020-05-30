@@ -1,19 +1,18 @@
 import json
 from concurrent.futures.thread import ThreadPoolExecutor
-from typing import List
 
 from provider.vpc.command import VpcOptions, check_ipvpc_inpolicy
 from shared.common import *
 from shared.error_handler import exception
 
 
-class EFS(object):
+class EFS(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('efs')
 
@@ -22,7 +21,7 @@ class EFS(object):
         """ get filesystems available """
         response = client.describe_file_systems()
 
-        message_handler("Collecting data from EFS MOUNT TARGETS...", "HEADER")
+        message_handler("Collecting data from EFS Mount Targets...", "HEADER")
 
         if len(response["FileSystems"]) > 0:
 
@@ -40,22 +39,22 @@ class EFS(object):
                     subnets = ec2.describe_subnets(SubnetIds=[datafilesystem['SubnetId']])
 
                     if subnets['Subnets'][0]['VpcId'] == self.vpc_options.vpc_id:
-                        resources_found.append(Resource(id=data['FileSystemId'],
+                        resources_found.append(Resource(digest=ResourceDigest(id=data['FileSystemId'],
+                                                                              type='aws_efs_file_system'),
                                                         name=data['Name'],
-                                                        type='aws_efs_file_system',
                                                         details='',
                                                         group='storage'))
 
         return resources_found
 
 
-class S3POLICY(object):
+class S3POLICY(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client('s3')
 
@@ -64,7 +63,7 @@ class S3POLICY(object):
         """ get buckets available """
         response = client.list_buckets()
 
-        message_handler("Collecting data from S3 BUCKET POLICY...", "HEADER")
+        message_handler("Collecting data from S3 Bucket Policies...", "HEADER")
 
         if len(response["Buckets"]) > 0:
 
@@ -84,13 +83,12 @@ class S3POLICY(object):
 
             document = json.dumps(documentpolicy, default=datetime_to_string)
 
-            """ check either vpc_id or potencial subnet ip are found """
+            """ check either vpc_id or potential subnet ip are found """
             ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
 
             if ipvpc_found is True:
-                return True, Resource(id=data['Name'],
+                return True, Resource(digest=ResourceDigest(id=data['Name'], type='aws_s3_bucket_policy'),
                                       name=data['Name'],
-                                      type='aws_s3_bucket_policy',
                                       details='',
                                       group='storage')
         except:
