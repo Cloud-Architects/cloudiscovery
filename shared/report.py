@@ -7,7 +7,7 @@ class Report(object):
     @exception
     def general_report(self, resources: List[Resource], resource_relations: List[ResourceEdge]):
 
-        message_handler("\n\nRESOURCES FOUND", "HEADER")
+        message_handler("\n\nFound resources", "HEADER")
 
         for resource in resources:
             message = "resource type: {} -> resource id: {} -> resource name: {} -> resource details: {}" \

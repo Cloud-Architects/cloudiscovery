@@ -1,7 +1,6 @@
 from ipaddress import ip_network
 
 from provider.vpc.diagram import VpcDiagram
-
 from shared.command import CommandRunner, BaseCommand
 from shared.common import *
 from shared.diagram import NoDiagram, BaseDiagram
@@ -42,28 +41,32 @@ class Vpc(BaseCommand):
 
         command_runner = CommandRunner()
 
-        diagram_builder: BaseDiagram
-        if self.diagram:
-            diagram_builder = VpcDiagram(vpc_id=self.vpc_id)
-        else:
-            diagram_builder = NoDiagram()
-
-
-
         """ if vpc is none, get all vpcs and check """
         if self.vpc_id is None:
             client = self.session.client('ec2')
             vpcs = client.describe_vpcs()
             for data in vpcs['Vpcs']:
-                """ init class awscommands """
-                vpc_options = VpcOptions(session=self.session, region_name=self.region_name, vpc_id=data['VpcId'])
+                vpc_id = data['VpcId']
+                vpc_options = VpcOptions(session=self.session, region_name=self.region_name, vpc_id=vpc_id)
                 self.check_vpc(vpc_options)
+                diagram_builder: BaseDiagram
+                if self.diagram:
+                    diagram_builder = VpcDiagram(name="AWS VPC {} Resources".format(vpc_id),
+                                                 filename=vpc_id,
+                                                 vpc_id=vpc_id)
+                else:
+                    diagram_builder = NoDiagram()
                 command_runner.run("vpc", vpc_options, diagram_builder)
         else:
-            """ init class awscommands """
             vpc_options = VpcOptions(session=self.session, region_name=self.region_name, vpc_id=self.vpc_id)
 
             self.check_vpc(vpc_options)
+            if self.diagram:
+                diagram_builder = VpcDiagram(name="AWS VPC {} Resources".format(self.vpc_id),
+                                             filename=self.vpc_id,
+                                             vpc_id=self.vpc_id)
+            else:
+                diagram_builder = NoDiagram()
             command_runner.run("vpc", vpc_options, diagram_builder)
 
 

@@ -25,7 +25,7 @@ class BaseCommand:
 
 class CommandRunner(object):
 
-    def run(self, provider: str, options: BaseOptions, diagram_builder: BaseDiagram = BaseDiagram()):
+    def run(self, provider: str, options: BaseOptions, diagram_builder: BaseDiagram):
         """
         The project's development pattern is a file with the respective name of the parent
         resource (e.g. compute, network), classes of child resources inside this file and run() method to execute

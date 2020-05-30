@@ -31,6 +31,9 @@ class Mapsources:
 
 
 class BaseDiagram(object):
+    def __init__(self, name: str, filename: str):
+        self.name = name
+        self.filename = filename
 
     def build(self, resources: List[Resource], resource_relations: List[ResourceEdge]):
         self.make_directories()
@@ -69,7 +72,7 @@ class BaseDiagram(object):
 
         """ Start mounting Cluster """
         nodes: Dict[ResourceDigest, any] = {}
-        with Diagram(name="AWS Permissions map", filename=PATH_DIAGRAM_OUTPUT + "account_policies", direction="TB"):
+        with Diagram(name=self.name, filename=PATH_DIAGRAM_OUTPUT + self.filename, direction="TB"):
 
             """ Iterate resources to draw it """
             for alldata in ordered_resources:
@@ -90,6 +93,9 @@ class BaseDiagram(object):
 
 
 class NoDiagram(BaseDiagram):
+    def __init__(self):
+        super().__init__('', '')
+
     def generate_diagram(self, resources: List[Resource], resource_relations: List[ResourceEdge]):
         pass
 
