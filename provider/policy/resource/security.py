@@ -12,7 +12,7 @@ class IamPolicy(ResourceProvider):
 
     @exception
     def get_resources(self) -> List[Resource]:
-        client = self.options.session.client('iam')
+        client = self.options.client('iam')
         message_handler("Collecting data from IAM Policies...", "HEADER")
 
         resources_found = []
@@ -47,7 +47,7 @@ class IamPolicy(ResourceProvider):
 class IamGroup(ResourceProvider):
 
     def __init__(self, options: ProfileOptions):
-        self.client = options.session.client('iam')
+        self.client = options.client('iam')
         self.resources_found: List[Resource] = []
 
     @exception
@@ -92,7 +92,7 @@ class IamGroup(ResourceProvider):
 class IamRole(ResourceProvider):
 
     def __init__(self, options: ProfileOptions):
-        self.client = options.session.client('iam')
+        self.client = options.client('iam')
         self.roles_found: List[Resource] = []
 
     @exception
@@ -132,3 +132,37 @@ class IamRole(ResourceProvider):
                                                 to_node=ResourceDigest(id=policy['PolicyArn'],
                                                                        type='aws_iam_policy')))
         return relations_found
+
+
+class InstanceProfile(ResourceProvider):
+
+    def __init__(self, vpc_options: ProfileOptions):
+        self.vpc_options = vpc_options
+        self.relations_found: List[ResourceEdge] = []
+
+    @exception
+    def get_resources(self) -> List[Resource]:
+
+        message_handler("Collecting data from Instance Profiles...", "HEADER")
+        paginator = self.vpc_options.client('iam').get_paginator('list_instance_profiles')
+        pages = paginator.paginate()
+
+        resources_found = []
+        relations_found = []
+        for groups in pages:
+            for data in groups['InstanceProfiles']:
+                profile_digest = ResourceDigest(id=data['InstanceProfileName'], type='aws_iam_instance_profile')
+                resources_found.append(
+                    Resource(digest=profile_digest,
+                             name=data['InstanceProfileName'],
+                             details='',
+                             group='Instance Profile'))
+                relations_found.append(
+                    ResourceEdge(from_node=profile_digest,
+                                 to_node=ResourceDigest(id=data['Roles'][0]['RoleName'], type='aws_iam_role')))
+        self.relations_found = relations_found
+        return resources_found
+
+    @exception
+    def get_relations(self) -> List[ResourceEdge]:
+        return self.relations_found

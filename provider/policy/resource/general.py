@@ -6,7 +6,7 @@ from shared.error_handler import exception
 class IamUser(ResourceProvider):
 
     def __init__(self, options: ProfileOptions):
-        self.client = options.session.client('iam')
+        self.client = options.client('iam')
         self.users_found: List[Resource] = []
 
     @exception
