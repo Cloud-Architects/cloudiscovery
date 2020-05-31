@@ -14,7 +14,7 @@ class IAMPOLICY(ResourceProvider):
     @exception
     def get_resources(self) -> List[Resource]:
 
-        client = self.vpc_options.session.client('iam')
+        client = self.vpc_options.client('iam')
 
         resources_found = []
 

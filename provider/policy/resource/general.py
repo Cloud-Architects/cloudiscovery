@@ -3,10 +3,10 @@ from shared.common import *
 from shared.error_handler import exception
 
 
-class IAMUSER(ResourceProvider):
+class IamUser(ResourceProvider):
 
     def __init__(self, options: ProfileOptions):
-        self.client = options.session.client('iam')
+        self.client = options.client('iam')
         self.users_found: List[Resource] = []
 
     @exception
@@ -21,7 +21,7 @@ class IAMUSER(ResourceProvider):
                 users_found.append(Resource(digest=ResourceDigest(id=data['UserName'], type='aws_iam_user'),
                                             name=data['UserName'],
                                             details='',
-                                            group='general'))
+                                            group='User'))
         self.users_found = users_found
         return users_found
 
@@ -36,4 +36,13 @@ class IAMUSER(ResourceProvider):
                 resources_found.append(ResourceEdge(from_node=user.digest,
                                                     to_node=ResourceDigest(id=group['GroupName'],
                                                                            type='aws_iam_group')))
+
+            response = self.client.list_attached_user_policies(
+                UserName=user.name
+            )
+            for policy in response['AttachedPolicies']:
+                resources_found.append(ResourceEdge(from_node=user.digest,
+                                                    to_node=ResourceDigest(id=policy['PolicyArn'],
+                                                                           type='aws_iam_policy')))
+
         return resources_found

@@ -1,6 +1,7 @@
 import importlib
 import inspect
 import os
+from typing import Dict
 
 from shared.diagram import BaseDiagram
 from shared.report import Report
@@ -47,7 +48,7 @@ class CommandRunner(object):
                         providers.append((nameclass, cls))
         providers.sort(key=lambda x: x[0])
 
-        resources: List[Resource] = []
+        all_resources: List[Resource] = []
         resource_relations: List[ResourceEdge] = []
 
         for provider in providers:
@@ -55,24 +56,30 @@ class CommandRunner(object):
 
             provider_resources = provider_instance.get_resources()
             if provider_resources is not None:
-                resources.extend(provider_resources)
+                all_resources.extend(provider_resources)
 
             provider_resource_relations = provider_instance.get_relations()
             if provider_resource_relations is not None:
                 resource_relations.extend(provider_resource_relations)
 
-        resources.sort(key=lambda x: x.group + x.digest.type + x.name)
+        unique_resources_dict: Dict[ResourceDigest, Resource] = dict()
+        for resource in all_resources:
+            unique_resources_dict[resource.digest] = resource
+
+        unique_resources = list(unique_resources_dict.values())
+
+        unique_resources.sort(key=lambda x: x.group + x.digest.type + x.name)
         resource_relations.sort(key=lambda x: x.from_node.type + x.from_node.id + x.to_node.type + x.to_node.id)
 
         """ 
         TODO: Generate reports in json/csv/pdf/xls 
         """
-        Report().general_report(resources=resources, resource_relations=resource_relations)
+        Report().general_report(resources=unique_resources, resource_relations=resource_relations)
 
         """ 
         Diagram integration
         """
-        diagram_builder.build(resources=resources, resource_relations=resource_relations)
+        diagram_builder.build(resources=unique_resources, resource_relations=resource_relations)
 
         """
         TODO: Export in csv/json/yaml/tf... future...
