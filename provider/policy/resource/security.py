@@ -48,6 +48,7 @@ class IamGroup(ResourceProvider):
 
     def __init__(self, options: ProfileOptions):
         self.client = options.session.client('iam')
+        self.resources_found: List[Resource] = []
 
     @exception
     def get_resources(self) -> List[Resource]:
@@ -63,7 +64,29 @@ class IamGroup(ResourceProvider):
                                                 name=data['GroupName'],
                                                 details='',
                                                 group='Group'))
+        self.resources_found = resources_found
         return resources_found
+
+    @exception
+    def get_relations(self) -> List[ResourceEdge]:
+        relations_found = []
+        with ThreadPoolExecutor(15) as executor:
+            results = executor.map(lambda resource: self.analyze_relations(resource), self.resources_found)
+        for result in results:
+            relations_found.extend(result)
+
+        return relations_found
+
+    def analyze_relations(self, resource):
+        relations_found = []
+        response = self.client.list_attached_group_policies(
+            GroupName=resource.name
+        )
+        for policy in response['AttachedPolicies']:
+            relations_found.append(ResourceEdge(from_node=resource.digest,
+                                                to_node=ResourceDigest(id=policy['PolicyArn'],
+                                                                       type='aws_iam_policy')))
+        return relations_found
 
 
 class IamRole(ResourceProvider):

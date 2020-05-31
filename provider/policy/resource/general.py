@@ -36,4 +36,13 @@ class IamUser(ResourceProvider):
                 resources_found.append(ResourceEdge(from_node=user.digest,
                                                     to_node=ResourceDigest(id=group['GroupName'],
                                                                            type='aws_iam_group')))
+
+            response = self.client.list_attached_user_policies(
+                UserName=user.name
+            )
+            for policy in response['AttachedPolicies']:
+                resources_found.append(ResourceEdge(from_node=user.digest,
+                                                    to_node=ResourceDigest(id=policy['PolicyArn'],
+                                                                           type='aws_iam_policy')))
+
         return resources_found

@@ -15,6 +15,7 @@ class Report(object):
 
             message_handler(message, "OKBLUE")
 
+        message_handler("\n\nFound relations", "HEADER")
         for resource_relation in resource_relations:
             message = "resource type: {} - resource id: {} -> resource type: {} - resource id: {}" \
                 .format(resource_relation.from_node.type, resource_relation.from_node.id,
