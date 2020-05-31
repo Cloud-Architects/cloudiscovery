@@ -157,9 +157,10 @@ class InstanceProfile(ResourceProvider):
                              name=data['InstanceProfileName'],
                              details='',
                              group='Instance Profile'))
-                relations_found.append(
-                    ResourceEdge(from_node=profile_digest,
-                                 to_node=ResourceDigest(id=data['Roles'][0]['RoleName'], type='aws_iam_role')))
+                if len(data['Roles']) == 1:
+                    relations_found.append(
+                        ResourceEdge(from_node=profile_digest,
+                                     to_node=ResourceDigest(id=data['Roles'][0]['RoleName'], type='aws_iam_role')))
         self.relations_found = relations_found
         return resources_found
 
