@@ -28,7 +28,9 @@ class Mapsources:
                     "aws_vpc_endpoint_gateway": "Endpoint", "aws_iam_policy": "IAM", "aws_iam_user": "User",
                     "aws_iam_group": "IAM", "aws_iam_role": "IAM", "aws_iam_instance_profile": "IAM",
                     "aws_efs_file_system": "EFS", "aws_s3_bucket_policy": "S3",
-                    "aws_media_connect": "ElementalMediaconnect", "aws_media_live": "ElementalMedialive"}
+                    "aws_media_connect": "ElementalMediaconnect", "aws_media_live": "ElementalMedialive",
+                    "aws_api_gateway_rest_api": "APIGateway", "aws_sagemaker_notebook_instance": "Sagemaker",
+                    "aws_ssm_document": "SSM"}
 
 
 class BaseDiagram(object):

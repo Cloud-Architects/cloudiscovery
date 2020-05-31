@@ -1,4 +1,5 @@
 from concurrent.futures.thread import ThreadPoolExecutor
+from typing import Dict
 
 from provider.policy.command import ProfileOptions
 from shared.common import *
@@ -93,7 +94,8 @@ class IamRole(ResourceProvider):
 
     def __init__(self, options: ProfileOptions):
         self.client = options.client('iam')
-        self.roles_found: List[Resource] = []
+        self.resources_found: List[Resource] = []
+        self.relations_found: List[ResourceEdge] = []
 
     @exception
     def get_resources(self) -> List[Resource]:
@@ -105,32 +107,113 @@ class IamRole(ResourceProvider):
         resources_found = []
         for roles in pages:
             for data in roles['Roles']:
-                resources_found.append(Resource(digest=ResourceDigest(id=data['RoleName'], type='aws_iam_role'),
+                resource_digest = ResourceDigest(id=data['RoleName'], type='aws_iam_role')
+                resources_found.append(Resource(digest=resource_digest,
                                                 name=data['RoleName'],
                                                 details='',
                                                 group='Role'))
-        self.roles_found = resources_found
+                if 'AssumeRolePolicyDocument' in data and 'Statement' in data['AssumeRolePolicyDocument']:
+                    for statement in data['AssumeRolePolicyDocument']['Statement']:
+                        resources_found.extend(self.analyze_assume_statement(resource_digest, statement))
+
+        self.resources_found = resources_found
+        return resources_found
+
+    # TODO: Add support for the following principals:
+    # 'cognito-identity.amazonaws.com'
+    # 'iot.amazonaws.com'
+    # 'quicksight.amazonaws.com'
+    # 'glue.amazonaws.com'
+    # 'es.amazonaws.com'
+    # 'ops.apigateway.amazonaws.com'
+    # 'cloud9.amazonaws.com'
+    # 'config.amazonaws.com'
+    # 'ecs.amazonaws.com'
+    # 'eks.amazonaws.com'
+    # 'elasticache.amazonaws.com'
+    # 'elasticloadbalancing.amazonaws.com'
+    # 'elasticmapreduce.amazonaws.com'
+    # 'kafka.amazonaws.com'
+    # 'organizations.amazonaws.com'
+    # 'securityhub.amazonaws.com'
+    # 'sso.amazonaws.com'
+    # 'support.amazonaws.com'
+    # 'trustedadvisor.amazonaws.com'
+    # 'appsync.amazonaws.com'
+    # 'iotanalytics.amazonaws.com'
+    # 'arn:aws:iam::<ACCOUNT_NUMBER>:root'
+    # 'ecs-tasks.amazonaws.com'
+    # 'firehose.amazonaws.com'
+    # 'cognito-idp.amazonaws.com'
+    def analyze_assume_statement(self, resource_digest: ResourceDigest, statement) -> List[Resource]:
+        resources_found = []
+        if 'Principal' in statement and 'Service' in statement['Principal']:
+            assuming_services = statement['Principal']['Service']
+            if not isinstance(assuming_services, list):
+                assuming_services = [assuming_services]
+            for assuming_service in assuming_services:
+                if assuming_service == 'apigateway.amazonaws.com':
+                    service_digest = ResourceDigest(id=assuming_service, type='aws_api_gateway_rest_api')
+                    resources_found.append(Resource(
+                        digest=service_digest,
+                        name="API Gateway",
+                        details='',
+                        group='AWS Service'))
+                    self.relations_found.append(ResourceEdge(from_node=resource_digest, to_node=service_digest))
+                elif assuming_service == 'sagemaker.amazonaws.com':
+                    service_digest = ResourceDigest(id=assuming_service, type='aws_sagemaker_notebook_instance')
+                    resources_found.append(Resource(
+                        digest=service_digest,
+                        name="Sagemaker",
+                        details='',
+                        group='AWS Service'))
+                    self.relations_found.append(ResourceEdge(from_node=resource_digest, to_node=service_digest))
+                elif assuming_service == 'ssm.amazonaws.com':
+                    service_digest = ResourceDigest(id=assuming_service, type='aws_ssm_document')
+                    resources_found.append(Resource(
+                        digest=service_digest,
+                        name="SystemsManager",
+                        details='',
+                        group='AWS Service'))
+                    self.relations_found.append(ResourceEdge(from_node=resource_digest, to_node=service_digest))
+                elif assuming_service == 'ec2.amazonaws.com':
+                    service_digest = ResourceDigest(id=assuming_service, type='aws_instance')
+                    resources_found.append(Resource(
+                        digest=service_digest,
+                        name="EC2",
+                        details='',
+                        group='AWS Service'))
+                    self.relations_found.append(ResourceEdge(from_node=resource_digest, to_node=service_digest))
+                elif assuming_service == 'lambda.amazonaws.com':
+                    service_digest = ResourceDigest(id=assuming_service, type='aws_lambda_function')
+                    resources_found.append(Resource(
+                        digest=service_digest,
+                        name="Lambda",
+                        details='',
+                        group='AWS Service'))
+                    self.relations_found.append(ResourceEdge(from_node=resource_digest, to_node=service_digest))
         return resources_found
 
     @exception
     def get_relations(self) -> List[ResourceEdge]:
-        resources_found = []
+        additional_relations_found = self.relations_found
         with ThreadPoolExecutor(15) as executor:
-            results = executor.map(lambda data: self.analyze_role_relations(data), self.roles_found)
+            results = executor.map(lambda data: self.analyze_role_relations(data), self.resources_found)
         for result in results:
-            resources_found.extend(result)
+            additional_relations_found.extend(result)
 
-        return resources_found
+        return additional_relations_found
 
-    def analyze_role_relations(self, role):
+    def analyze_role_relations(self, resource: Resource):
         relations_found = []
-        response = self.client.list_attached_role_policies(
-            RoleName=role.name
-        )
-        for policy in response['AttachedPolicies']:
-            relations_found.append(ResourceEdge(from_node=role.digest,
-                                                to_node=ResourceDigest(id=policy['PolicyArn'],
-                                                                       type='aws_iam_policy')))
+        if resource.digest.type == 'aws_iam_role':
+            response = self.client.list_attached_role_policies(
+                RoleName=resource.name
+            )
+            for policy in response['AttachedPolicies']:
+                relations_found.append(ResourceEdge(from_node=resource.digest,
+                                                    to_node=ResourceDigest(id=policy['PolicyArn'],
+                                                                           type='aws_iam_policy')))
         return relations_found
 
 
