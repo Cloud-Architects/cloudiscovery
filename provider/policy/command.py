@@ -1,6 +1,6 @@
 from shared.command import BaseCommand, CommandRunner
 from shared.common import *
-from shared.diagram import BaseDiagram
+from shared.diagram import NoDiagram, BaseDiagram
 
 
 class ProfileOptions(BaseOptions):
@@ -16,6 +16,9 @@ class Policy(BaseCommand):
         self.check_region()
 
         command_runner = CommandRunner()
-        diagram = BaseDiagram("AWS Permissions map", "account_policies")
+        if self.diagram:
+            diagram = BaseDiagram("AWS Permissions map", "account_policies")
+        else:
+            diagram = NoDiagram()
         options = ProfileOptions(session=self.session, region_name=self.region_name)
         command_runner.run("policy", options, diagram)

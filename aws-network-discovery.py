@@ -21,6 +21,7 @@ import sys
 from provider.policy.command import Policy
 from provider.vpc.command import Vpc
 from shared.common import *
+import pkg_resources
 
 # Check version
 if sys.version_info < (3, 6):
@@ -110,6 +111,12 @@ def main():
     defaultlanguage = gettext.translation('messages', localedir='locales', languages=[language])
     defaultlanguage.install()
     _ = defaultlanguage.gettext
+
+    """ diagram version check """
+    if diagram:
+        """ Checking diagram version. Must be 0.13 or higher """
+        if pkg_resources.get_distribution("diagrams").version < "0.13":
+            exit_critical(_("You must update diagrams package to 0.13 or higher. - See on https://github.com/mingrammer/diagrams"))
 
     """ aws profile check """
     session = generate_session(args.profile_name)
