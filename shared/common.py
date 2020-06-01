@@ -35,6 +35,7 @@ class ResourceDigest(NamedTuple):
 class ResourceEdge(NamedTuple):
     from_node: ResourceDigest
     to_node: ResourceDigest
+    label: str = None
 
 
 class Resource(NamedTuple):
