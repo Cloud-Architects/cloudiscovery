@@ -29,11 +29,12 @@ class Vpc(BaseCommand):
 
         dataresponse = response['Vpcs'][0]
         message = "------------------------------------------------------\n"
-        message = message + "VPC: {}\nCIDR Block: {}\nTenancy: {}\nIs default: {}".format(vpc_options.vpc_id,
-                                                                                          dataresponse['CidrBlock'],
-                                                                                          dataresponse[
-                                                                                              'InstanceTenancy'],
-                                                                                          dataresponse['IsDefault'])
+        message = message + "VPC: {} - {}\nCIDR Block: {}\nTenancy: {}\nIs default: {}".format(vpc_options.vpc_id,
+                                                                                                vpc_options.region_name,
+                                                                                                dataresponse['CidrBlock'],
+                                                                                                dataresponse[
+                                                                                                    'InstanceTenancy'],
+                                                                                                dataresponse['IsDefault'])
         print(message)
 
     def run(self):
@@ -41,33 +42,44 @@ class Vpc(BaseCommand):
 
         command_runner = CommandRunner()
 
-        """ if vpc is none, get all vpcs and check """
-        if self.vpc_id is None:
+        """ if region is all, get all regions """
+        if self.region_name == 'all':
             client = self.session.client('ec2')
-            vpcs = client.describe_vpcs()
-            for data in vpcs['Vpcs']:
-                vpc_id = data['VpcId']
-                vpc_options = VpcOptions(session=self.session, region_name=self.region_name, vpc_id=vpc_id)
+            regions = client.describe_regions()['Regions']
+        else:
+            regions = [{"RegionName": self.region_name}]
+
+        for region in regions:
+
+            self.region_name = region["RegionName"]
+
+            """ if vpc is none, get all vpcs and check """
+            if self.vpc_id is None:
+                client = self.session.client('ec2', region_name=self.region_name)
+                vpcs = client.describe_vpcs()
+                for data in vpcs['Vpcs']:
+                    vpc_id = data['VpcId']
+                    vpc_options = VpcOptions(session=self.session, region_name=self.region_name, vpc_id=vpc_id)
+                    self.check_vpc(vpc_options)
+                    diagram_builder: BaseDiagram
+                    if self.diagram:
+                        diagram_builder = VpcDiagram(name="AWS VPC {} Resources - Region {}".format(vpc_id, self.region_name),
+                                                    filename=vpc_id,
+                                                    vpc_id=vpc_id)
+                    else:
+                        diagram_builder = NoDiagram()
+                    command_runner.run("vpc", vpc_options, diagram_builder)
+            else:
+                vpc_options = VpcOptions(session=self.session, region_name=self.region_name, vpc_id=self.vpc_id)
+
                 self.check_vpc(vpc_options)
-                diagram_builder: BaseDiagram
                 if self.diagram:
-                    diagram_builder = VpcDiagram(name="AWS VPC {} Resources".format(vpc_id),
-                                                 filename=vpc_id,
-                                                 vpc_id=vpc_id)
+                    diagram_builder = VpcDiagram(name="AWS VPC {} Resources - Region {}".format(self.vpc_id, self.region_name),
+                                                filename=self.vpc_id,
+                                                vpc_id=self.vpc_id)
                 else:
                     diagram_builder = NoDiagram()
                 command_runner.run("vpc", vpc_options, diagram_builder)
-        else:
-            vpc_options = VpcOptions(session=self.session, region_name=self.region_name, vpc_id=self.vpc_id)
-
-            self.check_vpc(vpc_options)
-            if self.diagram:
-                diagram_builder = VpcDiagram(name="AWS VPC {} Resources".format(self.vpc_id),
-                                             filename=self.vpc_id,
-                                             vpc_id=self.vpc_id)
-            else:
-                diagram_builder = NoDiagram()
-            command_runner.run("vpc", vpc_options, diagram_builder)
 
 
 def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):

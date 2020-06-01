@@ -62,7 +62,7 @@ def add_default_arguments(parser):
         "-r",
         "--region-name",
         required=False,
-        help="Inform REGION to analyze. If not informed, try to get from config file"
+        help="Inform REGION NAME to analyze or \"all\" to check on all regions. If not informed, try to get from config file"
     )
     parser.add_argument(
         "-p",
