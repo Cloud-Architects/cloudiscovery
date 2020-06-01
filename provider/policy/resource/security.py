@@ -42,7 +42,7 @@ class IamPolicy(ResourceProvider):
         return Resource(digest=ResourceDigest(id=data['Arn'], type='aws_iam_policy'),
                         name=data['PolicyName'],
                         details='IAM Policy version {}'.format(data['DefaultVersionId']),
-                        group='Policy')
+                        group='')
 
 
 class IamGroup(ResourceProvider):
@@ -111,7 +111,7 @@ class IamRole(ResourceProvider):
                 resources_found.append(Resource(digest=resource_digest,
                                                 name=data['RoleName'],
                                                 details='',
-                                                group='Role'))
+                                                group=''))
                 if 'AssumeRolePolicyDocument' in data and 'Statement' in data['AssumeRolePolicyDocument']:
                     for statement in data['AssumeRolePolicyDocument']['Statement']:
                         resources_found.extend(self.analyze_assume_statement(resource_digest, statement))
@@ -119,32 +119,6 @@ class IamRole(ResourceProvider):
         self.resources_found = resources_found
         return resources_found
 
-    # TODO: Add support for the following principals:
-    # 'cognito-identity.amazonaws.com'
-    # 'iot.amazonaws.com'
-    # 'quicksight.amazonaws.com'
-    # 'glue.amazonaws.com'
-    # 'es.amazonaws.com'
-    # 'ops.apigateway.amazonaws.com'
-    # 'cloud9.amazonaws.com'
-    # 'config.amazonaws.com'
-    # 'ecs.amazonaws.com'
-    # 'eks.amazonaws.com'
-    # 'elasticache.amazonaws.com'
-    # 'elasticloadbalancing.amazonaws.com'
-    # 'elasticmapreduce.amazonaws.com'
-    # 'kafka.amazonaws.com'
-    # 'organizations.amazonaws.com'
-    # 'securityhub.amazonaws.com'
-    # 'sso.amazonaws.com'
-    # 'support.amazonaws.com'
-    # 'trustedadvisor.amazonaws.com'
-    # 'appsync.amazonaws.com'
-    # 'iotanalytics.amazonaws.com'
-    # 'arn:aws:iam::<ACCOUNT_NUMBER>:root'
-    # 'ecs-tasks.amazonaws.com'
-    # 'firehose.amazonaws.com'
-    # 'cognito-idp.amazonaws.com'
     def analyze_assume_statement(self, resource_digest: ResourceDigest, statement) -> List[Resource]:
         resources_found = []
         if 'Principal' in statement and 'Service' in statement['Principal']:
@@ -152,47 +126,308 @@ class IamRole(ResourceProvider):
             if not isinstance(assuming_services, list):
                 assuming_services = [assuming_services]
             for assuming_service in assuming_services:
+                principal_found: Resource = None
                 if assuming_service == 'apigateway.amazonaws.com':
-                    service_digest = ResourceDigest(id=assuming_service, type='aws_api_gateway_rest_api')
-                    resources_found.append(Resource(
-                        digest=service_digest,
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_api_gateway_rest_api'),
                         name="API Gateway",
                         details='',
-                        group='AWS Service'))
-                    self.relations_found.append(ResourceEdge(from_node=resource_digest, to_node=service_digest))
+                        group='')
+                elif assuming_service == 'ops.apigateway.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_api_gateway_rest_api'),
+                        name="API Gateway ops",
+                        details='',
+                        group='')
                 elif assuming_service == 'sagemaker.amazonaws.com':
-                    service_digest = ResourceDigest(id=assuming_service, type='aws_sagemaker_notebook_instance')
-                    resources_found.append(Resource(
-                        digest=service_digest,
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_sagemaker_notebook_instance'),
                         name="Sagemaker",
                         details='',
-                        group='AWS Service'))
-                    self.relations_found.append(ResourceEdge(from_node=resource_digest, to_node=service_digest))
+                        group='')
                 elif assuming_service == 'ssm.amazonaws.com':
-                    service_digest = ResourceDigest(id=assuming_service, type='aws_ssm_document')
-                    resources_found.append(Resource(
-                        digest=service_digest,
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_ssm_document'),
                         name="SystemsManager",
                         details='',
-                        group='AWS Service'))
-                    self.relations_found.append(ResourceEdge(from_node=resource_digest, to_node=service_digest))
+                        group='')
                 elif assuming_service == 'ec2.amazonaws.com':
-                    service_digest = ResourceDigest(id=assuming_service, type='aws_instance')
-                    resources_found.append(Resource(
-                        digest=service_digest,
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_instance'),
                         name="EC2",
                         details='',
-                        group='AWS Service'))
-                    self.relations_found.append(ResourceEdge(from_node=resource_digest, to_node=service_digest))
+                        group='')
                 elif assuming_service == 'lambda.amazonaws.com':
-                    service_digest = ResourceDigest(id=assuming_service, type='aws_lambda_function')
-                    resources_found.append(Resource(
-                        digest=service_digest,
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_lambda_function'),
                         name="Lambda",
                         details='',
-                        group='AWS Service'))
-                    self.relations_found.append(ResourceEdge(from_node=resource_digest, to_node=service_digest))
+                        group='')
+                elif assuming_service == 'replicator.lambda.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_lambda_function'),
+                        name="Lambda Replicator",
+                        details='',
+                        group='')
+                elif assuming_service == 'edgelambda.lambda.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_lambda_function'),
+                        name="Lambda@Edge",
+                        details='',
+                        group='')
+                elif assuming_service == 'ecs.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_ecs_cluster'),
+                        name="ECS",
+                        details='',
+                        group='')
+                elif assuming_service == 'ecs-tasks.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_ecs_cluster'),
+                        name="ECS Tasks",
+                        details='',
+                        group='')
+                elif assuming_service == 'eks.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_eks_cluster'),
+                        name="EKS",
+                        details='',
+                        group='')
+                elif assuming_service == 'es.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_elasticsearch_domain'),
+                        name="Elasticsearch Service",
+                        details='',
+                        group='')
+                elif assuming_service == 'es.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_elasticsearch_domain'),
+                        name="Elasticsearch Service",
+                        details='',
+                        group='')
+                elif assuming_service == 'cognito-identity.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_cognito_identity_provider'),
+                        name="Cognito Identity",
+                        details='',
+                        group='')
+                elif assuming_service == 'cognito-idp.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_cognito_identity_provider'),
+                        name="Cognito IdP",
+                        details='',
+                        group='')
+                elif assuming_service == 'email.cognito-idp.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_cognito_identity_provider'),
+                        name="Cognito IdP Email",
+                        details='',
+                        group='')
+                elif assuming_service == 'iot.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_iot_thing'),
+                        name="Internet of Things",
+                        details='',
+                        group='')
+                elif assuming_service == 'elasticloadbalancing.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_elb'),
+                        name="ELB",
+                        details='',
+                        group='')
+                elif assuming_service == 'elasticmapreduce.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_emr'),
+                        name="EMR",
+                        details='',
+                        group='')
+                elif assuming_service == 'kafka.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_msk_cluster'),
+                        name="MSK",
+                        details='',
+                        group='')
+                elif assuming_service == 'elasticache.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_elasticache_cluster'),
+                        name="ElastiCache",
+                        details='',
+                        group='')
+                elif assuming_service == 'appsync.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_appsync_graphql_api'),
+                        name="AppSync",
+                        details='',
+                        group='')
+                elif assuming_service == 'iotanalytics.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_iot_analytics'),
+                        name="IoT Analytics",
+                        details='',
+                        group='')
+                elif assuming_service == 'securityhub.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_securityhub_account'),
+                        name="Security Hub",
+                        details='',
+                        group='')
+                elif assuming_service == 'trustedadvisor.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_trusted_advisor'),
+                        name="Trusted Advisor",
+                        details='',
+                        group='')
+                elif assuming_service == 'firehose.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_kinesis_firehose'),
+                        name="Kinesis Firehose",
+                        details='',
+                        group='')
+                elif assuming_service == 'glue.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_glue'),
+                        name="Glue",
+                        details='',
+                        group='')
+                elif assuming_service == 'quicksight.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_quicksight'),
+                        name="QuickSight",
+                        details='',
+                        group='')
+                elif assuming_service == 'cloud9.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_cloud9'),
+                        name="Cloud9",
+                        details='',
+                        group='')
+                elif assuming_service == 'organizations.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_organizations_account'),
+                        name="Organizations",
+                        details='',
+                        group='')
+                elif assuming_service == 'organizations.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_organizations_account'),
+                        name="Organizations",
+                        details='',
+                        group='')
+                elif assuming_service == 'config.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_config'),
+                        name="Config",
+                        details='',
+                        group='')
+                elif assuming_service == 'application-autoscaling.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_auto_scaling'),
+                        name="Application Autoscaling",
+                        details='',
+                        group='')
+                elif assuming_service == 'autoscaling.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_auto_scaling'),
+                        name="Autoscaling",
+                        details='',
+                        group='')
+                elif assuming_service == 'backup.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_backup'),
+                        name="Backup",
+                        details='',
+                        group='')
+                elif assuming_service == 'cloudtrail.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_cloudtrail'),
+                        name="Cloudtrail",
+                        details='',
+                        group='')
+                elif assuming_service == 'cloudwatch-crossaccount.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_cloudwatch_crossaccount'),
+                        name="Cloudwatch Crossaccount",
+                        details='',
+                        group='')
+                elif assuming_service == 'datapipeline.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_data_pipeline'),
+                        name="Data Pipeline",
+                        details='',
+                        group='')
+                elif assuming_service == 'dms.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_dms'),
+                        name="DMS",
+                        details='',
+                        group='')
+                elif assuming_service == 'dynamodb.application-autoscaling.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_auto_scaling'),
+                        name="DynamoDB Application Autoscaling",
+                        details='',
+                        group='')
+                elif assuming_service == 'elasticbeanstalk.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_elastic_beanstalk_environment'),
+                        name="Elastic Beanstalk",
+                        details='',
+                        group='')
+                elif assuming_service == 'fms.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_fms'),
+                        name="Firewall Manager",
+                        details='',
+                        group='')
+                elif assuming_service == 'globalaccelerator.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_global_accelerator'),
+                        name="Global Accelerator",
+                        details='',
+                        group='')
+                elif assuming_service == 'inspector.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_inspector'),
+                        name="inspector",
+                        details='',
+                        group='')
+                elif assuming_service == 'logger.cloudfront.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_cloudfront_distribution'),
+                        name="CloudFront Logger",
+                        details='',
+                        group='')
+                elif assuming_service == 'migrationhub.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_migration_hub'),
+                        name="Migration Hub",
+                        details='',
+                        group='')
+                elif assuming_service == 'rds.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_db_instance'),
+                        name="RDS",
+                        details='',
+                        group='')
+                elif assuming_service == 'sns.amazonaws.com':
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_sns_topic'),
+                        name="SNS",
+                        details='',
+                        group='')
+                else:
+                    principal_found = Resource(
+                        digest=ResourceDigest(id=assuming_service, type='aws_general'),
+                        name=assuming_service,
+                        details='',
+                        group='')
+                if principal_found is not None:
+                    resources_found.append(principal_found)
+                    self.create_principal_relation(resource_digest, principal_found.digest)
         return resources_found
+
+    def create_principal_relation(self, resource_digest, service_digest):
+        self.relations_found.append(ResourceEdge(from_node=resource_digest, to_node=service_digest, label='assumed by'))
 
     @exception
     def get_relations(self) -> List[ResourceEdge]:
@@ -239,7 +474,7 @@ class InstanceProfile(ResourceProvider):
                     Resource(digest=profile_digest,
                              name=data['InstanceProfileName'],
                              details='',
-                             group='Instance Profile'))
+                             group=''))
                 if len(data['Roles']) == 1:
                     relations_found.append(
                         ResourceEdge(from_node=profile_digest,
