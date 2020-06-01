@@ -90,8 +90,8 @@ class BaseDiagram(object):
                          "nodesep": "2.0",
                          "ranksep": "1.0",
                          "splines": "curved",
-                         "ratio": "0.09",
-                     }):
+                     }) as d:
+            d.dot.engine = 'sfdp'
 
             """ Iterate resources to draw it """
             for alldata in ordered_resources:
