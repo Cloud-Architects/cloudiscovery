@@ -13,7 +13,10 @@ def exception(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            message = "\nError running check {}. Error message {}".format(func.__qualname__, str(e))
+            if "Could not connect to the endpoint URL" in str(e):
+                message = "\nThe service {} is not available in this region".format(func.__qualname__)
+            else:
+                message = "\nError running check {}. Error message {}".format(func.__qualname__, str(e))
             log_critical(message)
             pass
 
