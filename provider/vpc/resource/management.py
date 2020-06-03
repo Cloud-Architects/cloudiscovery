@@ -28,10 +28,14 @@ class SYNTHETICSCANARIES(ResourceProvider):
                 if "VpcConfig" in data:
 
                     if data['VpcConfig']['VpcId'] == self.vpc_options.vpc_id:
-                        resources_found.append(Resource(digest=ResourceDigest(id=data['Id'],
-                                                                              type='aws_canaries_function'),
+                        digest = ResourceDigest(id=data['Id'], type='aws_canaries_function')
+                        resources_found.append(Resource(digest=digest,
                                                         name=data["Name"],
                                                         details='',
                                                         group='management'))
+                        for subnet_id in data['VpcConfig']['SubnetIds']:
+                            self.relations_found.append(ResourceEdge(from_node=digest,
+                                                                     to_node=ResourceDigest(id=subnet_id,
+                                                                                            type='aws_subnet')))
 
         return resources_found

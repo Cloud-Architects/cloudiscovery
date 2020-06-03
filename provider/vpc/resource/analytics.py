@@ -38,13 +38,17 @@ class ELASTICSEARCH(ResourceProvider):
                 """ elasticsearch uses accesspolicies too, so check both situation """
                 if elasticsearch_domain['DomainStatus']['VPCOptions']['VPCId'] == self.vpc_options.vpc_id \
                         or ipvpc_found is True:
+                    digest = ResourceDigest(id=elasticsearch_domain['DomainStatus']['DomainId'],
+                                            type='aws_elasticsearch_domain')
                     resources_found.append(
-                        Resource(digest=ResourceDigest(id=elasticsearch_domain['DomainStatus']['DomainId'],
-                                                       type='aws_elasticsearch_domain'),
+                        Resource(digest=digest,
                                  name=elasticsearch_domain['DomainStatus']['DomainName'],
                                  details='',
                                  group='analytics'))
-
+                    for subnet_id in elasticsearch_domain['DomainStatus']['VPCOptions']['SubnetIds']:
+                        self.relations_found.append(ResourceEdge(from_node=digest,
+                                                                 to_node=ResourceDigest(id=subnet_id,
+                                                                                        type='aws_subnet')))
         return resources_found
 
 
@@ -83,11 +87,14 @@ class MSK(ResourceProvider):
                 for subnet in list(subnets):
 
                     if subnet.id in msk_subnets:
-                        resources_found.append(Resource(digest=ResourceDigest(id=data['ClusterArn'],
-                                                                              type='aws_msk_cluster'),
+                        digest = ResourceDigest(id=data['ClusterArn'], type='aws_msk_cluster')
+                        resources_found.append(Resource(digest=digest,
                                                         name=data['ClusterName'],
                                                         details='',
                                                         group='analytics'))
+                        self.relations_found.append(ResourceEdge(from_node=digest,
+                                                                 to_node=ResourceDigest(id=subnet.id,
+                                                                                        type='aws_subnet')))
 
                         break
         return resources_found

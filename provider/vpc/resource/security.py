@@ -46,7 +46,10 @@ class IAMPOLICY(ResourceProvider):
         ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
 
         if ipvpc_found is True:
-            return True, Resource(digest=ResourceDigest(id=data['Arn'], type='aws_iam_policy'),
+            digest = ResourceDigest(id=data['Arn'], type='aws_iam_policy')
+            self.relations_found.append(ResourceEdge(from_node=digest,
+                                                     to_node=self.vpc_options.vpc_digest()))
+            return True, Resource(digest=digest,
                                   name=data['PolicyName'],
                                   details='IAM Policy version {}'.format(data['DefaultVersionId']),
                                   group='security')

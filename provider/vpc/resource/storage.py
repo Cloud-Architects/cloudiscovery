@@ -40,11 +40,14 @@ class EFS(ResourceProvider):
                     subnets = ec2.describe_subnets(SubnetIds=[datafilesystem['SubnetId']])
 
                     if subnets['Subnets'][0]['VpcId'] == self.vpc_options.vpc_id:
-                        resources_found.append(Resource(digest=ResourceDigest(id=data['FileSystemId'],
-                                                                              type='aws_efs_file_system'),
+                        digest = ResourceDigest(id=data['FileSystemId'], type='aws_efs_file_system')
+                        resources_found.append(Resource(digest=digest,
                                                         name=data['Name'],
                                                         details='',
                                                         group='storage'))
+                        self.relations_found.append(ResourceEdge(from_node=digest,
+                                                                 to_node=ResourceDigest(id=datafilesystem['SubnetId'],
+                                                                                        type='aws_subnet')))
 
         return resources_found
 
@@ -89,7 +92,10 @@ class S3POLICY(ResourceProvider):
             ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
 
             if ipvpc_found is True:
-                return True, Resource(digest=ResourceDigest(id=data['Name'], type='aws_s3_bucket_policy'),
+                digest = ResourceDigest(id=data['Name'], type='aws_s3_bucket_policy')
+                self.relations_found.append(ResourceEdge(from_node=digest,
+                                                         to_node=self.vpc_options.vpc_digest()))
+                return True, Resource(digest=digest,
                                       name=data['Name'],
                                       details='',
                                       group='storage')
