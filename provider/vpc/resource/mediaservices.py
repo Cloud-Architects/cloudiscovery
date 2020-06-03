@@ -8,6 +8,7 @@ from shared.error_handler import exception
 class MEDIACONNECT(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception
@@ -37,12 +38,16 @@ class MEDIACONNECT(ResourceProvider):
                         subnets = ec2.describe_subnets(SubnetIds=[data_interfaces['SubnetId']])
 
                         if subnets['Subnets'][0]['VpcId'] == self.vpc_options.vpc_id:
-                            resources_found.append(Resource(digest=ResourceDigest(id=data['FlowArn'],
-                                                                                  type='aws_media_connect'),
+                            digest = ResourceDigest(id=data['FlowArn'], type='aws_media_connect')
+                            resources_found.append(Resource(digest=digest,
                                                             name=data['Name'],
                                                             details='Flow using VPC {} in VPC Interface {}'
                                                             .format(self.vpc_options.vpc_id, data_interfaces['Name']),
                                                             group='mediaservices'))
+                            self.relations_found.append(ResourceEdge(from_node=digest,
+                                                                     to_node=ResourceDigest(
+                                                                         id=data_interfaces['SubnetId'],
+                                                                         type='aws_subnet')))
 
         return resources_found
 
@@ -50,6 +55,7 @@ class MEDIACONNECT(ResourceProvider):
 class MEDIALIVE(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception
@@ -75,17 +81,20 @@ class MEDIALIVE(ResourceProvider):
                             NetworkInterfaceIds=[destinations["Vpc"]['NetworkInterfaceId']])
 
                         if eni['NetworkInterfaces'][0]['VpcId'] == self.vpc_options.vpc_id:
-                            resources_found.append(Resource(digest=ResourceDigest(id=data['Arn'],
-                                                                                  type='aws_media_live'),
+                            digest = ResourceDigest(id=data['Arn'], type='aws_media_live')
+                            resources_found.append(Resource(digest=digest,
                                                             name="Input " + destinations["Ip"],
                                                             details='',
                                                             group='mediaservices'))
+                            self.relations_found.append(ResourceEdge(from_node=digest,
+                                                                     to_node=self.vpc_options.vpc_digest()))
         return resources_found
 
 
 class MEDIASTORE(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception
@@ -110,9 +119,11 @@ class MEDIASTORE(ResourceProvider):
                 ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
 
                 if ipvpc_found is not False:
-                    resources_found.append(Resource(digest=ResourceDigest(id=data['ARN'],
-                                                                          type='aws_mediastore_polocy'),
+                    digest = ResourceDigest(id=data['ARN'], type='aws_mediastore_polocy')
+                    resources_found.append(Resource(digest=digest,
                                                     name=data["Name"],
                                                     details='',
                                                     group='mediaservices'))
+                    self.relations_found.append(ResourceEdge(from_node=digest,
+                                                             to_node=self.vpc_options.vpc_digest()))
         return resources_found
