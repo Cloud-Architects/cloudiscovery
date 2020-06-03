@@ -9,6 +9,7 @@ from shared.error_handler import exception
 class EFS(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception
@@ -51,6 +52,7 @@ class EFS(ResourceProvider):
 class S3POLICY(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception

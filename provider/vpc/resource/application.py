@@ -9,6 +9,7 @@ from shared.error_handler import exception
 class SQSPOLICY(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception

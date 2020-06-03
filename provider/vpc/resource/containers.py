@@ -6,6 +6,7 @@ from shared.error_handler import exception
 class ECS(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception
@@ -54,12 +55,16 @@ class ECS(ResourceProvider):
                                 for data_subnet in subnets['Subnets']:
 
                                     if data_subnet['VpcId'] == self.vpc_options.vpc_id:
-                                        resources_found.append(Resource(digest=ResourceDigest(id=data['clusterArn'],
-                                                                                              type='aws_ecs_cluster'),
+                                        cluster_digest = ResourceDigest(id=data['clusterArn'], type='aws_ecs_cluster')
+                                        resources_found.append(Resource(digest=cluster_digest,
                                                                         name=data["clusterName"],
 
                                                                         details='',
                                                                         group='container'))
+                                        self.relations_found.append(ResourceEdge(from_node=cluster_digest,
+                                                                                 to_node=ResourceDigest(
+                                                                                     id=data_subnet['SubnetId'],
+                                                                                     type='aws_subnet')))
                             else:
                                 """ EC2 services require container instances, list of them should be fine for now """
                                 pass
@@ -89,12 +94,17 @@ class ECS(ResourceProvider):
                             for instance in reservation['Instances']:
                                 for network_interfaces in instance['NetworkInterfaces']:
                                     if network_interfaces['VpcId'] == self.vpc_options.vpc_id:
-                                        resources_found.append(Resource(digest=ResourceDigest(id=instance['InstanceId'],
-                                                                                              type='aws_ecs_cluster'),
+                                        cluster_instance_digest = ResourceDigest(id=instance['InstanceId'],
+                                                                                 type='aws_ecs_cluster')
+                                        resources_found.append(Resource(digest=cluster_instance_digest,
                                                                         name=data["clusterName"],
 
                                                                         details='Instance in EC2 cluster',
                                                                         group='container'))
+                                        self.relations_found.append(ResourceEdge(from_node=cluster_instance_digest,
+                                                                                 to_node=ResourceDigest(
+                                                                                     id=instance['InstanceId'],
+                                                                                     type='aws_instance')))
                                     pass
                             pass
                         pass

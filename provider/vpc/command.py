@@ -14,6 +14,10 @@ class VpcOptions(BaseOptions):
         self.vpc_id = vpc_id
         return self
 
+    def vpc_digest(self):
+        return ResourceDigest(id=self.vpc_id,
+                              type='aws_vpc')
+
 
 class Vpc(BaseCommand):
     def __init__(self, vpc_id, region_name, session, diagram):

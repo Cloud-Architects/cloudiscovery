@@ -6,25 +6,28 @@ from shared.error_handler import exception
 class LAMBDA(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception
     def get_resources(self) -> List[Resource]:
-
         client = self.vpc_options.client('lambda')
-
-        resources_found = []
-
-        response = client.list_functions()
 
         message_handler("Collecting data from Lambda Functions...", "HEADER")
 
-        if len(response["Functions"]) > 0:
+        paginator = client.get_paginator('list_functions')
+        pages = paginator.paginate()
 
+        resources_found = []
+        for response in pages:
             for data in response["Functions"]:
                 if 'VpcConfig' in data and data['VpcConfig']['VpcId'] == self.vpc_options.vpc_id:
-                    resources_found.append(Resource(digest=ResourceDigest(id=data['FunctionArn'],
-                                                                          type='aws_lambda_function'),
+                    lambda_digest = ResourceDigest(id=data['FunctionArn'], type='aws_lambda_function')
+                    for subnet_id in data['VpcConfig']['SubnetIds']:
+                        self.relations_found.append(ResourceEdge(from_node=lambda_digest,
+                                                                 to_node=ResourceDigest(id=subnet_id,
+                                                                                        type='aws_subnet')))
+                    resources_found.append(Resource(digest=lambda_digest,
                                                     name=data["FunctionName"],
                                                     details='',
                                                     group='compute'))
@@ -35,6 +38,7 @@ class LAMBDA(ResourceProvider):
 class EC2(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception
@@ -59,11 +63,14 @@ class EC2(ResourceProvider):
 
                             instance_name = instances["InstanceId"] if nametags is False else nametags
 
-                            resources_found.append(Resource(digest=ResourceDigest(id=instances['InstanceId'],
-                                                                                  type='aws_instance'),
+                            ec2_digest = ResourceDigest(id=instances['InstanceId'], type='aws_instance')
+                            resources_found.append(Resource(digest=ec2_digest,
                                                             name=instance_name,
                                                             details='',
                                                             group='compute'))
+                            self.relations_found.append(ResourceEdge(from_node=ec2_digest,
+                                                                     to_node=ResourceDigest(id=instances['SubnetId'],
+                                                                                            type='aws_subnet')))
 
         return resources_found
 
@@ -71,6 +78,7 @@ class EC2(ResourceProvider):
 class EKS(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception
@@ -103,6 +111,7 @@ class EKS(ResourceProvider):
 class EMR(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception
@@ -140,6 +149,7 @@ class EMR(ResourceProvider):
 class AUTOSCALING(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception
