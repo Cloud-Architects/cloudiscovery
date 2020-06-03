@@ -9,6 +9,7 @@ from shared.error_handler import exception
 class IamPolicy(ResourceProvider):
 
     def __init__(self, options: ProfileOptions):
+        super().__init__()
         self.options = options
 
     @exception
@@ -48,6 +49,7 @@ class IamPolicy(ResourceProvider):
 class IamGroup(ResourceProvider):
 
     def __init__(self, options: ProfileOptions):
+        super().__init__()
         self.client = options.client('iam')
         self.resources_found: List[Resource] = []
 
@@ -93,9 +95,9 @@ class IamGroup(ResourceProvider):
 class IamRole(ResourceProvider):
 
     def __init__(self, options: ProfileOptions):
+        super().__init__()
         self.client = options.client('iam')
         self.resources_found: List[Resource] = []
-        self.relations_found: List[ResourceEdge] = []
 
     @exception
     def get_resources(self) -> List[Resource]:
@@ -455,8 +457,8 @@ class IamRole(ResourceProvider):
 class InstanceProfile(ResourceProvider):
 
     def __init__(self, vpc_options: ProfileOptions):
+        super().__init__()
         self.vpc_options = vpc_options
-        self.relations_found: List[ResourceEdge] = []
 
     @exception
     def get_resources(self) -> List[Resource]:
@@ -481,7 +483,3 @@ class InstanceProfile(ResourceProvider):
                                      to_node=ResourceDigest(id=data['Roles'][0]['RoleName'], type='aws_iam_role')))
         self.relations_found = relations_found
         return resources_found
-
-    @exception
-    def get_relations(self) -> List[ResourceEdge]:
-        return self.relations_found

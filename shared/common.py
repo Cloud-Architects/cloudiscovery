@@ -41,16 +41,19 @@ class ResourceEdge(NamedTuple):
 class Resource(NamedTuple):
     digest: ResourceDigest
     name: str
-    details: str
-    group: str
+    details: str = ''
+    group: str = ''
 
 
 class ResourceProvider:
+    def __init__(self):
+        self.relations_found: List[ResourceEdge] = []
+
     def get_resources(self) -> List[Resource]:
         return []
 
     def get_relations(self) -> List[ResourceEdge]:
-        return []
+        return self.relations_found
 
 
 def get_name_tags(d):

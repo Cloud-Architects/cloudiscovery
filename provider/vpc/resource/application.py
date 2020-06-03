@@ -9,6 +9,7 @@ from shared.error_handler import exception
 class SQSPOLICY(ResourceProvider):
 
     def __init__(self, vpc_options: VpcOptions):
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception
@@ -52,8 +53,10 @@ class SQSPOLICY(ResourceProvider):
                 ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
 
                 if ipvpc_found is not False:
-                    return True, Resource(digest=ResourceDigest(id=queuearn,
-                                                                type='aws_sqs_queue_policy'),
+                    resource_digest = ResourceDigest(id=queuearn, type='aws_sqs_queue_policy')
+                    self.relations_found.append(ResourceEdge(from_node=resource_digest,
+                                                             to_node=self.vpc_options.vpc_digest()))
+                    return True, Resource(digest=resource_digest,
                                           name=queue,
                                           details='',
                                           group='application')
