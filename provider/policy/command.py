@@ -1,5 +1,5 @@
 from shared.command import BaseCommand, CommandRunner
-from shared.common import *
+from shared.common import BaseOptions
 from shared.diagram import NoDiagram, BaseDiagram
 
 
@@ -8,7 +8,6 @@ class ProfileOptions(BaseOptions):
 
 
 class Policy(BaseCommand):
-
     def __init__(self, region_name, session, diagram):
         super().__init__(region_name, session, diagram)
 

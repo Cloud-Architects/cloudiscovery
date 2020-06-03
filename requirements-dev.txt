@@ -1,2 +1,13 @@
-coverage
-pycodestyle
+# Install dependencies
+-r requirements.txt
+
+# Install test dependencies
+black
+flake8
+pytest
+pytest-runner
+pytest-flake8
+pytest-black
+pytest-cov
+pytest-xdist
+pre-commit

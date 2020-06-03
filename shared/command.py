@@ -1,11 +1,19 @@
 import importlib
 import inspect
 import os
-from typing import Dict
+from typing import Dict, List
 
+from shared.common import (
+    exit_critical,
+    ResourceProvider,
+    Resource,
+    message_handler,
+    ResourceDigest,
+    ResourceEdge,
+    BaseOptions,
+)
 from shared.diagram import BaseDiagram
 from shared.report import Report
-from shared.common import *
 
 
 class BaseCommand:
@@ -15,9 +23,11 @@ class BaseCommand:
         self.diagram = diagram
 
     def check_region(self):
-        client = self.session.client('ec2')
+        client = self.session.client("ec2")
 
-        regions = [region['RegionName'] for region in client.describe_regions()['Regions']]
+        regions = [
+            region["RegionName"] for region in client.describe_regions()["Regions"]
+        ]
 
         if self.region_name not in regions and self.region_name != "all":
             message = "There is no region named: {0}".format(self.region_name)
@@ -25,7 +35,6 @@ class BaseCommand:
 
 
 class CommandRunner(object):
-
     def run(self, provider: str, options: BaseOptions, diagram_builder: BaseDiagram):
         """
         The project's development pattern is a file with the respective name of the parent
@@ -43,8 +52,15 @@ class CommandRunner(object):
 
                 """ Load and call all run check """
                 for nameclass, cls in inspect.getmembers(
-                        importlib.import_module("provider." + provider + ".resource." + module), inspect.isclass):
-                    if issubclass(cls, ResourceProvider) and cls is not ResourceProvider:
+                    importlib.import_module(
+                        "provider." + provider + ".resource." + module
+                    ),
+                    inspect.isclass,
+                ):
+                    if (
+                        issubclass(cls, ResourceProvider)
+                        and cls is not ResourceProvider
+                    ):
                         providers.append((nameclass, cls))
         providers.sort(key=lambda x: x[0])
 
@@ -69,17 +85,26 @@ class CommandRunner(object):
         unique_resources = list(unique_resources_dict.values())
 
         unique_resources.sort(key=lambda x: x.group + x.digest.type + x.name)
-        resource_relations.sort(key=lambda x: x.from_node.type + x.from_node.id + x.to_node.type + x.to_node.id)
+        resource_relations.sort(
+            key=lambda x: x.from_node.type
+            + x.from_node.id
+            + x.to_node.type
+            + x.to_node.id
+        )
 
-        """ 
-        TODO: Generate reports in json/csv/pdf/xls 
         """
-        Report().general_report(resources=unique_resources, resource_relations=resource_relations)
+        TODO: Generate reports in json/csv/pdf/xls
+        """
+        Report().general_report(
+            resources=unique_resources, resource_relations=resource_relations
+        )
 
-        """ 
+        """
         Diagram integration
         """
-        diagram_builder.build(resources=unique_resources, resource_relations=resource_relations)
+        diagram_builder.build(
+            resources=unique_resources, resource_relations=resource_relations
+        )
 
         """
         TODO: Export in csv/json/yaml/tf... future...
