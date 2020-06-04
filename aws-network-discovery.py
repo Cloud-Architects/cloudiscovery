@@ -18,50 +18,49 @@ import argparse
 import gettext
 import sys
 
+import pkg_resources
+
 from provider.policy.command import Policy
 from provider.vpc.command import Vpc
 from provider.iot.command import Iot
-from shared.common import *
-import pkg_resources
 
 # Check version
+from shared.common import exit_critical, generate_session
+
 if sys.version_info < (3, 6):
-    print(_("Python 3.6 or newer is required"), file=sys.stderr)
+    print("Python 3.6 or newer is required", file=sys.stderr)
     sys.exit(1)
 
 __version__ = "1.0.0"
 
-AVAILABLE_LANGUAGES = ['en_US', 'pt_BR']
-DIAGRAMS_OPTIONS = ['True', 'False']
+AVAILABLE_LANGUAGES = ["en_US", "pt_BR"]
+DIAGRAMS_OPTIONS = ["True", "False"]
 
 
 def generate_parser():
     parser = argparse.ArgumentParser()
 
-    subparsers = parser.add_subparsers(help='commands', dest="command")
+    subparsers = parser.add_subparsers(help="commands", dest="command")
 
-    vpc_parser = subparsers.add_parser(
-        'vpc', help='Analyze VPCs')
+    vpc_parser = subparsers.add_parser("vpc", help="Analyze VPCs")
     add_default_arguments(vpc_parser)
     vpc_parser.add_argument(
         "-v",
         "--vpc-id",
         required=False,
-        help="Inform VPC to analyze. If not informed, script will check all vpcs."
+        help="Inform VPC to analyze. If not informed, script will check all vpcs.",
     )
 
-    iot_parser = subparsers.add_parser(
-        'iot', help='Analyze IoTs')
+    iot_parser = subparsers.add_parser("iot", help="Analyze IoTs")
     add_default_arguments(iot_parser)
     iot_parser.add_argument(
         "-t",
         "--thing-name",
         required=False,
-        help="Inform Thing Name to analyze. If not informed, script will check all things inside a region."
+        help="Inform Thing Name to analyze. If not informed, script will check all things inside a region.",
     )
 
-    policy_parser = subparsers.add_parser(
-        'policy', help='Analyze policies')
+    policy_parser = subparsers.add_parser("policy", help="Analyze policies")
 
     add_default_arguments(policy_parser)
 
@@ -73,26 +72,21 @@ def add_default_arguments(parser):
         "-r",
         "--region-name",
         required=False,
-        help="Inform REGION NAME to analyze or \"all\" to check on all regions. If not informed, try to get from config file"
+        help='Inform REGION NAME to analyze or "all" to check on all regions. \
+        If not informed, try to get from config file',
     )
     parser.add_argument(
-        "-p",
-        "--profile-name",
-        required=False,
-        help="Profile to be used"
+        "-p", "--profile-name", required=False, help="Profile to be used"
     )
     parser.add_argument(
-        "-l",
-        "--language",
-        required=False,
-        help="available languages: pt_BR, en_US"
+        "-l", "--language", required=False, help="available languages: pt_BR, en_US"
     )
     parser.add_argument(
         "-d",
         "--diagram",
         required=False,
-        help="print diagram with resources (need Graphviz installed). Use options \"True\" to "
-             "view image or \"False\" to save image to disk. Default True"
+        help='print diagram with resources (need Graphviz installed). Use options "True" to '
+        'view image or "False" to save image to disk. Default True',
     )
 
 
@@ -119,7 +113,9 @@ def main():
         diagram = args.diagram
 
     """ defining default language to show messages """
-    defaultlanguage = gettext.translation('messages', localedir='locales', languages=[language])
+    defaultlanguage = gettext.translation(
+        "messages", localedir="locales", languages=[language]
+    )
     defaultlanguage.install()
     _ = defaultlanguage.gettext
 
@@ -127,7 +123,12 @@ def main():
     if diagram:
         """ Checking diagram version. Must be 0.13 or higher """
         if pkg_resources.get_distribution("diagrams").version < "0.13":
-            exit_critical(_("You must update diagrams package to 0.13 or higher. - See on https://github.com/mingrammer/diagrams"))
+            exit_critical(
+                _(
+                    "You must update diagrams package to 0.13 or higher. "
+                    "- See on https://github.com/mingrammer/diagrams"
+                )
+            )
 
     """ aws profile check """
     session = generate_session(args.profile_name)
@@ -142,35 +143,51 @@ def main():
         region_name = args.region_name
 
     """ if region is all, get all regions """
-    if args.region_name == 'all':
-        client = session.client('ec2')
-        region_name = client.describe_regions()['Regions']
+    if args.region_name == "all":
+        client = session.client("ec2")
+        region_names = [
+            region["RegionName"] for region in client.describe_regions()["Regions"]
+        ]
     else:
-        region_name = [{"RegionName": args.region_name}]
+        check_region(region_name, session)
+        region_names = [region_name]
 
-    
     if args.command == "vpc":
-        command = Vpc(vpc_id=args.vpc_id,
-                      region_name=region_name,
-                      session=session,
-                      diagram=diagram)
+        command = Vpc(
+            vpc_id=args.vpc_id,
+            region_names=region_names,
+            session=session,
+            diagram=diagram,
+        )
     elif args.command == "policy":
-        command = Policy(region_name=region_name,
-                         session=session,
-                         diagram=diagram)
+        command = Policy(region_names=region_names, session=session, diagram=diagram)
     elif args.command == "iot":
-        command = Iot(thing_name=args.thing_name,
-                      region_name=region_name,
-                      session=session,
-                      diagram=diagram)
+        command = Iot(
+            thing_name=args.thing_name,
+            region_names=region_names,
+            session=session,
+            diagram=diagram,
+        )
     else:
         raise NotImplementedError("Unknown command")
     command.run()
+
+
+def check_region(region_name, session):
+    client = session.client("ec2")
+
+    valid_region_names = [
+        region["RegionName"] for region in client.describe_regions()["Regions"]
+    ]
+
+    if region_name not in valid_region_names:
+        message = "There is no region named: {0}".format(region_name)
+        exit_critical(message)
 
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print('Finishing script...')
+        print("Finishing script...")
         sys.exit(0)

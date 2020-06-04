@@ -197,3 +197,17 @@ $ python msgfmt.py -o locales/NEWFOLDER/LC_MESSAGES/messages.mo locales/NEWFOLDE
 ### Contributing
 
 If you have improvements or fixes, we would love to have your contributions. Please use [PEP 8](https://pycodestyle.readthedocs.io/en/latest/) code style.
+
+### Development
+
+Make sure you have installed [pre-commit](https://pre-commit.com/#installation).
+
+Install development requirements:
+```sh
+$ pip install -r requirements-dev.txt
+```
+
+Add precommit hooks:
+```
+$ pre-commit install
+```
