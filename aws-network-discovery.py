@@ -145,29 +145,44 @@ def main():
     """ if region is all, get all regions """
     if args.region_name == "all":
         client = session.client("ec2")
-        region_name = client.describe_regions()["Regions"]
+        region_names = [
+            region["RegionName"] for region in client.describe_regions()["Regions"]
+        ]
     else:
-        region_name = [{"RegionName": args.region_name}]
+        check_region(region_name, session)
+        region_names = [region_name]
 
     if args.command == "vpc":
         command = Vpc(
             vpc_id=args.vpc_id,
-            region_name=region_name,
+            region_names=region_names,
             session=session,
             diagram=diagram,
         )
     elif args.command == "policy":
-        command = Policy(region_name=region_name, session=session, diagram=diagram)
+        command = Policy(region_names=region_names, session=session, diagram=diagram)
     elif args.command == "iot":
         command = Iot(
             thing_name=args.thing_name,
-            region_name=region_name,
+            region_names=region_names,
             session=session,
             diagram=diagram,
         )
     else:
         raise NotImplementedError("Unknown command")
     command.run()
+
+
+def check_region(region_name, session):
+    client = session.client("ec2")
+
+    valid_region_names = [
+        region["RegionName"] for region in client.describe_regions()["Regions"]
+    ]
+
+    if region_name not in valid_region_names:
+        message = "There is no region named: {0}".format(region_name)
+        exit_critical(message)
 
 
 if __name__ == "__main__":

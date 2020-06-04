@@ -24,8 +24,8 @@ class VpcOptions(BaseOptions):
 
 
 class Vpc(BaseCommand):
-    def __init__(self, vpc_id, region_name, session, diagram):
-        super().__init__(region_name, session, diagram)
+    def __init__(self, vpc_id, region_names, session, diagram):
+        super().__init__(region_names, session, diagram)
         self.vpc_id = vpc_id
 
     @staticmethod
@@ -48,33 +48,25 @@ class Vpc(BaseCommand):
         print(message)
 
     def run(self):
-        self.check_region()
-
         command_runner = CommandRunner()
 
-        regions = self.region_name
-
-        for region in regions:
-
-            self.region_name = region["RegionName"]
+        for region in self.region_names:
 
             """ if vpc is none, get all vpcs and check """
             if self.vpc_id is None:
-                client = self.session.client("ec2", region_name=self.region_name)
+                client = self.session.client("ec2", region_name=region)
                 vpcs = client.describe_vpcs()
                 for data in vpcs["Vpcs"]:
                     vpc_id = data["VpcId"]
                     vpc_options = VpcOptions(
-                        session=self.session,
-                        region_name=self.region_name,
-                        vpc_id=vpc_id,
+                        session=self.session, region_name=region, vpc_id=vpc_id,
                     )
                     self.check_vpc(vpc_options)
                     diagram_builder: BaseDiagram
                     if self.diagram:
                         diagram_builder = VpcDiagram(
                             name="AWS VPC {} Resources - Region {}".format(
-                                vpc_id, self.region_name
+                                vpc_id, region
                             ),
                             filename=vpc_id,
                             vpc_id=vpc_id,
@@ -84,16 +76,14 @@ class Vpc(BaseCommand):
                     command_runner.run("vpc", vpc_options, diagram_builder)
             else:
                 vpc_options = VpcOptions(
-                    session=self.session,
-                    region_name=self.region_name,
-                    vpc_id=self.vpc_id,
+                    session=self.session, region_name=region, vpc_id=self.vpc_id,
                 )
 
                 self.check_vpc(vpc_options)
                 if self.diagram:
                     diagram_builder = VpcDiagram(
                         name="AWS VPC {} Resources - Region {}".format(
-                            self.vpc_id, self.region_name
+                            self.vpc_id, region
                         ),
                         filename=self.vpc_id,
                         vpc_id=self.vpc_id,

@@ -17,4 +17,4 @@ class VpcDiagram(BaseDiagram):
         grouped_resources: Dict[str, List[Resource]],
         resource_relations: List[ResourceEdge],
     ) -> List[ResourceEdge]:
-        return super().process_relationships(resource_relations)
+        return super().process_relationships(resource_relations, resource_relations)

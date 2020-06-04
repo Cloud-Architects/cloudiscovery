@@ -57,7 +57,7 @@ class Mapsources:
         "aws_network_acl": "Nacl",
         "aws_vpc_peering_connection": "VPCPeering",
         "aws_vpc_endpoint_gateway": "Endpoint",
-        "aws_iam_policy": "IAM",
+        "aws_iam_policy": "IAMPermissions",
         "aws_iam_user": "User",
         "aws_iam_group": "IAM",
         "aws_iam_role": "IAMRole",

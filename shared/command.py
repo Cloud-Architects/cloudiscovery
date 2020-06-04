@@ -4,7 +4,6 @@ import os
 from typing import Dict, List
 
 from shared.common import (
-    exit_critical,
     ResourceProvider,
     Resource,
     message_handler,
@@ -17,25 +16,10 @@ from shared.report import Report
 
 
 class BaseCommand:
-    def __init__(self, region_name, session, diagram):
-        self.region_name = region_name
+    def __init__(self, region_names, session, diagram):
+        self.region_names = region_names
         self.session = session
         self.diagram = diagram
-
-    def check_region(self):
-        client = self.session.client("ec2")
-
-        regions = [
-            region["RegionName"] for region in client.describe_regions()["Regions"]
-        ]
-
-        if (
-            self.region_name not in regions
-            and self.region_name != "all"
-            and isinstance(self.region_name, list) is False
-        ):
-            message = "There is no region named: {0}".format(self.region_name)
-            exit_critical(message)
 
 
 class CommandRunner(object):
