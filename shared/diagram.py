@@ -40,7 +40,9 @@ class Mapsources:
                     "aws_cloudwatch": "Cloudwatch", "aws_data_pipeline": "DataPipeline", "aws_dms": "DMS",
                     "aws_elastic_beanstalk_environment": "EB", "aws_fms": "FMS", "aws_global_accelerator": "GAX",
                     "aws_inspector": "Inspector", "aws_cloudfront_distribution": "CloudFront",
-                    "aws_migration_hub": "MigrationHub", "aws_sns_topic": "SNS", "aws_vpc": "VPC"}
+                    "aws_migration_hub": "MigrationHub", "aws_sns_topic": "SNS", "aws_vpc": "VPC", "aws_iot": "IotCore",
+                    "aws_iot_certificate": "IotCertificate", "aws_iot_policy": "IotCertificate",
+                    "aws_iot_type": "IotCore", "aws_iot_billing_group": "IotCore", "aws_iot_job": "IotJobs"}
 
 
 class BaseDiagram(object):

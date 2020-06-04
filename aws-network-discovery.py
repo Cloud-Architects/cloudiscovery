@@ -20,6 +20,7 @@ import sys
 
 from provider.policy.command import Policy
 from provider.vpc.command import Vpc
+from provider.iot.command import Iot
 from shared.common import *
 import pkg_resources
 
@@ -47,6 +48,16 @@ def generate_parser():
         "--vpc-id",
         required=False,
         help="Inform VPC to analyze. If not informed, script will check all vpcs."
+    )
+
+    iot_parser = subparsers.add_parser(
+        'iot', help='Analyze IoTs')
+    add_default_arguments(iot_parser)
+    iot_parser.add_argument(
+        "-t",
+        "--thing-name",
+        required=False,
+        help="Inform Thing Name to analyze. If not informed, script will check all things inside a region."
     )
 
     policy_parser = subparsers.add_parser(
@@ -130,6 +141,14 @@ def main():
     if args.region_name is not None:
         region_name = args.region_name
 
+    """ if region is all, get all regions """
+    if args.region_name == 'all':
+        client = session.client('ec2')
+        region_name = client.describe_regions()['Regions']
+    else:
+        region_name = [{"RegionName": args.region_name}]
+
+    
     if args.command == "vpc":
         command = Vpc(vpc_id=args.vpc_id,
                       region_name=region_name,
@@ -139,6 +158,11 @@ def main():
         command = Policy(region_name=region_name,
                          session=session,
                          diagram=diagram)
+    elif args.command == "iot":
+        command = Iot(thing_name=args.thing_name,
+                      region_name=region_name,
+                      session=session,
+                      diagram=diagram)
     else:
         raise NotImplementedError("Unknown command")
     command.run()
