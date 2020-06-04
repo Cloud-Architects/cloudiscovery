@@ -23,13 +23,12 @@ class CERTIFICATE(ResourceProvider):
             response = client.list_thing_principals(thingName=thing['thingName'])
 
             for data in response['principals']:
-            
                 if "cert/" in data:
 
                     lst_cert = data.split("/")
 
                     data_cert = response = client.describe_certificate(certificateId=lst_cert[1])
-                    
+
                     iot_cert_digest = ResourceDigest(id=data_cert['certificateDescription']['certificateId'],
                                                     type='aws_iot_certificate')
                     resources_found.append(Resource(

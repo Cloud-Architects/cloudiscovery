@@ -28,9 +28,8 @@ class THINGS(ResourceProvider):
                                             details='',
                                             group='iot'))
 
-        
-
         return resources_found
+
 
 class TYPE(ResourceProvider):
 
@@ -54,7 +53,7 @@ class TYPE(ResourceProvider):
             thing_types = client.list_thing_types()
 
             for thing_type in thing_types['thingTypes']:
-                
+
                 """ thingTypeName is not mandatory in IoT Thing """
                 if "thingTypeName" in response:
                     if thing_type['thingTypeName'] == response['thingTypeName']:
@@ -71,9 +70,9 @@ class TYPE(ResourceProvider):
                                                                 to_node=ResourceDigest(id=thing['thingName'],
                                                                                         type='aws_iot_thing')))
 
-        
 
         return resources_found
+
 
 class JOB(ResourceProvider):
 
@@ -119,6 +118,7 @@ class JOB(ResourceProvider):
 
         return resources_found
 
+
 class BILLINGGROUP(ResourceProvider):
 
     def __init__(self, iot_options: IotOptions):
@@ -141,7 +141,7 @@ class BILLINGGROUP(ResourceProvider):
             billing_groups = client.list_billing_groups()
 
             for billing_group in billing_groups['billingGroups']:
-                
+
                 """ billingGroupName is not mandatory in IoT Thing """
                 if "billingGroupName" in response:
 
@@ -158,6 +158,4 @@ class BILLINGGROUP(ResourceProvider):
                         self.relations_found.append(ResourceEdge(from_node=iot_billing_group_digest,
                                                                  to_node=ResourceDigest(id=thing['thingName'],
                                                                                         type='aws_iot_thing')))
-            
-        
         return resources_found

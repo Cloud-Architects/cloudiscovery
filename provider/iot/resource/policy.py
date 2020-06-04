@@ -23,7 +23,7 @@ class POLICY(ResourceProvider):
             response = client.list_thing_principals(thingName=thing['thingName'])
 
             for data in response['principals']:
-            
+
                 policies = client.list_principal_policies(principal=data)
 
                 for policy in policies['policies']:
