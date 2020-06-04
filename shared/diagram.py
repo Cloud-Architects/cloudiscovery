@@ -96,6 +96,12 @@ class Mapsources:
         "aws_migration_hub": "MigrationHub",
         "aws_sns_topic": "SNS",
         "aws_vpc": "VPC",
+        "aws_iot": "IotCore",
+        "aws_iot_certificate": "IotCertificate",
+        "aws_iot_policy": "IotCertificate",
+        "aws_iot_type": "IotCore",
+        "aws_iot_billing_group": "IotCore",
+        "aws_iot_job": "IotJobs",
     }
 
 

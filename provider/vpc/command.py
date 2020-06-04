@@ -52,12 +52,7 @@ class Vpc(BaseCommand):
 
         command_runner = CommandRunner()
 
-        """ if region is all, get all regions """
-        if self.region_name == "all":
-            client = self.session.client("ec2")
-            regions = client.describe_regions()["Regions"]
-        else:
-            regions = [{"RegionName": self.region_name}]
+        regions = self.region_name
 
         for region in regions:
 

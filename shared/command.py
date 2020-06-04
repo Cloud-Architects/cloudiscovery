@@ -29,7 +29,11 @@ class BaseCommand:
             region["RegionName"] for region in client.describe_regions()["Regions"]
         ]
 
-        if self.region_name not in regions and self.region_name != "all":
+        if (
+            self.region_name not in regions
+            and self.region_name != "all"
+            and isinstance(self.region_name, list) is False
+        ):
             message = "There is no region named: {0}".format(self.region_name)
             exit_critical(message)
 
