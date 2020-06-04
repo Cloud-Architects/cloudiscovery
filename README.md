@@ -45,6 +45,15 @@ Following resources are checked in Policy command:
 - IAM Policy
 - IAM User to group relationship
 
+Following resources are checked in IoT command:
+
+- IoT Thing
+- IoT Thing Type
+- IoT Billing Group
+- IoT Policies
+- IoT Jobs
+- IoT Certificates
+
 
 ### Requirements and Installation
 
@@ -134,11 +143,16 @@ $ ./aws-network-discovery.py vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xx
 ```sh
 $ ./aws-network-discovery.py policy [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
 ```
+1.3 To detect iot resources:
+
+```sh
+$ ./aws-network-discovery.py iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+```
 
 2. For help use:
 
 ```sh
-$ ./aws-network-discovery.py [vpc|policy] -h
+$ ./aws-network-discovery.py [vpc|policy|iot] -h
 ```
 
 ### Using a Docker container
