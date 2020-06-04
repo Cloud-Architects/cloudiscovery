@@ -1,6 +1,6 @@
 from typing import List
 
-from provider.policy.command import ProfileOptions
+from shared.common import BaseOptions
 from shared.common import (
     ResourceProvider,
     Resource,
@@ -12,7 +12,7 @@ from shared.error_handler import exception
 
 
 class IamUser(ResourceProvider):
-    def __init__(self, options: ProfileOptions):
+    def __init__(self, options: BaseOptions):
         super().__init__()
         self.client = options.client("iam")
         self.users_found: List[Resource] = []

@@ -1,7 +1,7 @@
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import List
 
-from provider.policy.command import ProfileOptions
+from shared.common import BaseOptions
 from shared.common import (
     ResourceProvider,
     Resource,
@@ -13,7 +13,7 @@ from shared.error_handler import exception
 
 
 class IamPolicy(ResourceProvider):
-    def __init__(self, options: ProfileOptions):
+    def __init__(self, options: BaseOptions):
         super().__init__()
         self.options = options
 
@@ -49,7 +49,7 @@ class IamPolicy(ResourceProvider):
 
 
 class IamGroup(ResourceProvider):
-    def __init__(self, options: ProfileOptions):
+    def __init__(self, options: BaseOptions):
         super().__init__()
         self.client = options.client("iam")
         self.resources_found: List[Resource] = []
@@ -105,7 +105,7 @@ class IamGroup(ResourceProvider):
 
 
 class IamRole(ResourceProvider):
-    def __init__(self, options: ProfileOptions):
+    def __init__(self, options: BaseOptions):
         super().__init__()
         self.client = options.client("iam")
         self.resources_found: List[Resource] = []
@@ -620,7 +620,7 @@ class IamRole(ResourceProvider):
 
 
 class InstanceProfile(ResourceProvider):
-    def __init__(self, vpc_options: ProfileOptions):
+    def __init__(self, vpc_options: BaseOptions):
         super().__init__()
         self.vpc_options = vpc_options
 
