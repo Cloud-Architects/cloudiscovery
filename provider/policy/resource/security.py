@@ -12,6 +12,58 @@ from shared.common import (
 from shared.error_handler import exception
 
 
+class Principals:
+
+    principals = dict()
+    principals = {
+                "apigateway.amazonaws.com": {"type": "aws_api_gateway_rest_api", "name": "API Gateway"},
+                "ops.apigateway.amazonaws.com": {"type": "aws_api_gateway_rest_api", "name": "API Gateway"},
+                "sagemaker.amazonaws.com": {"type": "aws_sagemaker_notebook_instance", "name": "Sagemaker"},
+                "ssm.amazonaws.com": {"type": "aws_ssm_document", "name": "SystemsManager"},
+                "ec2.amazonaws.com": {"type": "aws_instance", "name": "EC2"},
+                "lambda.amazonaws.com": {"type": "aws_lambda_function", "name": "Lambda"},
+                "replicator.lambda.amazonaws.com": {"type": "aws_lambda_function", "name": "Lambda Replicator"},
+                "edgelambda.lambda.amazonaws.com": {"type": "aws_lambda_function", "name": "Lambda@Edge"},
+                "ecs.amazonaws.com": {"type": "aws_ecs_cluster", "name": "ECS"},
+                "ecs-tasks.amazonaws.com": {"type": "aws_ecs_cluster", "name": "ECS Tasks"},
+                "eks.amazonaws.com": {"type": "aws_eks_cluster", "name": "EKS"},
+                "es.amazonaws.com": {"type": "aws_elasticsearch_domain", "name": "Elasticsearch Service"},
+                "cognito-identity.amazonaws.com": {"type": "aws_cognito_identity_provider", "name": "Cognito Identity"},
+                "cognito-idp.amazonaws.com": {"type": "aws_cognito_identity_provider", "name": "Cognito IdP"},
+                "email.cognito-idp.amazonaws.com": {"type": "aws_cognito_identity_provider", "name": "Cognito IdP Email"},
+                "iot.amazonaws.com": {"type": "aws_iot_thing", "name": "Internet of Things"},
+                "elasticloadbalancing.amazonaws.com": {"type": "aws_elb", "name": "ELB"},
+                "elasticmapreduce.amazonaws.com": {"type": "aws_emr", "name": "EMR"},
+                "kafka.amazonaws.com": {"type": "aws_msk_cluster", "name": "MSK"},
+                "elasticache.amazonaws.com": {"type": "aws_elasticache_cluster", "name": "ElastiCache"},
+                "appsync.amazonaws.com": {"type": "aws_appsync_graphql_api", "name": "AppSync"},
+                "iotanalytics.amazonaws.com": {"type": "aws_iot_analytics", "name": "IoT Analytics"},
+                "securityhub.amazonaws.com": {"type": "aws_securityhub_account", "name": "Security Hub"},
+                "trustedadvisor.amazonaws.com": {"type": "aws_trusted_advisor", "name": "Trusted Advisor"},
+                "firehose.amazonaws.com": {"type": "aws_kinesis_firehose", "name": "Kinesis Firehose"},
+                "glue.amazonaws.com": {"type": "aws_glue", "name": "Glue"},
+                "quicksight.amazonaws.com": {"type": "aws_quicksight", "name": "QuickSight"},
+                "cloud9.amazonaws.com": {"type": "aws_cloud9", "name": "Cloud9"},
+                "organizations.amazonaws.com": {"type": "aws_organizations_account", "name": "Organizations"},
+                "config.amazonaws.com": {"type": "aws_config", "name": "Config"},
+                "application-autoscaling.amazonaws.com": {"type": "aws_auto_scaling", "name": "Application Autoscaling"},
+                "autoscaling.amazonaws.com": {"type": "aws_auto_scaling", "name": "Autoscaling"},
+                "backup.amazonaws.com": {"type": "aws_backup", "name": "Backup"},
+                "cloudtrail.amazonaws.com": {"type": "aws_cloudtrail", "name": "Cloudtrail"},
+                "cloudwatch-crossaccount.amazonaws.com": {"type": "aws_cloudwatch_crossaccount", "name": "Cloudwatch Crossaccount"},
+                "datapipeline.amazonaws.com": {"type": "aws_data_pipeline", "name": "Data Pipeline"},
+                "dms.amazonaws.com": {"type": "aws_dms", "name": "DMS"},
+                "dynamodb.application-autoscaling.amazonaws.com": {"type": "aws_auto_scaling", "name": "DynamoDB Application Autoscaling"},
+                "elasticbeanstalk.amazonaws.com": {"type": "aws_elastic_beanstalk_environment", "name": "Elastic Beanstalk"},
+                "fms.amazonaws.com": {"type": "aws_fms", "name": "Firewall Manager"},
+                "globalaccelerator.amazonaws.com": {"type": "aws_global_accelerator", "name": "Global Accelerator"},
+                "inspector.amazonaws.com": {"type": "aws_inspector", "name": "inspector"},
+                "logger.cloudfront.amazonaws.com": {"type": "aws_cloudfront_distribution", "name": "CloudFront Logger"},
+                "migrationhub.amazonaws.com": {"type": "aws_migration_hub", "name": "Migration Hub"},
+                "rds.amazonaws.com": {"type": "aws_db_instance", "name": "RDS"},
+                "sns.amazonaws.com": {"type": "aws_sns_topic", "name": "SNS"}}
+
+
 class IamPolicy(ResourceProvider):
     def __init__(self, options: BaseOptions):
         super().__init__()
@@ -153,420 +205,12 @@ class IamRole(ResourceProvider):
                 assuming_services = [assuming_services]
             for assuming_service in assuming_services:
                 principal_found: Resource = None
-                if assuming_service == "apigateway.amazonaws.com":
+                if assuming_service in Principals.principals:
                     principal_found = Resource(
                         digest=ResourceDigest(
-                            id=assuming_service, type="aws_api_gateway_rest_api"
+                            id=assuming_service, type=Principals.principals[assuming_service]["type"]
                         ),
-                        name="API Gateway",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "ops.apigateway.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_api_gateway_rest_api"
-                        ),
-                        name="API Gateway ops",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "sagemaker.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_sagemaker_notebook_instance"
-                        ),
-                        name="Sagemaker",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "ssm.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_ssm_document"
-                        ),
-                        name="SystemsManager",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "ec2.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(id=assuming_service, type="aws_instance"),
-                        name="EC2",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "lambda.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_lambda_function"
-                        ),
-                        name="Lambda",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "replicator.lambda.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_lambda_function"
-                        ),
-                        name="Lambda Replicator",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "edgelambda.lambda.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_lambda_function"
-                        ),
-                        name="Lambda@Edge",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "ecs.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_ecs_cluster"
-                        ),
-                        name="ECS",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "ecs-tasks.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_ecs_cluster"
-                        ),
-                        name="ECS Tasks",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "eks.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_eks_cluster"
-                        ),
-                        name="EKS",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "es.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_elasticsearch_domain"
-                        ),
-                        name="Elasticsearch Service",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "es.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_elasticsearch_domain"
-                        ),
-                        name="Elasticsearch Service",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "cognito-identity.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_cognito_identity_provider"
-                        ),
-                        name="Cognito Identity",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "cognito-idp.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_cognito_identity_provider"
-                        ),
-                        name="Cognito IdP",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "email.cognito-idp.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_cognito_identity_provider"
-                        ),
-                        name="Cognito IdP Email",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "iot.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_iot_thing"
-                        ),
-                        name="Internet of Things",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "elasticloadbalancing.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(id=assuming_service, type="aws_elb"),
-                        name="ELB",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "elasticmapreduce.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(id=assuming_service, type="aws_emr"),
-                        name="EMR",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "kafka.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_msk_cluster"
-                        ),
-                        name="MSK",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "elasticache.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_elasticache_cluster"
-                        ),
-                        name="ElastiCache",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "appsync.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_appsync_graphql_api"
-                        ),
-                        name="AppSync",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "iotanalytics.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_iot_analytics"
-                        ),
-                        name="IoT Analytics",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "securityhub.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_securityhub_account"
-                        ),
-                        name="Security Hub",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "trustedadvisor.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_trusted_advisor"
-                        ),
-                        name="Trusted Advisor",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "firehose.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_kinesis_firehose"
-                        ),
-                        name="Kinesis Firehose",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "glue.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(id=assuming_service, type="aws_glue"),
-                        name="Glue",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "quicksight.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_quicksight"
-                        ),
-                        name="QuickSight",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "cloud9.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(id=assuming_service, type="aws_cloud9"),
-                        name="Cloud9",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "organizations.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_organizations_account"
-                        ),
-                        name="Organizations",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "organizations.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_organizations_account"
-                        ),
-                        name="Organizations",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "config.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(id=assuming_service, type="aws_config"),
-                        name="Config",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "application-autoscaling.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_auto_scaling"
-                        ),
-                        name="Application Autoscaling",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "autoscaling.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_auto_scaling"
-                        ),
-                        name="Autoscaling",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "backup.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(id=assuming_service, type="aws_backup"),
-                        name="Backup",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "cloudtrail.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_cloudtrail"
-                        ),
-                        name="Cloudtrail",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "cloudwatch-crossaccount.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_cloudwatch_crossaccount"
-                        ),
-                        name="Cloudwatch Crossaccount",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "datapipeline.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_data_pipeline"
-                        ),
-                        name="Data Pipeline",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "dms.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(id=assuming_service, type="aws_dms"),
-                        name="DMS",
-                        details="",
-                        group="",
-                    )
-                elif (
-                    assuming_service == "dynamodb.application-autoscaling.amazonaws.com"
-                ):
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_auto_scaling"
-                        ),
-                        name="DynamoDB Application Autoscaling",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "elasticbeanstalk.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service,
-                            type="aws_elastic_beanstalk_environment",
-                        ),
-                        name="Elastic Beanstalk",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "fms.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(id=assuming_service, type="aws_fms"),
-                        name="Firewall Manager",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "globalaccelerator.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_global_accelerator"
-                        ),
-                        name="Global Accelerator",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "inspector.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_inspector"
-                        ),
-                        name="inspector",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "logger.cloudfront.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_cloudfront_distribution"
-                        ),
-                        name="CloudFront Logger",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "migrationhub.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_migration_hub"
-                        ),
-                        name="Migration Hub",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "rds.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_db_instance"
-                        ),
-                        name="RDS",
-                        details="",
-                        group="",
-                    )
-                elif assuming_service == "sns.amazonaws.com":
-                    principal_found = Resource(
-                        digest=ResourceDigest(
-                            id=assuming_service, type="aws_sns_topic"
-                        ),
-                        name="SNS",
+                        name=Principals.principals[assuming_service]["name"],
                         details="",
                         group="",
                     )
