@@ -1,7 +1,10 @@
 from typing import List, Dict
 
 from shared.common import ResourceEdge, Resource
-from shared.diagram import BaseDiagram
+from shared.diagram import BaseDiagram, Mapsources
+
+PUBLIC_SUBNET = "{public subnet}"
+PRIVATE_SUBNET = "{private subnet}"
 
 
 class VpcDiagram(BaseDiagram):
@@ -9,12 +12,47 @@ class VpcDiagram(BaseDiagram):
         super().__init__(name, filename)
         self.vpc_id = vpc_id
 
-    def group_by_group(self, resources: List[Resource]) -> Dict[str, List[Resource]]:
-        return super().group_by_group(resources)
+    def group_by_group(
+        self, resources: List[Resource], initial_resource_relations: List[ResourceEdge]
+    ) -> Dict[str, List[Resource]]:
+        groups: Dict[str, List[Resource]] = {"": []}
+        for resource in resources:
+            if resource.digest.type == "aws_subnet":
+                associated_tables = []
+                for relation in initial_resource_relations:
+                    if relation.from_node.type == "aws_route_table" and (
+                        relation.to_node == resource.digest
+                        or (
+                            relation.to_node.type == "aws_vpc"
+                            and relation.to_node.id == self.vpc_id
+                        )
+                    ):
+                        for resource_2 in resources:
+                            if resource_2.digest == relation.from_node:
+                                associated_tables.append(resource_2)
+                is_public = False
+                for associated_table in associated_tables:
+                    if "public: True" in associated_table.details:
+                        is_public = True
+                if is_public:
+                    if PUBLIC_SUBNET in groups:
+                        groups[PUBLIC_SUBNET].append(resource)
+                    else:
+                        groups[PUBLIC_SUBNET] = [resource]
+                else:
+                    if PRIVATE_SUBNET in groups:
+                        groups[PRIVATE_SUBNET].append(resource)
+                    else:
+                        groups[PRIVATE_SUBNET] = [resource]
+            else:
+                if Mapsources.mapresources.get(resource.digest.type) is not None:
+                    groups[""].append(resource)
+
+        return groups
 
     def process_relationships(
         self,
         grouped_resources: Dict[str, List[Resource]],
         resource_relations: List[ResourceEdge],
     ) -> List[ResourceEdge]:
-        return super().process_relationships(resource_relations, resource_relations)
+        return super().process_relationships(grouped_resources, resource_relations)

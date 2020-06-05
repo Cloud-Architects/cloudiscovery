@@ -200,7 +200,7 @@ class ELASTICLOADBALANCINGV2(ResourceProvider):
         return resources_found
 
 
-class ROUTETABLE(ResourceProvider):
+class RouteTable(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         super().__init__()
         self.vpc_options = vpc_options
@@ -218,40 +218,55 @@ class ROUTETABLE(ResourceProvider):
 
         message_handler("Collecting data from Route Tables...", "HEADER")
 
-        if len(response["RouteTables"]) > 0:
+        """ Iterate to get all route table filtered """
+        for data in response["RouteTables"]:
+            nametags = get_name_tags(data)
 
-            """ Iterate to get all route table filtered """
-            for data in response["RouteTables"]:
-                nametags = get_name_tags(data)
-
-                name = data["RouteTableId"] if nametags is False else nametags
-                table_digest = ResourceDigest(
-                    id=data["RouteTableId"], type="aws_route_table"
+            name = data["RouteTableId"] if nametags is False else nametags
+            table_digest = ResourceDigest(
+                id=data["RouteTableId"], type="aws_route_table"
+            )
+            is_main = False
+            for association in data["Associations"]:
+                if association["Main"] is True:
+                    is_main = True
+            if is_main:
+                self.relations_found.append(
+                    ResourceEdge(
+                        from_node=table_digest, to_node=self.vpc_options.vpc_digest(),
+                    )
                 )
-                is_main = False
+            else:
                 for association in data["Associations"]:
-                    if association["Main"] is True:
-                        is_main = True
-                if is_main:
-                    self.relations_found.append(
-                        ResourceEdge(
-                            from_node=table_digest,
-                            to_node=self.vpc_options.vpc_digest(),
+                    if "SubnetId" in association:
+                        self.relations_found.append(
+                            ResourceEdge(
+                                from_node=table_digest,
+                                to_node=ResourceDigest(
+                                    id=association["SubnetId"], type="aws_subnet"
+                                ),
+                            )
                         )
-                    )
-                else:
-                    # TODO: add relationship to applicable subnets
-                    self.relations_found.append(
-                        ResourceEdge(
-                            from_node=table_digest,
-                            to_node=self.vpc_options.vpc_digest(),
-                        )
-                    )
-                resources_found.append(
-                    Resource(
-                        digest=table_digest, name=name, details="", group="network"
-                    )
+
+            is_public = False
+
+            for route in data["Routes"]:
+                if (
+                    "DestinationCidrBlock" in route
+                    and route["DestinationCidrBlock"] == "0.0.0.0/0"
+                    and "GatewayId" in route
+                    and route["GatewayId"].startswith("igw-")
+                ):
+                    is_public = True
+
+            resources_found.append(
+                Resource(
+                    digest=table_digest,
+                    name=name,
+                    details="default: {}, public: {}".format(is_main, is_public),
+                    group="network",
                 )
+            )
         return resources_found
 
 

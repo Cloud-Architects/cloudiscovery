@@ -125,7 +125,9 @@ class BaseDiagram(object):
             else:
                 print("Successfully created the directory %s " % PATH_DIAGRAM_OUTPUT)
 
-    def group_by_group(self, resources) -> Dict[str, List[Resource]]:
+    def group_by_group(
+        self, resources: List[Resource], initial_resource_relations: List[ResourceEdge]
+    ) -> Dict[str, List[Resource]]:
         """ Ordering Resource list to group resources into cluster """
         ordered_resources: Dict[str, List[Resource]] = dict()
         for resource in resources:
@@ -145,11 +147,13 @@ class BaseDiagram(object):
 
     @exception
     def generate_diagram(
-        self, resources: List[Resource], resource_relations: List[ResourceEdge]
+        self, resources: List[Resource], initial_resource_relations: List[ResourceEdge]
     ):
 
-        ordered_resources = self.group_by_group(resources)
-        relations = self.process_relationships(ordered_resources, resource_relations)
+        ordered_resources = self.group_by_group(resources, initial_resource_relations)
+        relations = self.process_relationships(
+            ordered_resources, initial_resource_relations
+        )
 
         """ Start mounting Cluster """
         with Diagram(
