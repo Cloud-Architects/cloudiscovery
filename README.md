@@ -44,6 +44,10 @@ Following resources are checked in VPC command:
 - Media Live
 - Media Store Policy
 
+The subnets are aggregated to simplify the diagram and hide infrastructure redundancies. There can be two types of subnet aggregates:
+1. Private - ones with a route `0.0.0.0/0` to Internet Gateway
+2. Public - ones without any route to IGW
+
 # AWS Policy
 
 Example of a diagram:
