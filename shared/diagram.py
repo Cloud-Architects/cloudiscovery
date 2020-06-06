@@ -106,9 +106,10 @@ class Mapsources:
 
 
 class BaseDiagram(object):
-    def __init__(self, name: str, filename: str):
+    def __init__(self, name: str, filename: str, engine: str = "sfdp"):
         self.name = name
         self.filename = filename
+        self.engine = engine
 
     def build(self, resources: List[Resource], resource_relations: List[ResourceEdge]):
         self.make_directories()
@@ -162,7 +163,7 @@ class BaseDiagram(object):
             direction="TB",
             graph_attr={"nodesep": "2.0", "ranksep": "1.0", "splines": "curved"},
         ) as d:
-            d.dot.engine = "sfdp"
+            d.dot.engine = self.engine
 
             self.draw_diagram(ordered_resources=ordered_resources, relations=relations)
 

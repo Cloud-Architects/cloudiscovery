@@ -62,7 +62,7 @@ This script has been written in python3+ using AWS-CLI and it works in Linux, Wi
 - Make sure the latest version of AWS-CLI is installed on your workstation, and other components needed, with Python pip already installed:
 
 ```sh
-$ pip install -r requirements.txt
+$ pip install -U -r requirements.txt
 ```
 
 - Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
@@ -204,7 +204,7 @@ Make sure you have installed [pre-commit](https://pre-commit.com/#installation).
 
 Install development requirements:
 ```sh
-$ pip install -r requirements-dev.txt
+$ pip install -U -r requirements-dev.txt
 ```
 
 Add precommit hooks:
