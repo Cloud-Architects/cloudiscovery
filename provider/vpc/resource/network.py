@@ -29,7 +29,7 @@ class INTERNETGATEWAY(ResourceProvider):
 
         message_handler("Collecting data from Internet Gateways...", "HEADER")
 
-        """ One VPC has only 1 IGW then it's a direct check """
+        """One VPC has only 1 IGW then it's a direct check"""
         if len(response["InternetGateways"]) > 0:
             nametags = get_name_tags(response)
 
@@ -218,7 +218,7 @@ class RouteTable(ResourceProvider):
 
         message_handler("Collecting data from Route Tables...", "HEADER")
 
-        """ Iterate to get all route table filtered """
+        """Iterate to get all route table filtered"""
         for data in response["RouteTables"]:
             nametags = get_name_tags(data)
 
@@ -290,7 +290,7 @@ class SUBNET(ResourceProvider):
 
         if len(response["Subnets"]) > 0:
 
-            """ Iterate to get all route table filtered """
+            """Iterate to get all route table filtered"""
             for data in response["Subnets"]:
                 nametags = get_name_tags(data)
 
@@ -337,7 +337,7 @@ class NACL(ResourceProvider):
 
         if len(response["NetworkAcls"]) > 0:
 
-            """ Iterate to get all NACL filtered """
+            """Iterate to get all NACL filtered"""
             for data in response["NetworkAcls"]:
                 nacl_digest = ResourceDigest(
                     id=data["NetworkAclId"], type="aws_network_acl"
@@ -389,7 +389,7 @@ class SECURITYGROUP(ResourceProvider):
 
         if len(response["SecurityGroups"]) > 0:
 
-            """ Iterate to get all SG filtered """
+            """Iterate to get all SG filtered"""
             for data in response["SecurityGroups"]:
                 group_digest = ResourceDigest(
                     id=data["GroupId"], type="aws_security_group"
@@ -429,7 +429,7 @@ class VPCPEERING(ResourceProvider):
 
         if len(response["VpcPeeringConnections"]) > 0:
 
-            """ Iterate to get all vpc peering and check either accepter or requester """
+            """Iterate to get all vpc peering and check either accepter or requester"""
             for data in response["VpcPeeringConnections"]:
 
                 if (
@@ -506,7 +506,7 @@ class VPCENDPOINT(ResourceProvider):
 
         if len(response["VpcEndpoints"]) > 0:
 
-            """ Iterate to get all VPCE filtered """
+            """Iterate to get all VPCE filtered"""
             for data in response["VpcEndpoints"]:
 
                 if data["VpcId"] == self.vpc_options.vpc_id:

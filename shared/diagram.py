@@ -11,7 +11,7 @@ DIAGRAM_CLUSTER = "diagram_cluster"
 
 
 class Mapsources:
-    """ diagrams modules that store classes that represent diagram elements """
+    """diagrams modules that store classes that represent diagram elements"""
 
     diagrams_modules = [
         "analytics",
@@ -33,7 +33,7 @@ class Mapsources:
         "storage",
     ]
 
-    """ Class to mapping type resource from Terraform to Diagram Nodes """
+    """Class to mapping type resource from Terraform to Diagram Nodes"""
     mapresources = {
         "aws_lambda_function": "Lambda",
         "aws_emr_cluster": "EMRCluster",
@@ -117,7 +117,7 @@ class BaseDiagram(object):
 
     @staticmethod
     def make_directories():
-        """ Check if assets/diagram directory exists """
+        """Check if assets/diagram directory exists"""
         if not os.path.isdir(PATH_DIAGRAM_OUTPUT):
             try:
                 os.mkdir(PATH_DIAGRAM_OUTPUT)
@@ -129,7 +129,7 @@ class BaseDiagram(object):
     def group_by_group(
         self, resources: List[Resource], initial_resource_relations: List[ResourceEdge]
     ) -> Dict[str, List[Resource]]:
-        """ Ordering Resource list to group resources into cluster """
+        """Ordering Resource list to group resources into cluster"""
         ordered_resources: Dict[str, List[Resource]] = dict()
         for resource in resources:
             if Mapsources.mapresources.get(resource.digest.type) is not None:

@@ -31,7 +31,7 @@ class SYNTHETICSCANARIES(ResourceProvider):
 
             for data in response["Canaries"]:
 
-                """ Check if VpcConfig is in dict """
+                """Check if VpcConfig is in dict"""
                 if "VpcConfig" in data:
 
                     if data["VpcConfig"]["VpcId"] == self.vpc_options.vpc_id:

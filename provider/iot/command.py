@@ -26,7 +26,7 @@ class Iot(BaseCommand):
 
         for region_name in self.region_names:
 
-            """ if thing_name is none, get all things and check """
+            """if thing_name is none, get all things and check """
             if self.thing_name is None:
                 client = self.session.client("iot", region_name=region_name)
                 things = client.list_things()

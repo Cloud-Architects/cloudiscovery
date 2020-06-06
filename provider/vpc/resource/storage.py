@@ -26,24 +26,24 @@ class EFS(ResourceProvider):
 
         resources_found = []
 
-        """ get filesystems available """
+        """get filesystems available"""
         response = client.describe_file_systems()
 
         message_handler("Collecting data from EFS Mount Targets...", "HEADER")
 
         if len(response["FileSystems"]) > 0:
 
-            """ iterate filesystems to get mount targets """
+            """iterate filesystems to get mount targets"""
             for data in response["FileSystems"]:
 
                 filesystem = client.describe_mount_targets(
                     FileSystemId=data["FileSystemId"]
                 )
 
-                """ iterate filesystems to get mount targets """
+                """iterate filesystems to get mount targets"""
                 for datafilesystem in filesystem["MountTargets"]:
 
-                    """ describe subnet to get VpcId """
+                    """describe subnet to get VpcId"""
                     ec2 = self.vpc_options.client("ec2")
 
                     subnets = ec2.describe_subnets(
@@ -86,14 +86,14 @@ class S3POLICY(ResourceProvider):
 
         resources_found = []
 
-        """ get buckets available """
+        """get buckets available"""
         response = client.list_buckets()
 
         message_handler("Collecting data from S3 Bucket Policies...", "HEADER")
 
         if len(response["Buckets"]) > 0:
 
-            """ iterate buckets to get policy """
+            """iterate buckets to get policy"""
             with ThreadPoolExecutor(15) as executor:
                 results = executor.map(
                     lambda data: self.analyze_bucket(client, data), response["Buckets"]
@@ -110,7 +110,7 @@ class S3POLICY(ResourceProvider):
 
         document = json.dumps(documentpolicy, default=datetime_to_string)
 
-        """ check either vpc_id or potential subnet ip are found """
+        """check either vpc_id or potential subnet ip are found"""
         ipvpc_found = check_ipvpc_inpolicy(
             document=document, vpc_options=self.vpc_options
         )

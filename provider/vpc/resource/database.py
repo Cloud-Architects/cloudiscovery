@@ -94,14 +94,14 @@ class ELASTICACHE(ResourceProvider):
 
         resources_found = []
 
-        """ get all cache clusters """
+        """get all cache clusters"""
         response = client.describe_cache_clusters()
 
         message_handler("Collecting data from Elasticache Clusters...", "HEADER")
 
         if len(response["CacheClusters"]) > 0:
 
-            """ iterate cache clusters to get subnet groups """
+            """iterate cache clusters to get subnet groups"""
             for data in response["CacheClusters"]:
 
                 cachesubnet = client.describe_cache_subnet_groups(
@@ -161,7 +161,7 @@ class DOCUMENTDB(ResourceProvider):
 
         if len(response["DBInstances"]) > 0:
 
-            """ iterate cache clusters to get subnet groups """
+            """iterate cache clusters to get subnet groups"""
             for data in response["DBInstances"]:
 
                 if data["DBSubnetGroup"]["VpcId"] == self.vpc_options.vpc_id:
