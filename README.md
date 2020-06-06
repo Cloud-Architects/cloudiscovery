@@ -5,7 +5,13 @@
 
 AWS Network Discovery helps you analyze resources in an AWS account.
 
-### Features
+## Features
+
+### AWS VPC
+
+Example of a diagram:
+
+![diagrams logo](docs/assets/aws-vpc.png)
 
 Following resources are checked in VPC command:
 
@@ -38,12 +44,24 @@ Following resources are checked in VPC command:
 - Media Live
 - Media Store Policy
 
+# AWS Policy
+
+Example of a diagram:
+
+![diagrams logo](docs/assets/aws-policy.png)
+
 Following resources are checked in Policy command:
 
 - IAM User
 - IAM Group
 - IAM Policy
 - IAM User to group relationship
+
+# AWS IoT
+
+Example of a diagram:
+
+![diagrams logo](docs/assets/aws-iot.png)
 
 Following resources are checked in IoT command:
 
