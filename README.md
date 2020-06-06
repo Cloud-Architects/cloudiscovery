@@ -15,40 +15,40 @@ Example of a diagram:
 
 Following resources are checked in VPC command:
 
-- EC2 Instance
-- IAM Policy
-- Lambda
-- RDS
-- EFS 
-- ElastiCache
-- S3 Policy
-- Elasticsearch
-- DocumentDB
-- SQS Queue Policy
-- MSK
-- NAT Gateway
-- Internet Gateway (IGW)
-- Classic/Network/Application Load Balancer
-- Route Table
-- Subnet
-- NACL
-- Security Group
-- VPC Peering
-- VPC Endpoint
-- EKS
-- Synthetic Canary
-- EMR 
-- ECS
-- Autoscaling Group
-- Media Connect
-- Media Live
-- Media Store Policy
+-  EC2 Instance
+-  IAM Policy
+-  Lambda
+-  RDS
+-  EFS 
+-  ElastiCache
+-  S3 Policy
+-  Elasticsearch
+-  DocumentDB
+-  SQS Queue Policy
+-  MSK
+-  NAT Gateway
+-  Internet Gateway (IGW)
+-  Classic/Network/Application Load Balancer
+-  Route Table
+-  Subnet
+-  NACL
+-  Security Group
+-  VPC Peering
+-  VPC Endpoint
+-  EKS
+-  Synthetic Canary
+-  EMR 
+-  ECS
+-  Autoscaling Group
+-  Media Connect
+-  Media Live
+-  Media Store Policy
 
 The subnets are aggregated to simplify the diagram and hide infrastructure redundancies. There can be two types of subnet aggregates:
-1. Private - ones with a route `0.0.0.0/0` to Internet Gateway
-2. Public - ones without any route to IGW
+1. Private -  ones with a route `0.0.0.0/0` to Internet Gateway
+2. Public -  ones without any route to IGW
 
-# AWS Policy
+### AWS Policy
 
 Example of a diagram:
 
@@ -56,12 +56,12 @@ Example of a diagram:
 
 Following resources are checked in Policy command:
 
-- IAM User
-- IAM Group
-- IAM Policy
-- IAM User to group relationship
+-  IAM User
+-  IAM Group
+-  IAM Policy
+-  IAM User to group relationship
 
-# AWS IoT
+### AWS IoT
 
 Example of a diagram:
 
@@ -69,31 +69,31 @@ Example of a diagram:
 
 Following resources are checked in IoT command:
 
-- IoT Thing
-- IoT Thing Type
-- IoT Billing Group
-- IoT Policies
-- IoT Jobs
-- IoT Certificates
+-  IoT Thing
+-  IoT Thing Type
+-  IoT Billing Group
+-  IoT Policies
+-  IoT Jobs
+-  IoT Certificates
 
 
 ### Requirements and Installation
 
 This script has been written in python3+ using AWS-CLI and it works in Linux, Windows and OSX.
 
-- Make sure the latest version of AWS-CLI is installed on your workstation, and other components needed, with Python pip already installed:
+-  Make sure the latest version of AWS-CLI is installed on your workstation, and other components needed, with Python pip already installed:
 
 ```sh
 $ pip install -U -r requirements.txt
 ```
 
-- Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
+-  Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
 
 ```sh
 $ aws configure
 ```
 
-- The configured credentials must be associated to a user or role with proper permissions to do all checks. If you want to use a role with narrowed set of permissions just to perform network discovery, use a role from the following CF template shown below. To further increase security, you can add a block to check `aws:MultiFactorAuthPresent` condition in `AssumeRolePolicyDocument`. More on using IAM roles in the [configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html).
+-  The configured credentials must be associated to a user or role with proper permissions to do all checks. If you want to use a role with narrowed set of permissions just to perform network discovery, use a role from the following CF template shown below. To further increase security, you can add a block to check `aws:MultiFactorAuthPresent` condition in `AssumeRolePolicyDocument`. More on using IAM roles in the [configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html).
 
 ```json
 {
@@ -149,7 +149,7 @@ $ aws configure
 }
 ```
 
-- (Optional) If you want to be able to switch between multiple AWS credentials and settings, you can configure [named profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) and later pass profile name when running the tool.
+-  (Optional) If you want to be able to switch between multiple AWS credentials and settings, you can configure [named profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) and later pass profile name when running the tool.
 
 ### Usage
 
@@ -196,15 +196,15 @@ aws-discovery-network \
 
 ```
 
-- If you are using Diagram output and due to fact container is a slim image of Python image, you must run aws-network-discovery.py with "--diagram False", otherwise you'll have an error about "xdg-open". The output file will be saved in "assets/diagrams".
+-  If you are using Diagram output and due to fact container is a slim image of Python image, you must run aws-network-discovery.py with "--diagram False", otherwise you'll have an error about "xdg-open". The output file will be saved in "assets/diagrams".
 
 ### Translate
 
 This project support English and Portuguese (Brazil) languages. To contribute with a translation, follow this steps:
 
-- Create a folder inside locales folder with prefix of new idiom with appropiate locale code (https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html). Copy "locales/messages.pot" to locales/newfolder/LC_MESSAGES/.
+-  Create a folder inside locales folder with prefix of new idiom with appropiate [locale code](https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html). Copy "locales/messages.pot" to locales/newfolder/LC_MESSAGES/.
 
-- To build ".mo" file running this command from project root folder:
+-  To build ".mo" file running this command from project root folder:
 
 ```sh
 $ python msgfmt.py -o locales/NEWFOLDER/LC_MESSAGES/messages.mo locales/NEWFOLDER/LC_MESSAGES/messages
@@ -212,9 +212,9 @@ $ python msgfmt.py -o locales/NEWFOLDER/LC_MESSAGES/messages.mo locales/NEWFOLDE
 
 ### TODO
 
-- Unit tests
-- More types of resources
-- Improved diagram plotting 
+-  Unit tests
+-  More types of resources
+-  Improved diagram plotting 
 
 ### Contributing
 
