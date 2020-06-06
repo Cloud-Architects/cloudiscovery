@@ -48,7 +48,7 @@ class TestVpcDiagram(TestCase):
             assert_that(resource.digest).is_not_equal_to(subnet_2_digest)
 
         relationships = sut.process_relationships(result, relations)
-        assert_that(relationships).is_length(7)
+        assert_that(relationships).is_length(8)
         assert_that(relationships).contains(
             ResourceEdge(
                 from_node=ResourceDigest(id=PUBLIC_SUBNET, type="aws_subnet"),

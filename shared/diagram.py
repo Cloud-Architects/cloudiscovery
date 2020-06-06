@@ -150,13 +150,11 @@ class BaseDiagram(object):
     def generate_diagram(
         self, resources: List[Resource], initial_resource_relations: List[ResourceEdge]
     ):
-
         ordered_resources = self.group_by_group(resources, initial_resource_relations)
         relations = self.process_relationships(
             ordered_resources, initial_resource_relations
         )
 
-        """ Start mounting Cluster """
         with Diagram(
             name=self.name,
             filename=PATH_DIAGRAM_OUTPUT + self.filename,
@@ -168,12 +166,14 @@ class BaseDiagram(object):
             self.draw_diagram(ordered_resources=ordered_resources, relations=relations)
 
     def draw_diagram(self, ordered_resources, relations):
-        """ Importing all AWS nodes """
+        already_drawn_elements = {}
+
+        # Import all AWS nodes
         for module in Mapsources.diagrams_modules:
             exec("from diagrams.aws." + module + " import *")
 
         nodes: Dict[ResourceDigest, any] = {}
-        """ Iterate resources to draw it """
+        # Iterate resources to draw it
         for group_name in ordered_resources:
             if group_name == "":
                 for resource in ordered_resources[group_name]:
@@ -197,7 +197,16 @@ class BaseDiagram(object):
             ):
                 from_node = nodes[resource_relation.from_node]
                 to_node = nodes[resource_relation.to_node]
-                from_node >> Edge(label=resource_relation.label) >> to_node
+                if resource_relation.from_node not in already_drawn_elements:
+                    already_drawn_elements[resource_relation.from_node] = {}
+                if (
+                    resource_relation.to_node
+                    not in already_drawn_elements[resource_relation.from_node]
+                ):
+                    from_node >> Edge(label=resource_relation.label) >> to_node
+                    already_drawn_elements[resource_relation.from_node][
+                        resource_relation.to_node
+                    ] = True
 
 
 class NoDiagram(BaseDiagram):

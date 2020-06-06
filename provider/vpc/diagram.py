@@ -19,7 +19,7 @@ def to_node_get_aggregated(
     return None
 
 
-def aggregate_subnets(groups, group_type):
+def aggregate_subnets(groups, group_type, group_name):
     if group_type in groups:
         subnet_ids = []
         for subnet in groups[group_type]:
@@ -27,7 +27,7 @@ def aggregate_subnets(groups, group_type):
         groups[""].append(
             Resource(
                 digest=ResourceDigest(id=group_type, type="aws_subnet"),
-                name=", ".join(subnet_ids),
+                name=group_name + ", ".join(subnet_ids),
             )
         )
 
@@ -75,8 +75,8 @@ class VpcDiagram(BaseDiagram):
                 if Mapsources.mapresources.get(resource.digest.type) is not None:
                     groups[""].append(resource)
 
-        aggregate_subnets(groups, PUBLIC_SUBNET)
-        aggregate_subnets(groups, PRIVATE_SUBNET)
+        aggregate_subnets(groups, PUBLIC_SUBNET, "Public subnets: ")
+        aggregate_subnets(groups, PRIVATE_SUBNET, "Private subnets: ")
 
         return {"": groups[""]}
 
