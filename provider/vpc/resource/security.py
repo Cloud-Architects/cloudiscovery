@@ -48,7 +48,7 @@ class IAMPOLICY(ResourceProvider):
 
         document = json.dumps(documentpolicy, default=datetime_to_string)
 
-        """ check either vpc_id or potential subnet ip are found """
+        """check either vpc_id or potential subnet ip are found"""
         ipvpc_found = check_ipvpc_inpolicy(
             document=document, vpc_options=self.vpc_options
         )

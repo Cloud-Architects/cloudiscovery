@@ -30,7 +30,7 @@ class CommandRunner(object):
         respective check. So it makes sense to load dynamically.
         """
 
-        """ Iterate to get all modules """
+        """Iterate to get all modules"""
         message_handler("\nInspecting resources", "HEADER")
         providers = []
         for name in os.listdir("provider/" + provider + "/resource"):
@@ -38,7 +38,7 @@ class CommandRunner(object):
                 # strip the extension
                 module = name[:-3]
 
-                """ Load and call all run check """
+                """Load and call all run check"""
                 for nameclass, cls in inspect.getmembers(
                     importlib.import_module(
                         "provider." + provider + ".resource." + module

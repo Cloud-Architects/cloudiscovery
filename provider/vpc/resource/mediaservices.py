@@ -39,7 +39,7 @@ class MEDIACONNECT(ResourceProvider):
 
                     for data_interfaces in data_flow["Flow"]["VpcInterfaces"]:
 
-                        """ describe subnet to get VpcId """
+                        """describe subnet to get VpcId"""
                         ec2 = self.vpc_options.client("ec2")
 
                         subnets = ec2.describe_subnets(
@@ -94,7 +94,7 @@ class MEDIALIVE(ResourceProvider):
             for data in response["Inputs"]:
                 for destinations in data["Destinations"]:
                     if "Vpc" in destinations:
-                        """ describe networkinterface to get VpcId """
+                        """describe networkinterface to get VpcId"""
                         ec2 = self.vpc_options.client("ec2")
 
                         eni = ec2.describe_network_interfaces(

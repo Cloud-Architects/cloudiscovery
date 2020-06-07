@@ -11,7 +11,7 @@ DIAGRAM_CLUSTER = "diagram_cluster"
 
 
 class Mapsources:
-    """ diagrams modules that store classes that represent diagram elements """
+    """diagrams modules that store classes that represent diagram elements"""
 
     diagrams_modules = [
         "analytics",
@@ -33,7 +33,7 @@ class Mapsources:
         "storage",
     ]
 
-    """ Class to mapping type resource from Terraform to Diagram Nodes """
+    """Class to mapping type resource from Terraform to Diagram Nodes"""
     mapresources = {
         "aws_lambda_function": "Lambda",
         "aws_emr_cluster": "EMRCluster",
@@ -106,9 +106,10 @@ class Mapsources:
 
 
 class BaseDiagram(object):
-    def __init__(self, name: str, filename: str):
+    def __init__(self, name: str, filename: str, engine: str = "sfdp"):
         self.name = name
         self.filename = filename
+        self.engine = engine
 
     def build(self, resources: List[Resource], resource_relations: List[ResourceEdge]):
         self.make_directories()
@@ -116,7 +117,7 @@ class BaseDiagram(object):
 
     @staticmethod
     def make_directories():
-        """ Check if assets/diagram directory exists """
+        """Check if assets/diagram directory exists"""
         if not os.path.isdir(PATH_DIAGRAM_OUTPUT):
             try:
                 os.mkdir(PATH_DIAGRAM_OUTPUT)
@@ -125,8 +126,10 @@ class BaseDiagram(object):
             else:
                 print("Successfully created the directory %s " % PATH_DIAGRAM_OUTPUT)
 
-    def group_by_group(self, resources) -> Dict[str, List[Resource]]:
-        """ Ordering Resource list to group resources into cluster """
+    def group_by_group(
+        self, resources: List[Resource], initial_resource_relations: List[ResourceEdge]
+    ) -> Dict[str, List[Resource]]:
+        """Ordering Resource list to group resources into cluster"""
         ordered_resources: Dict[str, List[Resource]] = dict()
         for resource in resources:
             if Mapsources.mapresources.get(resource.digest.type) is not None:
@@ -145,30 +148,32 @@ class BaseDiagram(object):
 
     @exception
     def generate_diagram(
-        self, resources: List[Resource], resource_relations: List[ResourceEdge]
+        self, resources: List[Resource], initial_resource_relations: List[ResourceEdge]
     ):
+        ordered_resources = self.group_by_group(resources, initial_resource_relations)
+        relations = self.process_relationships(
+            ordered_resources, initial_resource_relations
+        )
 
-        ordered_resources = self.group_by_group(resources)
-        relations = self.process_relationships(ordered_resources, resource_relations)
-
-        """ Start mounting Cluster """
         with Diagram(
             name=self.name,
             filename=PATH_DIAGRAM_OUTPUT + self.filename,
             direction="TB",
             graph_attr={"nodesep": "2.0", "ranksep": "1.0", "splines": "curved"},
         ) as d:
-            d.dot.engine = "sfdp"
+            d.dot.engine = self.engine
 
             self.draw_diagram(ordered_resources=ordered_resources, relations=relations)
 
     def draw_diagram(self, ordered_resources, relations):
-        """ Importing all AWS nodes """
+        already_drawn_elements = {}
+
+        # Import all AWS nodes
         for module in Mapsources.diagrams_modules:
             exec("from diagrams.aws." + module + " import *")
 
         nodes: Dict[ResourceDigest, any] = {}
-        """ Iterate resources to draw it """
+        # Iterate resources to draw it
         for group_name in ordered_resources:
             if group_name == "":
                 for resource in ordered_resources[group_name]:
@@ -192,7 +197,16 @@ class BaseDiagram(object):
             ):
                 from_node = nodes[resource_relation.from_node]
                 to_node = nodes[resource_relation.to_node]
-                from_node >> Edge(label=resource_relation.label) >> to_node
+                if resource_relation.from_node not in already_drawn_elements:
+                    already_drawn_elements[resource_relation.from_node] = {}
+                if (
+                    resource_relation.to_node
+                    not in already_drawn_elements[resource_relation.from_node]
+                ):
+                    from_node >> Edge(label=resource_relation.label) >> to_node
+                    already_drawn_elements[resource_relation.from_node][
+                        resource_relation.to_node
+                    ] = True
 
 
 class NoDiagram(BaseDiagram):

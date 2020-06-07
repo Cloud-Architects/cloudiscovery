@@ -11,3 +11,4 @@ pytest-black
 pytest-cov
 pytest-xdist
 pre-commit
+assertpy
