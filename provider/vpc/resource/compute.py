@@ -14,6 +14,10 @@ from shared.error_handler import exception
 
 class LAMBDA(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -57,6 +61,10 @@ class LAMBDA(ResourceProvider):
 
 class EC2(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -111,6 +119,10 @@ class EC2(ResourceProvider):
 
 class EKS(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -161,6 +173,10 @@ class EKS(ResourceProvider):
 
 class EMR(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -181,7 +197,7 @@ class EMR(ResourceProvider):
 
                 cluster = client.describe_cluster(ClusterId=data["Id"])
 
-                """Using subnet to check VPC"""
+                # Using subnet to check VPC
                 ec2 = self.vpc_options.client("ec2")
 
                 subnets = ec2.describe_subnets(
@@ -217,6 +233,10 @@ class EMR(ResourceProvider):
 
 class AUTOSCALING(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -235,12 +255,12 @@ class AUTOSCALING(ResourceProvider):
 
             asg_subnets = data["VPCZoneIdentifier"].split(",")
 
-            """describe subnet to get VpcId"""
+            # describe subnet to get VpcId
             ec2 = self.vpc_options.client("ec2")
 
             subnets = ec2.describe_subnets(SubnetIds=asg_subnets)
 
-            """Iterate subnet to get VPC"""
+            # Iterate subnet to get VPC
             for data_subnet in subnets["Subnets"]:
 
                 if data_subnet["VpcId"] == self.vpc_options.vpc_id:

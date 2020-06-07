@@ -13,6 +13,10 @@ from shared.error_handler import exception
 
 class THINGS(ResourceProvider):
     def __init__(self, iot_options: IotOptions):
+        """
+
+        :param iot_options:
+        """
         super().__init__()
         self.iot_options = iot_options
 
@@ -41,6 +45,10 @@ class THINGS(ResourceProvider):
 
 class TYPE(ResourceProvider):
     def __init__(self, iot_options: IotOptions):
+        """
+
+        :param iot_options:
+        """
         super().__init__()
         self.iot_options = iot_options
 
@@ -61,7 +69,7 @@ class TYPE(ResourceProvider):
 
             for thing_type in thing_types["thingTypes"]:
 
-                """thingTypeName is not mandatory in IoT Thing"""
+                # thingTypeName is not mandatory in IoT Thing
                 if "thingTypeName" in response:
                     if thing_type["thingTypeName"] == response["thingTypeName"]:
                         iot_type_digest = ResourceDigest(
@@ -90,6 +98,10 @@ class TYPE(ResourceProvider):
 
 class JOB(ResourceProvider):
     def __init__(self, iot_options: IotOptions):
+        """
+
+        :param iot_options:
+        """
         super().__init__()
         self.iot_options = iot_options
 
@@ -112,7 +124,7 @@ class JOB(ResourceProvider):
 
                 data_job = client.describe_job(jobId=job["jobId"])
 
-                """Find THING name in targets things"""
+                # Find THING name in targets things
                 for target in data_job["job"]["targets"]:
 
                     if thing["thingName"] in target:
@@ -142,6 +154,10 @@ class JOB(ResourceProvider):
 
 class BILLINGGROUP(ResourceProvider):
     def __init__(self, iot_options: IotOptions):
+        """
+
+        :param iot_options:
+        """
         super().__init__()
         self.iot_options = iot_options
 
@@ -162,7 +178,7 @@ class BILLINGGROUP(ResourceProvider):
 
             for billing_group in billing_groups["billingGroups"]:
 
-                """billingGroupName is not mandatory in IoT Thing"""
+                # billingGroupName is not mandatory in IoT Thing
                 if "billingGroupName" in response:
 
                     if billing_group["groupName"] == response["billingGroupName"]:

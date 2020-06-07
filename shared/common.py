@@ -51,6 +51,11 @@ class Resource(NamedTuple):
 
 class ResourceProvider:
     def __init__(self):
+        """
+        Base provider class that provides resources and relationships.
+
+        The class should be implemented to return resources of the same type
+        """
         self.relations_found: List[ResourceEdge] = []
 
     def get_resources(self) -> List[Resource]:

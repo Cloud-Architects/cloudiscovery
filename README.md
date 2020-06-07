@@ -59,7 +59,11 @@ Following resources are checked in Policy command:
 *   IAM User
 *   IAM Group
 *   IAM Policy
+*   IAM Roles
 *   IAM User to group relationship
+*   IAM User to policy relationship
+*   IAM Group to policy relationship
+*   IAM Role to policy relationship
 
 ### AWS IoT
 
@@ -232,4 +236,9 @@ $ pip install -U -r requirements-dev.txt
 Add precommit hooks:
 ```
 $ pre-commit install
+```
+
+To run pre-commit hooks, you can issue the following command:
+```
+$ pre-commit run --all-files
 ```

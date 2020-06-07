@@ -15,6 +15,10 @@ from shared.error_handler import exception
 
 class ELASTICSEARCH(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -41,12 +45,12 @@ class ELASTICSEARCH(ResourceProvider):
 
                 document = json.dumps(documentpolicy, default=datetime_to_string)
 
-                """check either vpc_id or potencial subnet ip are found"""
+                # check either vpc_id or potencial subnet ip are found
                 ipvpc_found = check_ipvpc_inpolicy(
                     document=document, vpc_options=self.vpc_options
                 )
 
-                """elasticsearch uses accesspolicies too, so check both situation"""
+                # elasticsearch uses accesspolicies too, so check both situation
                 if (
                     elasticsearch_domain["DomainStatus"]["VPCOptions"]["VPCId"]
                     == self.vpc_options.vpc_id
@@ -78,6 +82,10 @@ class ELASTICSEARCH(ResourceProvider):
 
 class MSK(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -88,14 +96,14 @@ class MSK(ResourceProvider):
 
         resources_found = []
 
-        """get all cache clusters"""
+        # get all cache clusters
         response = client.list_clusters()
 
         message_handler("Collecting data from MSK Clusters...", "HEADER")
 
         if len(response["ClusterInfoList"]) > 0:
 
-            """iterate cache clusters to get subnet groups"""
+            # iterate cache clusters to get subnet groups
             for data in response["ClusterInfoList"]:
 
                 msk_subnets = ", ".join(data["BrokerNodeGroupInfo"]["ClientSubnets"])

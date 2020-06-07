@@ -17,6 +17,13 @@ from shared.report import Report
 
 class BaseCommand:
     def __init__(self, region_names, session, diagram):
+        """
+        Base class for discovery command
+
+        :param region_names:
+        :param session:
+        :param diagram:
+        """
         self.region_names = region_names
         self.session = session
         self.diagram = diagram
@@ -25,12 +32,13 @@ class BaseCommand:
 class CommandRunner(object):
     def run(self, provider: str, options: BaseOptions, diagram_builder: BaseDiagram):
         """
+        Executes a command.
+
         The project's development pattern is a file with the respective name of the parent
         resource (e.g. compute, network), classes of child resources inside this file and run() method to execute
         respective check. So it makes sense to load dynamically.
         """
-
-        """Iterate to get all modules"""
+        # Iterate to get all modules
         message_handler("\nInspecting resources", "HEADER")
         providers = []
         for name in os.listdir("provider/" + provider + "/resource"):
@@ -38,7 +46,7 @@ class CommandRunner(object):
                 # strip the extension
                 module = name[:-3]
 
-                """Load and call all run check"""
+                # Load and call all run check
                 for nameclass, cls in inspect.getmembers(
                     importlib.import_module(
                         "provider." + provider + ".resource." + module
@@ -80,21 +88,15 @@ class CommandRunner(object):
             + x.to_node.id
         )
 
-        """
-        TODO: Generate reports in json/csv/pdf/xls
-        """
+        # TODO: Generate reports in json/csv/pdf/xls
         Report().general_report(
             resources=unique_resources, resource_relations=resource_relations
         )
 
-        """
-        Diagram integration
-        """
+        # Diagram integration
         diagram_builder.build(
             resources=unique_resources, resource_relations=resource_relations
         )
 
-        """
-        TODO: Export in csv/json/yaml/tf... future...
-        """
+        # TODO: Export in csv/json/yaml/tf... future...
         # ....exporttf(checks)....

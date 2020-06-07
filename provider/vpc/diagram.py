@@ -34,6 +34,13 @@ def aggregate_subnets(groups, group_type, group_name):
 
 class VpcDiagram(BaseDiagram):
     def __init__(self, name: str, filename: str, vpc_id: str):
+        """
+        VPC diagram
+
+        :param name:
+        :param filename:
+        :param vpc_id:
+        """
         super().__init__(
             name, filename, "sfdp"
         )  # Change to fdp and clusters once mingrammer/diagrams#17 is done

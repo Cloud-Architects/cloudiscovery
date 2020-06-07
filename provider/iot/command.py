@@ -8,6 +8,13 @@ class IotOptions(BaseOptions):
     thing_name: str
 
     def __new__(cls, session, region_name, thing_name):
+        """
+        Iot options
+
+        :param session:
+        :param region_name:
+        :param thing_name:
+        """
         self = super(BaseOptions, cls).__new__(cls, (session, region_name))
         self.thing_name = thing_name
         return self
@@ -18,6 +25,14 @@ class IotOptions(BaseOptions):
 
 class Iot(BaseCommand):
     def __init__(self, thing_name, region_names, session, diagram):
+        """
+        Iot command
+
+        :param thing_name:
+        :param region_names:
+        :param session:
+        :param diagram:
+        """
         super().__init__(region_names, session, diagram)
         self.thing_name = thing_name
 
@@ -26,7 +41,7 @@ class Iot(BaseCommand):
 
         for region_name in self.region_names:
 
-            """if thing_name is none, get all things and check """
+            # if thing_name is none, get all things and check
             if self.thing_name is None:
                 client = self.session.client("iot", region_name=region_name)
                 things = client.list_things()

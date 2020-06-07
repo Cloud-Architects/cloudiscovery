@@ -15,6 +15,13 @@ class VpcOptions(BaseOptions):
     vpc_id: str
 
     def __new__(cls, session, region_name, vpc_id):
+        """
+        VPC Options
+
+        :param session:
+        :param region_name:
+        :param vpc_id:
+        """
         self = super(BaseOptions, cls).__new__(cls, (session, region_name))
         self.vpc_id = vpc_id
         return self
@@ -25,6 +32,14 @@ class VpcOptions(BaseOptions):
 
 class Vpc(BaseCommand):
     def __init__(self, vpc_id, region_names, session, diagram):
+        """
+        VPC command
+
+        :param vpc_id:
+        :param region_names:
+        :param session:
+        :param diagram:
+        """
         super().__init__(region_names, session, diagram)
         self.vpc_id = vpc_id
 
@@ -52,7 +67,7 @@ class Vpc(BaseCommand):
 
         for region in self.region_names:
 
-            """if vpc is none, get all vpcs and check"""
+            # if vpc is none, get all vpcs and check
             if self.vpc_id is None:
                 client = self.session.client("ec2", region_name=region)
                 vpcs = client.describe_vpcs()
@@ -96,31 +111,29 @@ class Vpc(BaseCommand):
 def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
     document = document.replace("\\", "").lower()
 
-    """Checking if VPC is inside document, it's a 100% true information"""
+    # Checking if VPC is inside document, it's a 100% true information
     if vpc_options.vpc_id in document:
         return "direct VPC reference"
     else:
-        """
-        Vpc_id not found, trying to discover if it's a potencial subnet IP or VPCE is allowed
-        """
+        # Vpc_id not found, trying to discover if it's a potencial subnet IP or VPCE is allowed
         if "aws:sourcevpce" in document:
 
-            """Get VPCE found"""
+            # Get VPCE found
             aws_sourcevpces = []
             for vpce_tuple in VPCE_REGEX.findall(document):
                 aws_sourcevpces.append(vpce_tuple[1])
 
-            """Get all VPCE of this VPC"""
+            # Get all VPCE of this VPC
             ec2 = vpc_options.client("ec2")
 
             filters = [{"Name": "vpc-id", "Values": [vpc_options.vpc_id]}]
 
             vpc_endpoints = ec2.describe_vpc_endpoints(Filters=filters)
 
-            """iterate VPCEs found found"""
+            # iterate VPCEs found found
             if len(vpc_endpoints["VpcEndpoints"]) > 0:
                 matching_vpces = []
-                """Iterate VPCE to match vpce in Policy Document"""
+                # Iterate VPCE to match vpce in Policy Document
                 for data in vpc_endpoints["VpcEndpoints"]:
                     if data["VpcEndpointId"] in aws_sourcevpces:
                         matching_vpces.append(data["VpcEndpointId"])
@@ -128,21 +141,21 @@ def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
 
         if "aws:sourceip" in document:
 
-            """Get ip found"""
+            # Get ip found
             aws_sourceips = []
             for vpce_tuple in SOURCE_IP_ADDRESS_REGEX.findall(document):
                 aws_sourceips.append(vpce_tuple[1])
-            """Get subnets cidr block"""
+            # Get subnets cidr block
             ec2 = vpc_options.client("ec2")
 
             filters = [{"Name": "vpc-id", "Values": [vpc_options.vpc_id]}]
 
             subnets = ec2.describe_subnets(Filters=filters)
             overlapping_subnets = []
-            """iterate ips found"""
+            # iterate ips found
             for ipfound in aws_sourceips:
 
-                """Iterate subnets to match ipaddress"""
+                # Iterate subnets to match ipaddress
                 for subnet in list(subnets["Subnets"]):
                     ipfound = ip_network(ipfound)
                     network_addres = ip_network(subnet["CidrBlock"])

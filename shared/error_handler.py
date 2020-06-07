@@ -3,11 +3,8 @@ import functools
 from shared.common import log_critical
 
 
+# Decorator to catch exceptions and avoid stop script.
 def exception(func):
-    """
-    Decorator to catch exceptions and avoid stop script
-    """
-
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
@@ -22,6 +19,5 @@ def exception(func):
                     func.__qualname__, str(e)
                 )
             log_critical(message)
-            pass
 
     return wrapper
