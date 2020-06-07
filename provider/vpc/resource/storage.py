@@ -19,6 +19,7 @@ from shared.error_handler import exception
 class EFS(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Efs
 
         :param vpc_options:
         """
@@ -78,6 +79,7 @@ class EFS(ResourceProvider):
 class S3POLICY(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        S3 policy
 
         :param vpc_options:
         """

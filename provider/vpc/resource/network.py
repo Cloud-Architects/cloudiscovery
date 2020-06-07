@@ -15,6 +15,7 @@ from shared.error_handler import exception
 class INTERNETGATEWAY(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Internet gateway
 
         :param vpc_options:
         """
@@ -62,6 +63,7 @@ class INTERNETGATEWAY(ResourceProvider):
 class NATGATEWAY(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Nat gateway
 
         :param vpc_options:
         """
@@ -120,6 +122,7 @@ class NATGATEWAY(ResourceProvider):
 class ELASTICLOADBALANCING(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Elb v1
 
         :param vpc_options:
         """
@@ -166,6 +169,7 @@ class ELASTICLOADBALANCING(ResourceProvider):
 class ELASTICLOADBALANCINGV2(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Elb v2
 
         :param vpc_options:
         """
@@ -219,6 +223,7 @@ class ELASTICLOADBALANCINGV2(ResourceProvider):
 class RouteTable(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Route table
 
         :param vpc_options:
         """
@@ -293,6 +298,7 @@ class RouteTable(ResourceProvider):
 class SUBNET(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Subnet
 
         :param vpc_options:
         """
@@ -341,6 +347,7 @@ class SUBNET(ResourceProvider):
 class NACL(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Nacl
 
         :param vpc_options:
         """
@@ -394,6 +401,7 @@ class NACL(ResourceProvider):
 class SECURITYGROUP(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Security group
 
         :param vpc_options:
         """
@@ -435,6 +443,7 @@ class SECURITYGROUP(ResourceProvider):
 class VPCPEERING(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Vpc peering
 
         :param vpc_options:
         """
@@ -494,6 +503,7 @@ class VPCPEERING(ResourceProvider):
 class VPC(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Vpc
 
         :param vpc_options:
         """
@@ -510,6 +520,7 @@ class VPC(ResourceProvider):
 class VPCENDPOINT(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Vpc endpoint
 
         :param vpc_options:
         """

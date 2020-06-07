@@ -16,6 +16,7 @@ from shared.error_handler import exception
 class MEDIACONNECT(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Mediaconnect
 
         :param vpc_options:
         """
@@ -77,6 +78,7 @@ class MEDIACONNECT(ResourceProvider):
 class MEDIALIVE(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Medialive
 
         :param vpc_options:
         """
@@ -125,6 +127,7 @@ class MEDIALIVE(ResourceProvider):
 class MEDIASTORE(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Mediastore
 
         :param vpc_options:
         """

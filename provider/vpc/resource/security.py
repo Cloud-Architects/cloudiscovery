@@ -17,6 +17,7 @@ from shared.error_handler import exception
 class IAMPOLICY(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Iam policy
 
         :param vpc_options:
         """

@@ -17,6 +17,7 @@ from shared.error_handler import exception
 class SQSPOLICY(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Sqs policy
 
         :param vpc_options:
         """

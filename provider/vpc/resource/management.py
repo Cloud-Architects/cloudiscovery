@@ -14,6 +14,7 @@ from shared.error_handler import exception
 class SYNTHETICSCANARIES(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Synthetic canaries
 
         :param vpc_options:
         """
