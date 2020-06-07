@@ -83,9 +83,11 @@ Following resources are checked in IoT command:
 *   IoT Certificates
 
 
-### Requirements and Installation
+## Requirements and Installation
 
-This script has been written in python3+ using AWS-CLI and it works in Linux, Windows and OSX.
+### AWS Resources
+
+This script has been written in python3+ and AWS-CLI and it works in Linux, Windows and OSX.
 
 *   Make sure the latest version of AWS-CLI is installed on your workstation, and other components needed, with Python pip already installed:
 
@@ -182,7 +184,7 @@ $ ./cloud-discovery.py aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-x
 2. For help use:
 
 ```sh
-$ ./cloud-discovery.py [vpc|policy|iot] -h
+$ ./cloud-discovery.py [aws-vpc|aws-policy|aws-iot] -h
 ```
 
 ### Using a Docker container
