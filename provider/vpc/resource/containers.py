@@ -14,6 +14,7 @@ from shared.error_handler import exception
 class ECS(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Ecs
 
         :param vpc_options:
         """

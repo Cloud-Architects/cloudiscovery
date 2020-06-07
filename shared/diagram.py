@@ -219,7 +219,9 @@ class BaseDiagram(object):
 class NoDiagram(BaseDiagram):
     def __init__(self):
         """
-        Special class that doesn't generate any image
+        Special class that doesn't generate any image.
+
+        Command should be refactored not to have such class
         """
         super().__init__("", "")
 

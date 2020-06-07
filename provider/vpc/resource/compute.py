@@ -15,6 +15,7 @@ from shared.error_handler import exception
 class LAMBDA(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Lambda
 
         :param vpc_options:
         """
@@ -62,6 +63,7 @@ class LAMBDA(ResourceProvider):
 class EC2(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Ec2
 
         :param vpc_options:
         """
@@ -120,6 +122,7 @@ class EC2(ResourceProvider):
 class EKS(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Eks
 
         :param vpc_options:
         """
@@ -174,6 +177,7 @@ class EKS(ResourceProvider):
 class EMR(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Emr
 
         :param vpc_options:
         """
@@ -234,6 +238,7 @@ class EMR(ResourceProvider):
 class AUTOSCALING(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Autoscaling
 
         :param vpc_options:
         """

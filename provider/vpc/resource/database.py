@@ -14,6 +14,7 @@ from shared.error_handler import exception
 class RDS(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        RDS
 
         :param vpc_options:
         """
@@ -87,6 +88,7 @@ class RDS(ResourceProvider):
 class ELASTICACHE(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Elasticache
 
         :param vpc_options:
         """
@@ -145,6 +147,7 @@ class ELASTICACHE(ResourceProvider):
 class DOCUMENTDB(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Documentdb
 
         :param vpc_options:
         """

@@ -140,6 +140,7 @@ class Principals:
 class IamPolicy(ResourceProvider):
     def __init__(self, options: BaseOptions):
         """
+        Iam policy
 
         :param options:
         """
@@ -180,6 +181,7 @@ class IamPolicy(ResourceProvider):
 class IamGroup(ResourceProvider):
     def __init__(self, options: BaseOptions):
         """
+        Iam group
 
         :param options:
         """
@@ -240,6 +242,7 @@ class IamGroup(ResourceProvider):
 class IamRole(ResourceProvider):
     def __init__(self, options: BaseOptions):
         """
+        Iam role
 
         :param options:
         """
@@ -352,6 +355,7 @@ class IamRole(ResourceProvider):
 class InstanceProfile(ResourceProvider):
     def __init__(self, vpc_options: BaseOptions):
         """
+        Instance profile
 
         :param vpc_options:
         """

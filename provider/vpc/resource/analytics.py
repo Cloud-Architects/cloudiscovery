@@ -16,6 +16,7 @@ from shared.error_handler import exception
 class ELASTICSEARCH(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Elasticsearch
 
         :param vpc_options:
         """
@@ -83,6 +84,7 @@ class ELASTICSEARCH(ResourceProvider):
 class MSK(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
+        Msk
 
         :param vpc_options:
         """

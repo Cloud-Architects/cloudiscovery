@@ -14,6 +14,7 @@ from shared.error_handler import exception
 class IamUser(ResourceProvider):
     def __init__(self, options: BaseOptions):
         """
+        Iam user
 
         :param options:
         """
