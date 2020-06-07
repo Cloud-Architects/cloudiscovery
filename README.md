@@ -222,6 +222,26 @@ If you have improvements or fixes, we would love to have your contributions. Ple
 
 ### Development
 
+When developing, it's recommended to use [venv](https://docs.python.org/3/library/venv.html).
+
+In order to create a venv on macOS and Linux:
+```
+$ python3 -m venv env
+```
+On Windows:
+```
+$ py -m venv venv
+```
+Once installed, you need to activate the virtual environment. Activation will put specific paths for `python` and `pip` commands.
+On macOS and Linux call:
+```
+$ source venv/bin/activate
+```
+On Windows:
+```
+$ .\env\Scripts\activate
+```
+
 Make sure you have installed [pre-commit](https://pre-commit.com/#installation).
 
 Install development requirements:
