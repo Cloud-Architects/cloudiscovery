@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-This script manages aws-network-discovery, a tool for analyzing VPC dependencies.
+This script manages cloud-discovery, a tool for analyzing VPC dependencies.
 """
 import argparse
 import gettext
@@ -32,7 +32,7 @@ if sys.version_info < (3, 6):
     print("Python 3.6 or newer is required", file=sys.stderr)
     sys.exit(1)
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
 
 AVAILABLE_LANGUAGES = ["en_US", "pt_BR"]
 DIAGRAMS_OPTIONS = ["True", "False"]
@@ -43,7 +43,7 @@ def generate_parser():
 
     subparsers = parser.add_subparsers(help="commands", dest="command")
 
-    vpc_parser = subparsers.add_parser("vpc", help="Analyze VPCs")
+    vpc_parser = subparsers.add_parser("aws-vpc", help="Analyze VPCs")
     add_default_arguments(vpc_parser)
     vpc_parser.add_argument(
         "-v",
@@ -52,7 +52,7 @@ def generate_parser():
         help="Inform VPC to analyze. If not informed, script will check all vpcs.",
     )
 
-    iot_parser = subparsers.add_parser("iot", help="Analyze IoTs")
+    iot_parser = subparsers.add_parser("aws-iot", help="Analyze IoTs")
     add_default_arguments(iot_parser)
     iot_parser.add_argument(
         "-t",
@@ -61,7 +61,7 @@ def generate_parser():
         help="Inform Thing Name to analyze. If not informed, script will check all things inside a region.",
     )
 
-    policy_parser = subparsers.add_parser("policy", help="Analyze policies")
+    policy_parser = subparsers.add_parser("aws-policy", help="Analyze policies")
 
     add_default_arguments(policy_parser)
 
@@ -152,16 +152,16 @@ def main():
         check_region(region_name, session)
         region_names = [region_name]
 
-    if args.command == "vpc":
+    if args.command == "aws-vpc":
         command = Vpc(
             vpc_id=args.vpc_id,
             region_names=region_names,
             session=session,
             diagram=diagram,
         )
-    elif args.command == "policy":
+    elif args.command == "aws-policy":
         command = Policy(region_names=region_names, session=session, diagram=diagram)
-    elif args.command == "iot":
+    elif args.command == "aws-iot":
         command = Iot(
             thing_name=args.thing_name,
             region_names=region_names,
