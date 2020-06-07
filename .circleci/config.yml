@@ -10,6 +10,9 @@ jobs:
       - checkout
       - python/load-cache
       - python/install-deps
+      - run:
+          command: pip install --user -r requirements-dev.txt
+          name: Install Dev Dependencies
       - python/save-cache
       - run:
           command: pytest
