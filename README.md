@@ -3,7 +3,7 @@
 ![python version](https://img.shields.io/badge/python-3.6%2C3.7%2C3.8-blue?logo=python)
 [![CircleCI](https://circleci.com/gh/Cloud-Architects/aws-network-discovery.svg?style=svg)](https://circleci.com/gh/Cloud-Architects/aws-network-discovery)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c0a7a5bc51044c7ca8bd9115965e4467)](https://www.codacy.com/gh/Cloud-Architects/aws-network-discovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Cloud-Architects/aws-network-discovery&amp;utm_campaign=Badge_Grade)
-[![GitHub license](https://img.shields.io/github/license/Cloud-Architects/aws-network-discovery.svg)](https://github.com/Cloud-Architects/aws-network-discovery/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/Cloud-Architects/aws-network-discovery.svg)](https://github.com/Cloud-Architects/aws-network-discovery/blob/develop/LICENSE)
 
 AWS Network Discovery helps you analyze resources in an AWS account.
 
