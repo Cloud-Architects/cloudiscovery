@@ -1,12 +1,12 @@
 from unittest import TestCase
 from unittest.mock import MagicMock
 
-from shared.common import check_ipvpc_inpolicy
+from provider.vpc.command import check_ipvpc_inpolicy
 
 
 class Test(TestCase):
     def test_check_ipvpc_inpolicy(self):
-        vpce = {'VpcEndpoints': [{'VpcEndpointId': 'vpce-1234abcd', 'VpcId': 'dummy'}]}
+        vpce = {"VpcEndpoints": [{"VpcEndpointId": "vpce-1234abcd", "VpcId": "dummy"}]}
         policy = """
         {"Version":"2012-10-17","Id":"arn:queue","Statement":[{"Effect":"Allow","Principal":"*","Action":"SQS:*","Resource":"arn:queue"},{"Effect":"Allow","Principal":"*","Action":"sqs:*","Resource":"arn:queue","Condition":{"StringEquals":{"aws:sourceVpce":"vpce-1234abcd"}}}]}
         """
@@ -17,7 +17,15 @@ class Test(TestCase):
         self.assertTrue("vpce-1234abcd" in result)
 
     def test_check_vpce_inpolicy(self):
-        subnets = {'Subnets': [{'CidrBlock': '10.0.64.0/18', 'SubnetId': 'subnet-123', 'VpcId': 'dummy'}]}
+        subnets = {
+            "Subnets": [
+                {
+                    "CidrBlock": "10.0.64.0/18",
+                    "SubnetId": "subnet-123",
+                    "VpcId": "dummy",
+                }
+            ]
+        }
         policy = """
         {"Version":"2012-10-17","Id":"arn:queue","Statement":[{"Effect":"Allow","Principal":"*","Action":"SQS:*","Resource":"arn:queue"},{"Effect":"Allow","Principal":"*","Action":"sqs:*","Resource":"arn:queue","Condition":{"StringEquals":{"aws:sourceIp": "10.0.0.0/16"}}}]}
         """

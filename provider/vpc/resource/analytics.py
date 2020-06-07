@@ -2,90 +2,142 @@ import json
 from typing import List
 
 from provider.vpc.command import VpcOptions, check_ipvpc_inpolicy
-from shared.common import *
+from shared.common import (
+    datetime_to_string,
+    ResourceProvider,
+    Resource,
+    message_handler,
+    ResourceDigest,
+    ResourceEdge,
+)
 from shared.error_handler import exception
 
 
-class ELASTICSEARCH(object):
-
+class ELASTICSEARCH(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+        Elasticsearch
+
+        :param vpc_options:
+        """
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
-        client = self.vpc_options.client('es')
+        client = self.vpc_options.client("es")
 
         resources_found = []
 
         response = client.list_domain_names()
 
-        message_handler("Collecting data from ELASTICSEARCH DOMAINS...", "HEADER")
+        message_handler("Collecting data from Elasticsearch Domains...", "HEADER")
 
         if len(response["DomainNames"]) > 0:
 
             for data in response["DomainNames"]:
 
-                elasticsearch_domain = client.describe_elasticsearch_domain(DomainName=data['DomainName'])
+                elasticsearch_domain = client.describe_elasticsearch_domain(
+                    DomainName=data["DomainName"]
+                )
 
-                documentpolicy = elasticsearch_domain['DomainStatus']['AccessPolicies']
+                documentpolicy = elasticsearch_domain["DomainStatus"]["AccessPolicies"]
 
                 document = json.dumps(documentpolicy, default=datetime_to_string)
 
-                """ check either vpc_id or potencial subnet ip are found """
-                ipvpc_found = check_ipvpc_inpolicy(document=document, vpc_options=self.vpc_options)
+                # check either vpc_id or potencial subnet ip are found
+                ipvpc_found = check_ipvpc_inpolicy(
+                    document=document, vpc_options=self.vpc_options
+                )
 
-                """ elasticsearch uses accesspolicies too, so check both situation """
-                if elasticsearch_domain['DomainStatus']['VPCOptions']['VPCId'] == self.vpc_options.vpc_id \
-                        or ipvpc_found is True:
-                    resources_found.append(Resource(id=elasticsearch_domain['DomainStatus']['DomainId'],
-                                                    name=elasticsearch_domain['DomainStatus']['DomainName'],
-                                                    type='aws_elasticsearch_domain',
-                                                    details='',
-                                                    group='analytics'))
-
+                # elasticsearch uses accesspolicies too, so check both situation
+                if (
+                    elasticsearch_domain["DomainStatus"]["VPCOptions"]["VPCId"]
+                    == self.vpc_options.vpc_id
+                    or ipvpc_found is True
+                ):
+                    digest = ResourceDigest(
+                        id=elasticsearch_domain["DomainStatus"]["DomainId"],
+                        type="aws_elasticsearch_domain",
+                    )
+                    resources_found.append(
+                        Resource(
+                            digest=digest,
+                            name=elasticsearch_domain["DomainStatus"]["DomainName"],
+                            details="",
+                            group="analytics",
+                        )
+                    )
+                    for subnet_id in elasticsearch_domain["DomainStatus"]["VPCOptions"][
+                        "SubnetIds"
+                    ]:
+                        self.relations_found.append(
+                            ResourceEdge(
+                                from_node=digest,
+                                to_node=ResourceDigest(id=subnet_id, type="aws_subnet"),
+                            )
+                        )
         return resources_found
 
 
-class MSK(object):
-
+class MSK(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+        Msk
+
+        :param vpc_options:
+        """
+        super().__init__()
         self.vpc_options = vpc_options
 
     @exception
-    def run(self) -> List[Resource]:
+    def get_resources(self) -> List[Resource]:
 
-        client = self.vpc_options.client('kafka')
+        client = self.vpc_options.client("kafka")
 
         resources_found = []
 
-        """ get all cache clusters """
+        # get all cache clusters
         response = client.list_clusters()
 
-        message_handler("Collecting data from MSK CLUSTERS...", "HEADER")
+        message_handler("Collecting data from MSK Clusters...", "HEADER")
 
-        if len(response['ClusterInfoList']) > 0:
+        if len(response["ClusterInfoList"]) > 0:
 
-            """ iterate cache clusters to get subnet groups """
-            for data in response['ClusterInfoList']:
+            # iterate cache clusters to get subnet groups
+            for data in response["ClusterInfoList"]:
 
-                msk_subnets = ", ".join(data['BrokerNodeGroupInfo']['ClientSubnets'])
+                msk_subnets = ", ".join(data["BrokerNodeGroupInfo"]["ClientSubnets"])
 
-                ec2 = self.vpc_options.session.resource('ec2', region_name=self.vpc_options.region_name)
+                ec2 = self.vpc_options.session.resource(
+                    "ec2", region_name=self.vpc_options.region_name
+                )
 
-                filters = [{'Name': 'vpc-id',
-                            'Values': [self.vpc_options.vpc_id]}]
+                filters = [{"Name": "vpc-id", "Values": [self.vpc_options.vpc_id]}]
 
                 subnets = ec2.subnets.filter(Filters=filters)
 
                 for subnet in list(subnets):
 
                     if subnet.id in msk_subnets:
-                        resources_found.append(Resource(id=data['ClusterArn'],
-                                                        name=data['ClusterName'],
-                                                        type='aws_msk_cluster',
-                                                        details='',
-                                                        group='analytics'))
+                        digest = ResourceDigest(
+                            id=data["ClusterArn"], type="aws_msk_cluster"
+                        )
+                        resources_found.append(
+                            Resource(
+                                digest=digest,
+                                name=data["ClusterName"],
+                                details="",
+                                group="analytics",
+                            )
+                        )
+                        self.relations_found.append(
+                            ResourceEdge(
+                                from_node=digest,
+                                to_node=ResourceDigest(id=subnet.id, type="aws_subnet"),
+                            )
+                        )
 
                         break
         return resources_found

@@ -1,24 +1,28 @@
-from provider.policy.diagram import ProfileDiagram
 from shared.command import BaseCommand, CommandRunner
-from shared.common import *
-from shared.diagram import BaseDiagram
-
-
-class ProfileOptions(BaseOptions):
-    pass
+from shared.common import BaseOptions
+from shared.diagram import NoDiagram, BaseDiagram
 
 
 class Policy(BaseCommand):
+    def __init__(self, region_names, session, diagram):
+        """
+        Policy
 
-    def __init__(self, region_name, session, diagram):
-        super().__init__(region_name, session, diagram)
+        :param region_names:
+        :param session:
+        :param diagram:
+        """
+        super().__init__(region_names, session, diagram)
 
     def run(self):
-        self.check_region()
+        for region in self.region_names:
 
-        command_runner = CommandRunner()
-
-        diagram_builder: BaseDiagram = ProfileDiagram()
-        options = ProfileOptions(session=self.session, region_name=self.region_name)
-
-        command_runner.run("policy", options, diagram_builder)
+            command_runner = CommandRunner()
+            if self.diagram:
+                diagram = BaseDiagram(
+                    "AWS Permissions map", region + "_account_policies"
+                )
+            else:
+                diagram = NoDiagram()
+            options = BaseOptions(session=self.session, region_name=region)
+            command_runner.run("policy", options, diagram)
