@@ -106,10 +106,10 @@ class Mapsources:
 
 class BaseDiagram(object):
     def __init__(self, name: str, filename: str, engine: str = "sfdp"):
-
         """
         Class to perform data aggregation, diagram generation and image saving
 
+        The class accepts the following parameters
         :param name:
         :param filename:
         :param engine:
