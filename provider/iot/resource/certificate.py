@@ -14,6 +14,7 @@ from shared.error_handler import exception
 class CERTIFICATE(ResourceProvider):
     def __init__(self, iot_options: IotOptions):
         """
+        Iot certificate
 
         :param iot_options:
         """
