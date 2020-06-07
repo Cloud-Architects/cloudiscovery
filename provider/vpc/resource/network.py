@@ -29,7 +29,7 @@ class INTERNETGATEWAY(ResourceProvider):
 
         message_handler("Collecting data from Internet Gateways...", "HEADER")
 
-        """One VPC has only 1 IGW then it's a direct check"""
+        # One VPC has only 1 IGW then it's a direct check
         if len(response["InternetGateways"]) > 0:
             nametags = get_name_tags(response)
 
@@ -218,7 +218,7 @@ class RouteTable(ResourceProvider):
 
         message_handler("Collecting data from Route Tables...", "HEADER")
 
-        """Iterate to get all route table filtered"""
+        # Iterate to get all route table filtered
         for data in response["RouteTables"]:
             nametags = get_name_tags(data)
 
@@ -288,31 +288,28 @@ class SUBNET(ResourceProvider):
 
         message_handler("Collecting data from Subnets...", "HEADER")
 
-        if len(response["Subnets"]) > 0:
+        for data in response["Subnets"]:
+            nametags = get_name_tags(data)
 
-            """Iterate to get all route table filtered"""
-            for data in response["Subnets"]:
-                nametags = get_name_tags(data)
+            name = data["SubnetId"] if nametags is False else nametags
 
-                name = data["SubnetId"] if nametags is False else nametags
-
-                subnet_digest = ResourceDigest(id=data["SubnetId"], type="aws_subnet")
-                resources_found.append(
-                    Resource(
-                        digest=subnet_digest,
-                        name=name,
-                        details="Subnet using CidrBlock {} and AZ {}".format(
-                            data["CidrBlock"], data["AvailabilityZone"]
-                        ),
-                        group="network",
-                    )
+            subnet_digest = ResourceDigest(id=data["SubnetId"], type="aws_subnet")
+            resources_found.append(
+                Resource(
+                    digest=subnet_digest,
+                    name=name,
+                    details="Subnet using CidrBlock {} and AZ {}".format(
+                        data["CidrBlock"], data["AvailabilityZone"]
+                    ),
+                    group="network",
                 )
+            )
 
-                self.relations_found.append(
-                    ResourceEdge(
-                        from_node=subnet_digest, to_node=self.vpc_options.vpc_digest()
-                    )
+            self.relations_found.append(
+                ResourceEdge(
+                    from_node=subnet_digest, to_node=self.vpc_options.vpc_digest()
                 )
+            )
 
         return resources_found
 
@@ -335,36 +332,33 @@ class NACL(ResourceProvider):
 
         message_handler("Collecting data from NACLs...", "HEADER")
 
-        if len(response["NetworkAcls"]) > 0:
+        for data in response["NetworkAcls"]:
+            nacl_digest = ResourceDigest(
+                id=data["NetworkAclId"], type="aws_network_acl"
+            )
 
-            """Iterate to get all NACL filtered"""
-            for data in response["NetworkAcls"]:
-                nacl_digest = ResourceDigest(
-                    id=data["NetworkAclId"], type="aws_network_acl"
-                )
-
-                subnet_ids = []
-                for subnet in data["Associations"]:
-                    subnet_ids.append(subnet["SubnetId"])
-                    self.relations_found.append(
-                        ResourceEdge(
-                            from_node=nacl_digest,
-                            to_node=ResourceDigest(
-                                id=subnet["SubnetId"], type="aws_subnet"
-                            ),
-                        )
-                    )
-
-                nametags = get_name_tags(data)
-                name = data["NetworkAclId"] if nametags is False else nametags
-                resources_found.append(
-                    Resource(
-                        digest=nacl_digest,
-                        name=name,
-                        details="NACL using Subnets {}".format(", ".join(subnet_ids)),
-                        group="network",
+            subnet_ids = []
+            for subnet in data["Associations"]:
+                subnet_ids.append(subnet["SubnetId"])
+                self.relations_found.append(
+                    ResourceEdge(
+                        from_node=nacl_digest,
+                        to_node=ResourceDigest(
+                            id=subnet["SubnetId"], type="aws_subnet"
+                        ),
                     )
                 )
+
+            nametags = get_name_tags(data)
+            name = data["NetworkAclId"] if nametags is False else nametags
+            resources_found.append(
+                Resource(
+                    digest=nacl_digest,
+                    name=name,
+                    details="NACL using Subnets {}".format(", ".join(subnet_ids)),
+                    group="network",
+                )
+            )
 
         return resources_found
 
@@ -387,26 +381,21 @@ class SECURITYGROUP(ResourceProvider):
 
         message_handler("Collecting data from Security Groups...", "HEADER")
 
-        if len(response["SecurityGroups"]) > 0:
-
-            """Iterate to get all SG filtered"""
-            for data in response["SecurityGroups"]:
-                group_digest = ResourceDigest(
-                    id=data["GroupId"], type="aws_security_group"
+        for data in response["SecurityGroups"]:
+            group_digest = ResourceDigest(id=data["GroupId"], type="aws_security_group")
+            resources_found.append(
+                Resource(
+                    digest=group_digest,
+                    name=data["GroupName"],
+                    details="",
+                    group="network",
                 )
-                resources_found.append(
-                    Resource(
-                        digest=group_digest,
-                        name=data["GroupName"],
-                        details="",
-                        group="network",
-                    )
+            )
+            self.relations_found.append(
+                ResourceEdge(
+                    from_node=group_digest, to_node=self.vpc_options.vpc_digest()
                 )
-                self.relations_found.append(
-                    ResourceEdge(
-                        from_node=group_digest, to_node=self.vpc_options.vpc_digest()
-                    )
-                )
+            )
 
         return resources_found
 
@@ -427,50 +416,42 @@ class VPCPEERING(ResourceProvider):
 
         message_handler("Collecting data from VPC Peering...", "HEADER")
 
-        if len(response["VpcPeeringConnections"]) > 0:
+        for data in response["VpcPeeringConnections"]:
 
-            """Iterate to get all vpc peering and check either accepter or requester"""
-            for data in response["VpcPeeringConnections"]:
+            if (
+                data["AccepterVpcInfo"]["VpcId"] == self.vpc_options.vpc_id
+                or data["RequesterVpcInfo"]["VpcId"] == self.vpc_options.vpc_id
+            ):
+                nametags = get_name_tags(data)
 
-                if (
-                    data["AccepterVpcInfo"]["VpcId"] == self.vpc_options.vpc_id
-                    or data["RequesterVpcInfo"]["VpcId"] == self.vpc_options.vpc_id
-                ):
-                    nametags = get_name_tags(data)
+                name = data["VpcPeeringConnectionId"] if nametags is False else nametags
 
-                    name = (
-                        data["VpcPeeringConnectionId"]
-                        if nametags is False
-                        else nametags
+                peering_digest = ResourceDigest(
+                    id=data["VpcPeeringConnectionId"],
+                    type="aws_vpc_peering_connection",
+                )
+                resources_found.append(
+                    Resource(
+                        digest=peering_digest,
+                        name=name,
+                        details="Vpc Peering Accepter OwnerId {}, Accepter Region {}, Accepter VpcId {} \
+                                                         Requester OwnerId {}, Requester Region {}, \
+                                                         Requester VpcId {}".format(
+                            data["AccepterVpcInfo"]["OwnerId"],
+                            data["AccepterVpcInfo"]["Region"],
+                            data["AccepterVpcInfo"]["VpcId"],
+                            data["RequesterVpcInfo"]["OwnerId"],
+                            data["RequesterVpcInfo"]["Region"],
+                            data["RequesterVpcInfo"]["VpcId"],
+                        ),
+                        group="network",
                     )
-
-                    peering_digest = ResourceDigest(
-                        id=data["VpcPeeringConnectionId"],
-                        type="aws_vpc_peering_connection",
+                )
+                self.relations_found.append(
+                    ResourceEdge(
+                        from_node=peering_digest, to_node=self.vpc_options.vpc_digest(),
                     )
-                    resources_found.append(
-                        Resource(
-                            digest=peering_digest,
-                            name=name,
-                            details="Vpc Peering Accepter OwnerId {}, Accepter Region {}, Accepter VpcId {} \
-                                                             Requester OwnerId {}, Requester Region {}, \
-                                                             Requester VpcId {}".format(
-                                data["AccepterVpcInfo"]["OwnerId"],
-                                data["AccepterVpcInfo"]["Region"],
-                                data["AccepterVpcInfo"]["VpcId"],
-                                data["RequesterVpcInfo"]["OwnerId"],
-                                data["RequesterVpcInfo"]["Region"],
-                                data["RequesterVpcInfo"]["VpcId"],
-                            ),
-                            group="network",
-                        )
-                    )
-                    self.relations_found.append(
-                        ResourceEdge(
-                            from_node=peering_digest,
-                            to_node=self.vpc_options.vpc_digest(),
-                        )
-                    )
+                )
         return resources_found
 
 
@@ -504,51 +485,46 @@ class VPCENDPOINT(ResourceProvider):
 
         message_handler("Collecting data from VPC Endpoints...", "HEADER")
 
-        if len(response["VpcEndpoints"]) > 0:
+        for data in response["VpcEndpoints"]:
 
-            """Iterate to get all VPCE filtered"""
-            for data in response["VpcEndpoints"]:
-
-                if data["VpcId"] == self.vpc_options.vpc_id:
-                    endpoint_digest = ResourceDigest(
-                        id=data["VpcEndpointId"], type="aws_vpc_endpoint_gateway"
-                    )
-                    if data["VpcEndpointType"] == "Gateway":
-                        resources_found.append(
-                            Resource(
-                                digest=endpoint_digest,
-                                name=data["ServiceName"],
-                                details="Vpc Endpoint Gateway RouteTable {}".format(
-                                    ", ".join(data["RouteTableIds"])
-                                ),
-                                group="network",
-                            )
+            if data["VpcId"] == self.vpc_options.vpc_id:
+                endpoint_digest = ResourceDigest(
+                    id=data["VpcEndpointId"], type="aws_vpc_endpoint_gateway"
+                )
+                if data["VpcEndpointType"] == "Gateway":
+                    resources_found.append(
+                        Resource(
+                            digest=endpoint_digest,
+                            name=data["ServiceName"],
+                            details="Vpc Endpoint Gateway RouteTable {}".format(
+                                ", ".join(data["RouteTableIds"])
+                            ),
+                            group="network",
                         )
+                    )
+                    self.relations_found.append(
+                        ResourceEdge(
+                            from_node=endpoint_digest,
+                            to_node=self.vpc_options.vpc_digest(),
+                        )
+                    )
+                else:
+                    resources_found.append(
+                        Resource(
+                            digest=endpoint_digest,
+                            name=data["ServiceName"],
+                            details="Vpc Endpoint Service Subnet {}".format(
+                                ", ".join(data["SubnetIds"])
+                            ),
+                            group="network",
+                        )
+                    )
+                    for subnet_id in data["SubnetIds"]:
                         self.relations_found.append(
                             ResourceEdge(
                                 from_node=endpoint_digest,
-                                to_node=self.vpc_options.vpc_digest(),
+                                to_node=ResourceDigest(id=subnet_id, type="aws_subnet"),
                             )
                         )
-                    else:
-                        resources_found.append(
-                            Resource(
-                                digest=endpoint_digest,
-                                name=data["ServiceName"],
-                                details="Vpc Endpoint Service Subnet {}".format(
-                                    ", ".join(data["SubnetIds"])
-                                ),
-                                group="network",
-                            )
-                        )
-                        for subnet_id in data["SubnetIds"]:
-                            self.relations_found.append(
-                                ResourceEdge(
-                                    from_node=endpoint_digest,
-                                    to_node=ResourceDigest(
-                                        id=subnet_id, type="aws_subnet"
-                                    ),
-                                )
-                            )
 
         return resources_found

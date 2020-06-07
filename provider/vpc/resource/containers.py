@@ -33,7 +33,7 @@ class ECS(ResourceProvider):
 
             for data in response["clusters"]:
 
-                """Searching all cluster services"""
+                # Searching all cluster services
                 paginator = client.get_paginator("list_services")
                 pages = paginator.paginate(cluster=data["clusterName"])
 
@@ -50,14 +50,14 @@ class ECS(ResourceProvider):
                                     "networkConfiguration"
                                 ]["awsvpcConfiguration"]["subnets"]
 
-                                """describe subnet to get VpcId"""
+                                # describe subnet to get VpcId
                                 ec2 = self.vpc_options.client("ec2")
 
                                 subnets = ec2.describe_subnets(
                                     SubnetIds=service_subnets
                                 )
 
-                                """Iterate subnet to get VPC"""
+                                # Iterate subnet to get VPC
                                 for data_subnet in subnets["Subnets"]:
 
                                     if data_subnet["VpcId"] == self.vpc_options.vpc_id:
@@ -83,10 +83,10 @@ class ECS(ResourceProvider):
                                             )
                                         )
                             else:
-                                """EC2 services require container instances, list of them should be fine for now"""
+                                # EC2 services require container instances, list of them should be fine for now
                                 pass
 
-                """Looking for container instances - they are dynamically associated, so manual review is necessary"""
+                # Looking for container instances - they are dynamically associated, so manual review is necessary
                 list_paginator = client.get_paginator("list_container_instances")
                 list_pages = list_paginator.paginate(cluster=data["clusterName"])
                 for list_page in list_pages:

@@ -181,7 +181,7 @@ class EMR(ResourceProvider):
 
                 cluster = client.describe_cluster(ClusterId=data["Id"])
 
-                """Using subnet to check VPC"""
+                # Using subnet to check VPC
                 ec2 = self.vpc_options.client("ec2")
 
                 subnets = ec2.describe_subnets(
@@ -235,12 +235,12 @@ class AUTOSCALING(ResourceProvider):
 
             asg_subnets = data["VPCZoneIdentifier"].split(",")
 
-            """describe subnet to get VpcId"""
+            # describe subnet to get VpcId
             ec2 = self.vpc_options.client("ec2")
 
             subnets = ec2.describe_subnets(SubnetIds=asg_subnets)
 
-            """Iterate subnet to get VPC"""
+            # Iterate subnet to get VPC
             for data_subnet in subnets["Subnets"]:
 
                 if data_subnet["VpcId"] == self.vpc_options.vpc_id:

@@ -2,6 +2,8 @@ import json
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import List
 
+from botocore.exceptions import ClientError
+
 from provider.vpc.command import VpcOptions, check_ipvpc_inpolicy
 from shared.common import (
     ResourceProvider,
@@ -26,50 +28,45 @@ class EFS(ResourceProvider):
 
         resources_found = []
 
-        """get filesystems available"""
+        # get filesystems available
         response = client.describe_file_systems()
 
         message_handler("Collecting data from EFS Mount Targets...", "HEADER")
 
-        if len(response["FileSystems"]) > 0:
+        for data in response["FileSystems"]:
 
-            """iterate filesystems to get mount targets"""
-            for data in response["FileSystems"]:
+            filesystem = client.describe_mount_targets(
+                FileSystemId=data["FileSystemId"]
+            )
 
-                filesystem = client.describe_mount_targets(
-                    FileSystemId=data["FileSystemId"]
-                )
+            # iterate filesystems to get mount targets
+            for datafilesystem in filesystem["MountTargets"]:
 
-                """iterate filesystems to get mount targets"""
-                for datafilesystem in filesystem["MountTargets"]:
+                # describe subnet to get VpcId
+                ec2 = self.vpc_options.client("ec2")
 
-                    """describe subnet to get VpcId"""
-                    ec2 = self.vpc_options.client("ec2")
+                subnets = ec2.describe_subnets(SubnetIds=[datafilesystem["SubnetId"]])
 
-                    subnets = ec2.describe_subnets(
-                        SubnetIds=[datafilesystem["SubnetId"]]
+                if subnets["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
+                    digest = ResourceDigest(
+                        id=data["FileSystemId"], type="aws_efs_file_system"
                     )
-
-                    if subnets["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
-                        digest = ResourceDigest(
-                            id=data["FileSystemId"], type="aws_efs_file_system"
+                    resources_found.append(
+                        Resource(
+                            digest=digest,
+                            name=data["Name"],
+                            details="",
+                            group="storage",
                         )
-                        resources_found.append(
-                            Resource(
-                                digest=digest,
-                                name=data["Name"],
-                                details="",
-                                group="storage",
-                            )
+                    )
+                    self.relations_found.append(
+                        ResourceEdge(
+                            from_node=digest,
+                            to_node=ResourceDigest(
+                                id=datafilesystem["SubnetId"], type="aws_subnet"
+                            ),
                         )
-                        self.relations_found.append(
-                            ResourceEdge(
-                                from_node=digest,
-                                to_node=ResourceDigest(
-                                    id=datafilesystem["SubnetId"], type="aws_subnet"
-                                ),
-                            )
-                        )
+                    )
 
         return resources_found
 
@@ -84,33 +81,33 @@ class S3POLICY(ResourceProvider):
 
         client = self.vpc_options.client("s3")
 
-        resources_found = []
+        resources_found: List[Resource] = []
 
-        """get buckets available"""
+        # get buckets available
         response = client.list_buckets()
 
         message_handler("Collecting data from S3 Bucket Policies...", "HEADER")
 
-        if len(response["Buckets"]) > 0:
+        with ThreadPoolExecutor(15) as executor:
+            results = executor.map(
+                lambda data: self.analyze_bucket(client, data), response["Buckets"]
+            )
 
-            """iterate buckets to get policy"""
-            with ThreadPoolExecutor(15) as executor:
-                results = executor.map(
-                    lambda data: self.analyze_bucket(client, data), response["Buckets"]
-                )
-
-            for result in results:
-                if result[0] is True:
-                    resources_found.append(result[1])
+        for result in results:
+            if result[0] is True:
+                resources_found.append(result[1])
 
         return resources_found
 
     def analyze_bucket(self, client, data):
-        documentpolicy = client.get_bucket_policy(Bucket=data["Name"])
+        try:
+            documentpolicy = client.get_bucket_policy(Bucket=data["Name"])
+        except ClientError:
+            return False, None
 
         document = json.dumps(documentpolicy, default=datetime_to_string)
 
-        """check either vpc_id or potential subnet ip are found"""
+        # check either vpc_id or potential subnet ip are found
         ipvpc_found = check_ipvpc_inpolicy(
             document=document, vpc_options=self.vpc_options
         )
