@@ -16,56 +16,133 @@ class Principals:
 
     principals = dict()
     principals = {
-                "apigateway.amazonaws.com": {"type": "aws_api_gateway_rest_api", "name": "API Gateway"},
-                "ops.apigateway.amazonaws.com": {"type": "aws_api_gateway_rest_api", "name": "API Gateway"},
-                "sagemaker.amazonaws.com": {"type": "aws_sagemaker_notebook_instance", "name": "Sagemaker"},
-                "ssm.amazonaws.com": {"type": "aws_ssm_document", "name": "SystemsManager"},
-                "ec2.amazonaws.com": {"type": "aws_instance", "name": "EC2"},
-                "lambda.amazonaws.com": {"type": "aws_lambda_function", "name": "Lambda"},
-                "replicator.lambda.amazonaws.com": {"type": "aws_lambda_function", "name": "Lambda Replicator"},
-                "edgelambda.lambda.amazonaws.com": {"type": "aws_lambda_function", "name": "Lambda@Edge"},
-                "ecs.amazonaws.com": {"type": "aws_ecs_cluster", "name": "ECS"},
-                "ecs-tasks.amazonaws.com": {"type": "aws_ecs_cluster", "name": "ECS Tasks"},
-                "eks.amazonaws.com": {"type": "aws_eks_cluster", "name": "EKS"},
-                "es.amazonaws.com": {"type": "aws_elasticsearch_domain", "name": "Elasticsearch Service"},
-                "cognito-identity.amazonaws.com": {"type": "aws_cognito_identity_provider", "name": "Cognito Identity"},
-                "cognito-idp.amazonaws.com": {"type": "aws_cognito_identity_provider", "name": "Cognito IdP"},
-                "email.cognito-idp.amazonaws.com": {"type": "aws_cognito_identity_provider", "name": "Cognito IdP Email"},
-                "iot.amazonaws.com": {"type": "aws_iot_thing", "name": "Internet of Things"},
-                "elasticloadbalancing.amazonaws.com": {"type": "aws_elb", "name": "ELB"},
-                "elasticmapreduce.amazonaws.com": {"type": "aws_emr", "name": "EMR"},
-                "kafka.amazonaws.com": {"type": "aws_msk_cluster", "name": "MSK"},
-                "elasticache.amazonaws.com": {"type": "aws_elasticache_cluster", "name": "ElastiCache"},
-                "appsync.amazonaws.com": {"type": "aws_appsync_graphql_api", "name": "AppSync"},
-                "iotanalytics.amazonaws.com": {"type": "aws_iot_analytics", "name": "IoT Analytics"},
-                "securityhub.amazonaws.com": {"type": "aws_securityhub_account", "name": "Security Hub"},
-                "trustedadvisor.amazonaws.com": {"type": "aws_trusted_advisor", "name": "Trusted Advisor"},
-                "firehose.amazonaws.com": {"type": "aws_kinesis_firehose", "name": "Kinesis Firehose"},
-                "glue.amazonaws.com": {"type": "aws_glue", "name": "Glue"},
-                "quicksight.amazonaws.com": {"type": "aws_quicksight", "name": "QuickSight"},
-                "cloud9.amazonaws.com": {"type": "aws_cloud9", "name": "Cloud9"},
-                "organizations.amazonaws.com": {"type": "aws_organizations_account", "name": "Organizations"},
-                "config.amazonaws.com": {"type": "aws_config", "name": "Config"},
-                "application-autoscaling.amazonaws.com": {"type": "aws_auto_scaling", "name": "Application Autoscaling"},
-                "autoscaling.amazonaws.com": {"type": "aws_auto_scaling", "name": "Autoscaling"},
-                "backup.amazonaws.com": {"type": "aws_backup", "name": "Backup"},
-                "cloudtrail.amazonaws.com": {"type": "aws_cloudtrail", "name": "Cloudtrail"},
-                "cloudwatch-crossaccount.amazonaws.com": {"type": "aws_cloudwatch_crossaccount", "name": "Cloudwatch Crossaccount"},
-                "datapipeline.amazonaws.com": {"type": "aws_data_pipeline", "name": "Data Pipeline"},
-                "dms.amazonaws.com": {"type": "aws_dms", "name": "DMS"},
-                "dynamodb.application-autoscaling.amazonaws.com": {"type": "aws_auto_scaling", "name": "DynamoDB Application Autoscaling"},
-                "elasticbeanstalk.amazonaws.com": {"type": "aws_elastic_beanstalk_environment", "name": "Elastic Beanstalk"},
-                "fms.amazonaws.com": {"type": "aws_fms", "name": "Firewall Manager"},
-                "globalaccelerator.amazonaws.com": {"type": "aws_global_accelerator", "name": "Global Accelerator"},
-                "inspector.amazonaws.com": {"type": "aws_inspector", "name": "inspector"},
-                "logger.cloudfront.amazonaws.com": {"type": "aws_cloudfront_distribution", "name": "CloudFront Logger"},
-                "migrationhub.amazonaws.com": {"type": "aws_migration_hub", "name": "Migration Hub"},
-                "rds.amazonaws.com": {"type": "aws_db_instance", "name": "RDS"},
-                "sns.amazonaws.com": {"type": "aws_sns_topic", "name": "SNS"}}
+        "apigateway.amazonaws.com": {
+            "type": "aws_api_gateway_rest_api",
+            "name": "API Gateway",
+        },
+        "ops.apigateway.amazonaws.com": {
+            "type": "aws_api_gateway_rest_api",
+            "name": "API Gateway",
+        },
+        "sagemaker.amazonaws.com": {
+            "type": "aws_sagemaker_notebook_instance",
+            "name": "Sagemaker",
+        },
+        "ssm.amazonaws.com": {"type": "aws_ssm_document", "name": "SystemsManager"},
+        "ec2.amazonaws.com": {"type": "aws_instance", "name": "EC2"},
+        "lambda.amazonaws.com": {"type": "aws_lambda_function", "name": "Lambda"},
+        "replicator.lambda.amazonaws.com": {
+            "type": "aws_lambda_function",
+            "name": "Lambda Replicator",
+        },
+        "edgelambda.lambda.amazonaws.com": {
+            "type": "aws_lambda_function",
+            "name": "Lambda@Edge",
+        },
+        "ecs.amazonaws.com": {"type": "aws_ecs_cluster", "name": "ECS"},
+        "ecs-tasks.amazonaws.com": {"type": "aws_ecs_cluster", "name": "ECS Tasks"},
+        "eks.amazonaws.com": {"type": "aws_eks_cluster", "name": "EKS"},
+        "es.amazonaws.com": {
+            "type": "aws_elasticsearch_domain",
+            "name": "Elasticsearch Service",
+        },
+        "cognito-identity.amazonaws.com": {
+            "type": "aws_cognito_identity_provider",
+            "name": "Cognito Identity",
+        },
+        "cognito-idp.amazonaws.com": {
+            "type": "aws_cognito_identity_provider",
+            "name": "Cognito IdP",
+        },
+        "email.cognito-idp.amazonaws.com": {
+            "type": "aws_cognito_identity_provider",
+            "name": "Cognito IdP Email",
+        },
+        "iot.amazonaws.com": {"type": "aws_iot_thing", "name": "Internet of Things"},
+        "elasticloadbalancing.amazonaws.com": {"type": "aws_elb", "name": "ELB"},
+        "elasticmapreduce.amazonaws.com": {"type": "aws_emr", "name": "EMR"},
+        "kafka.amazonaws.com": {"type": "aws_msk_cluster", "name": "MSK"},
+        "elasticache.amazonaws.com": {
+            "type": "aws_elasticache_cluster",
+            "name": "ElastiCache",
+        },
+        "appsync.amazonaws.com": {"type": "aws_appsync_graphql_api", "name": "AppSync"},
+        "iotanalytics.amazonaws.com": {
+            "type": "aws_iot_analytics",
+            "name": "IoT Analytics",
+        },
+        "securityhub.amazonaws.com": {
+            "type": "aws_securityhub_account",
+            "name": "Security Hub",
+        },
+        "trustedadvisor.amazonaws.com": {
+            "type": "aws_trusted_advisor",
+            "name": "Trusted Advisor",
+        },
+        "firehose.amazonaws.com": {
+            "type": "aws_kinesis_firehose",
+            "name": "Kinesis Firehose",
+        },
+        "glue.amazonaws.com": {"type": "aws_glue", "name": "Glue"},
+        "quicksight.amazonaws.com": {"type": "aws_quicksight", "name": "QuickSight"},
+        "cloud9.amazonaws.com": {"type": "aws_cloud9", "name": "Cloud9"},
+        "organizations.amazonaws.com": {
+            "type": "aws_organizations_account",
+            "name": "Organizations",
+        },
+        "config.amazonaws.com": {"type": "aws_config", "name": "Config"},
+        "application-autoscaling.amazonaws.com": {
+            "type": "aws_auto_scaling",
+            "name": "Application Autoscaling",
+        },
+        "autoscaling.amazonaws.com": {
+            "type": "aws_auto_scaling",
+            "name": "Autoscaling",
+        },
+        "backup.amazonaws.com": {"type": "aws_backup", "name": "Backup"},
+        "cloudtrail.amazonaws.com": {"type": "aws_cloudtrail", "name": "Cloudtrail"},
+        "cloudwatch-crossaccount.amazonaws.com": {
+            "type": "aws_cloudwatch_crossaccount",
+            "name": "Cloudwatch Crossaccount",
+        },
+        "datapipeline.amazonaws.com": {
+            "type": "aws_data_pipeline",
+            "name": "Data Pipeline",
+        },
+        "dms.amazonaws.com": {"type": "aws_dms", "name": "DMS"},
+        "dynamodb.application-autoscaling.amazonaws.com": {
+            "type": "aws_auto_scaling",
+            "name": "DynamoDB Application Autoscaling",
+        },
+        "elasticbeanstalk.amazonaws.com": {
+            "type": "aws_elastic_beanstalk_environment",
+            "name": "Elastic Beanstalk",
+        },
+        "fms.amazonaws.com": {"type": "aws_fms", "name": "Firewall Manager"},
+        "globalaccelerator.amazonaws.com": {
+            "type": "aws_global_accelerator",
+            "name": "Global Accelerator",
+        },
+        "inspector.amazonaws.com": {"type": "aws_inspector", "name": "inspector"},
+        "logger.cloudfront.amazonaws.com": {
+            "type": "aws_cloudfront_distribution",
+            "name": "CloudFront Logger",
+        },
+        "migrationhub.amazonaws.com": {
+            "type": "aws_migration_hub",
+            "name": "Migration Hub",
+        },
+        "rds.amazonaws.com": {"type": "aws_db_instance", "name": "RDS"},
+        "sns.amazonaws.com": {"type": "aws_sns_topic", "name": "SNS"},
+    }
 
 
 class IamPolicy(ResourceProvider):
     def __init__(self, options: BaseOptions):
+        """
+
+        :param options:
+        """
         super().__init__()
         self.options = options
 
@@ -102,6 +179,10 @@ class IamPolicy(ResourceProvider):
 
 class IamGroup(ResourceProvider):
     def __init__(self, options: BaseOptions):
+        """
+
+        :param options:
+        """
         super().__init__()
         self.client = options.client("iam")
         self.resources_found: List[Resource] = []
@@ -158,6 +239,10 @@ class IamGroup(ResourceProvider):
 
 class IamRole(ResourceProvider):
     def __init__(self, options: BaseOptions):
+        """
+
+        :param options:
+        """
         super().__init__()
         self.client = options.client("iam")
         self.resources_found: List[Resource] = []
@@ -208,7 +293,8 @@ class IamRole(ResourceProvider):
                 if assuming_service in Principals.principals:
                     principal_found = Resource(
                         digest=ResourceDigest(
-                            id=assuming_service, type=Principals.principals[assuming_service]["type"]
+                            id=assuming_service,
+                            type=Principals.principals[assuming_service]["type"],
                         ),
                         name=Principals.principals[assuming_service]["name"],
                         details="",
@@ -265,6 +351,10 @@ class IamRole(ResourceProvider):
 
 class InstanceProfile(ResourceProvider):
     def __init__(self, vpc_options: BaseOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 

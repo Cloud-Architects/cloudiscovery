@@ -14,6 +14,10 @@ from shared.error_handler import exception
 
 class INTERNETGATEWAY(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -57,6 +61,10 @@ class INTERNETGATEWAY(ResourceProvider):
 
 class NATGATEWAY(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -111,6 +119,10 @@ class NATGATEWAY(ResourceProvider):
 
 class ELASTICLOADBALANCING(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -153,6 +165,10 @@ class ELASTICLOADBALANCING(ResourceProvider):
 
 class ELASTICLOADBALANCINGV2(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -202,6 +218,10 @@ class ELASTICLOADBALANCINGV2(ResourceProvider):
 
 class RouteTable(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -272,6 +292,10 @@ class RouteTable(ResourceProvider):
 
 class SUBNET(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -316,6 +340,10 @@ class SUBNET(ResourceProvider):
 
 class NACL(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -365,6 +393,10 @@ class NACL(ResourceProvider):
 
 class SECURITYGROUP(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -402,6 +434,10 @@ class SECURITYGROUP(ResourceProvider):
 
 class VPCPEERING(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -457,6 +493,10 @@ class VPCPEERING(ResourceProvider):
 
 class VPC(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -469,6 +509,10 @@ class VPC(ResourceProvider):
 
 class VPCENDPOINT(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 

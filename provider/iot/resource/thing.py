@@ -13,6 +13,10 @@ from shared.error_handler import exception
 
 class THINGS(ResourceProvider):
     def __init__(self, iot_options: IotOptions):
+        """
+
+        :param iot_options:
+        """
         super().__init__()
         self.iot_options = iot_options
 
@@ -41,6 +45,10 @@ class THINGS(ResourceProvider):
 
 class TYPE(ResourceProvider):
     def __init__(self, iot_options: IotOptions):
+        """
+
+        :param iot_options:
+        """
         super().__init__()
         self.iot_options = iot_options
 
@@ -90,6 +98,10 @@ class TYPE(ResourceProvider):
 
 class JOB(ResourceProvider):
     def __init__(self, iot_options: IotOptions):
+        """
+
+        :param iot_options:
+        """
         super().__init__()
         self.iot_options = iot_options
 
@@ -142,6 +154,10 @@ class JOB(ResourceProvider):
 
 class BILLINGGROUP(ResourceProvider):
     def __init__(self, iot_options: IotOptions):
+        """
+
+        :param iot_options:
+        """
         super().__init__()
         self.iot_options = iot_options
 

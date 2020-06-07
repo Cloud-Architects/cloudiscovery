@@ -19,6 +19,7 @@ class BaseCommand:
     def __init__(self, region_names, session, diagram):
         """
         Base class for discovery command
+
         :param region_names:
         :param session:
         :param diagram:
@@ -31,11 +32,12 @@ class BaseCommand:
 class CommandRunner(object):
     def run(self, provider: str, options: BaseOptions, diagram_builder: BaseDiagram):
         """
+        Executes a command.
+
         The project's development pattern is a file with the respective name of the parent
         resource (e.g. compute, network), classes of child resources inside this file and run() method to execute
         respective check. So it makes sense to load dynamically.
         """
-
         # Iterate to get all modules
         message_handler("\nInspecting resources", "HEADER")
         providers = []

@@ -15,6 +15,13 @@ class VpcOptions(BaseOptions):
     vpc_id: str
 
     def __new__(cls, session, region_name, vpc_id):
+        """
+        VPC Options
+
+        :param session:
+        :param region_name:
+        :param vpc_id:
+        """
         self = super(BaseOptions, cls).__new__(cls, (session, region_name))
         self.vpc_id = vpc_id
         return self
@@ -25,6 +32,14 @@ class VpcOptions(BaseOptions):
 
 class Vpc(BaseCommand):
     def __init__(self, vpc_id, region_names, session, diagram):
+        """
+        VPC command
+
+        :param vpc_id:
+        :param region_names:
+        :param session:
+        :param diagram:
+        """
         super().__init__(region_names, session, diagram)
         self.vpc_id = vpc_id
 

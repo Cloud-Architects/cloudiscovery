@@ -15,6 +15,10 @@ from shared.error_handler import exception
 
 class MEDIACONNECT(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -72,6 +76,10 @@ class MEDIACONNECT(ResourceProvider):
 
 class MEDIALIVE(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
@@ -116,6 +124,10 @@ class MEDIALIVE(ResourceProvider):
 
 class MEDIASTORE(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
+        """
+
+        :param vpc_options:
+        """
         super().__init__()
         self.vpc_options = vpc_options
 
