@@ -3,6 +3,7 @@
 ![python version](https://img.shields.io/badge/python-3.6%2C3.7%2C3.8-blue?logo=python)
 [![CircleCI](https://circleci.com/gh/Cloud-Architects/aws-network-discovery.svg?style=svg)](https://circleci.com/gh/Cloud-Architects/aws-network-discovery)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c0a7a5bc51044c7ca8bd9115965e4467)](https://www.codacy.com/gh/Cloud-Architects/aws-network-discovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Cloud-Architects/aws-network-discovery&amp;utm_campaign=Badge_Grade)
+[![GitHub license](https://img.shields.io/github/license/Cloud-Architects/aws-network-discovery.svg)](https://github.com/Cloud-Architects/aws-network-discovery/blob/master/LICENSE)
 
 AWS Network Discovery helps you analyze resources in an AWS account.
 
@@ -215,12 +216,6 @@ This project support English and Portuguese (Brazil) languages. To contribute wi
 $ python msgfmt.py -o locales/NEWFOLDER/LC_MESSAGES/messages.mo locales/NEWFOLDER/LC_MESSAGES/messages
 ```
 
-### TODO
-
-*   Unit tests
-*   More types of resources
-*   Improved diagram plotting 
-
 ### Contributing
 
 If you have improvements or fixes, we would love to have your contributions. Please use [PEP 8](https://pycodestyle.readthedocs.io/en/latest/) code style.
@@ -243,3 +238,9 @@ To run pre-commit hooks, you can issue the following command:
 ```
 $ pre-commit run --all-files
 ```
+
+### Similar projects and products
+
+*   [mingrammer/diagrams](https://github.com/mingrammer/diagrams) - library being used to draw diagrams
+*   [Lucidchart Cloud Insights](https://www.lucidchart.com/pages/solutions/cloud-insights) - commercial extension to Lucidchart
+*   [Cloudcraft](https://cloudcraft.co) - commercial visualization tool
