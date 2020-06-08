@@ -1,6 +1,7 @@
 import importlib
 import inspect
 import os
+from os.path import dirname
 from typing import Dict, List
 
 from shared.common import (
@@ -41,7 +42,9 @@ class CommandRunner(object):
         # Iterate to get all modules
         message_handler("\nInspecting resources", "HEADER")
         providers = []
-        for name in os.listdir("provider/" + provider + "/resource"):
+        for name in os.listdir(
+            dirname(__file__) + "/../provider/" + provider + "/resource"
+        ):
             if name.endswith(".py"):
                 # strip the extension
                 module = name[:-3]

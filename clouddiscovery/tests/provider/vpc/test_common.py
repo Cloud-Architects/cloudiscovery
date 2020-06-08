@@ -8,7 +8,10 @@ class Test(TestCase):
     def test_check_ipvpc_inpolicy(self):
         vpce = {"VpcEndpoints": [{"VpcEndpointId": "vpce-1234abcd", "VpcId": "dummy"}]}
         policy = """
-        {"Version":"2012-10-17","Id":"arn:queue","Statement":[{"Effect":"Allow","Principal":"*","Action":"SQS:*","Resource":"arn:queue"},{"Effect":"Allow","Principal":"*","Action":"sqs:*","Resource":"arn:queue","Condition":{"StringEquals":{"aws:sourceVpce":"vpce-1234abcd"}}}]}
+        {"Version":"2012-10-17","Id":"arn:queue","Statement":
+        [{"Effect":"Allow","Principal":"*","Action":"SQS:*","Resource":"arn:queue"},
+        {"Effect":"Allow","Principal":"*","Action":"sqs:*","Resource":"arn:queue","Condition":
+        {"StringEquals":{"aws:sourceVpce":"vpce-1234abcd"}}}]}
         """
         vpc_options = MagicMock()
         vpc_options.vpc_id = "dummy"
@@ -27,7 +30,10 @@ class Test(TestCase):
             ]
         }
         policy = """
-        {"Version":"2012-10-17","Id":"arn:queue","Statement":[{"Effect":"Allow","Principal":"*","Action":"SQS:*","Resource":"arn:queue"},{"Effect":"Allow","Principal":"*","Action":"sqs:*","Resource":"arn:queue","Condition":{"StringEquals":{"aws:sourceIp": "10.0.0.0/16"}}}]}
+        {"Version":"2012-10-17","Id":"arn:queue","Statement":
+        [{"Effect":"Allow","Principal":"*","Action":"SQS:*","Resource":"arn:queue"},
+        {"Effect":"Allow","Principal":"*","Action":"sqs:*","Resource":"arn:queue","Condition":
+        {"StringEquals":{"aws:sourceIp": "10.0.0.0/16"}}}]}
         """
         vpc_options = MagicMock()
         vpc_options.vpc_id = "dummy"
