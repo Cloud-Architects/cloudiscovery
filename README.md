@@ -84,7 +84,6 @@ Following resources are checked in IoT command:
 *   IoT Jobs
 *   IoT Certificates
 
-
 ## Requirements and Installation
 
 ### AWS Resources
@@ -165,7 +164,7 @@ $ aws configure
 
 ### Usage
 
-1. Run the cloud-discovery command with following options (if a region not informed, this script will try to get from ~/.aws/credentials):
+1.  Run the cloud-discovery command with following options (if a region not informed, this script will try to get from ~/.aws/credentials):
 
 1.1 To detect AWS VPC resources:
 
@@ -183,7 +182,7 @@ $ ./cloud-discovery.py aws-policy [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-x
 $ ./cloud-discovery.py aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
 ```
 
-2. For help use:
+2.  For help use:
 
 ```sh
 $ ./cloud-discovery.py [aws-vpc|aws-policy|aws-iot] -h
@@ -215,7 +214,6 @@ cloud-network \
 This project support English and Portuguese (Brazil) languages. To contribute with a translation, follow this steps:
 
 *   Create a folder inside locales folder with prefix of new idiom with appropiate [locale code](https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html). Copy "locales/messages.pot" to locales/newfolder/LC_MESSAGES/.
-
 *   To build ".mo" file running this command from project root folder:
 
 ```sh
@@ -231,7 +229,7 @@ If you have improvements or fixes, we would love to have your contributions. Ple
 When developing, it's recommended to use [venv](https://docs.python.org/3/library/venv.html).
 
 In order to create a venv on macOS and Linux:
-```
+```shell script
 $ python3 -m venv env
 ```
 On Windows:

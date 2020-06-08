@@ -92,7 +92,7 @@ def add_default_arguments(parser):
 
 
 def main():
-    """Entry point for the CLI."""
+    # Entry point for the CLI.
     # Load commands
     parser = generate_parser()
     if len(sys.argv) <= 1:
@@ -106,22 +106,22 @@ def main():
     else:
         language = args.language
 
-    """ Diagram check """
+    # Diagram check
     if args.diagram is not None and args.diagram not in DIAGRAMS_OPTIONS:
         diagram = "True"
     else:
         diagram = args.diagram
 
-    """ defining default language to show messages """
+    # defining default language to show messages
     defaultlanguage = gettext.translation(
         "messages", localedir="locales", languages=[language]
     )
     defaultlanguage.install()
     _ = defaultlanguage.gettext
 
-    """ diagram version check """
+    # diagram version check
     if diagram:
-        """ Checking diagram version. Must be 0.13 or higher """
+        # Checking diagram version. Must be 0.13 or higher
         if pkg_resources.get_distribution("diagrams").version < "0.13":
             exit_critical(
                 _(
@@ -130,7 +130,7 @@ def main():
                 )
             )
 
-    """ aws profile check """
+    # aws profile check
     session = generate_session(args.profile_name)
     session.get_credentials()
     region_name = session.region_name
@@ -138,11 +138,11 @@ def main():
     if args.region_name is None and region_name is None:
         exit_critical(_("Neither region parameter or region config were informed"))
 
-    """ assuming region parameter precedes region configuration """
+    # assuming region parameter precedes region configuration
     if args.region_name is not None:
         region_name = args.region_name
 
-    """ if region is all, get all regions """
+    # if region is all, get all regions
     if args.region_name == "all":
         client = session.client("ec2")
         region_names = [
