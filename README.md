@@ -5,6 +5,8 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c0a7a5bc51044c7ca8bd9115965e4467)](https://www.codacy.com/gh/Cloud-Architects/cloud-discovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Cloud-Architects/cloud-discoveryy&amp;utm_campaign=Badge_Grade)
 [![GitHub license](https://img.shields.io/github/license/Cloud-Architects/cloud-discovery.svg)](https://github.com/Cloud-Architects/cloud-discovery/blob/develop/LICENSE)
 
+![aws provider](https://img.shields.io/badge/provider-AWS-orange?logo=amazon-aws&color=ff9900)
+
 Cloud Discovery helps you to analyze resources in your cloud (AWS/GCP/Azure/Alibaba/IBM) account. Now this tool only can check resources in AWS, but we are working to expand to other providers. 
 
 ## Features
