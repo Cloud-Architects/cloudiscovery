@@ -69,6 +69,7 @@ Following resources are checked in Policy command:
 *   IAM User to policy relationship
 *   IAM Group to policy relationship
 *   IAM Role to policy relationship
+*   AWS Principals that are able to assume roles
 
 ### AWS IoT
 
