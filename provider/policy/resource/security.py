@@ -516,51 +516,282 @@ class Principals:
             "name": "RDS Monitoring",
             "group": "database",
         },
-        "ops.apigateway.amazonaws.com": {
-            "type": "aws_api_gateway_rest_api",
-            "name": "API Gateway",
+        "opsworks-cm.amazonaws.com": {
+            "type": "aws_opsworks",
+            "name": "Opswork CM",
+            "group": "management",
         },
+        "opsworks.amazonaws.com": {
+            "type": "aws_opsworks",
+            "name": "Opswork",
+            "group": "management",
+        },
+        "organizations.amazonaws.com": {
+            "type": "aws_organizations_account",
+            "name": "Organizations",
+            "group": "management",
+        },
+        "pinpoint.amazonaws.com": {
+            "type": "aws_pinpoint",
+            "name": "Pinpoint",
+            "group": "engagement",
+        },
+        "polly.amazonaws.com": {"type": "aws_polly", "name": "Polly", "group": "ml"},
+        "qldb.amazonaws.com": {
+            "type": "aws_qldb",
+            "name": "QLDB",
+            "group": "database",
+        },
+        "quicksight.amazonaws.com": {
+            "type": "aws_quicksight",
+            "name": "QuickSight",
+            "group": "analytics",
+        },
+        "ram.amazonaws.com": {
+            "type": "aws_ram",
+            "name": "Resource Access Manager",
+            "group": "security",
+        },
+        "rds.amazonaws.com": {
+            "type": "aws_db_instance",
+            "name": "RDS",
+            "group": "database",
+        },
+        "redshift.amazonaws.com": {
+            "type": "aws_redshift",
+            "name": "Redshift",
+            "group": "database",
+        },
+        "rekognition.amazonaws.com": {
+            "type": "aws_rekognition",
+            "name": "Rekognition",
+            "group": "ml",
+        },
+        "replication.dynamodb.amazonaws.com": {
+            "type": "aws_dynamodb",
+            "name": "DynamoDB Replication",
+            "group": "database",
+        },
+        "resource-groups.amazonaws.com": {
+            "type": "aws_resource_groups",
+            "name": "Resource Groups",
+            "group": "management",
+        },
+        "robomaker.amazonaws.com": {
+            "type": "aws_robomaker",
+            "name": "Resource Groups",
+            "group": "robotics",
+        },
+        "route53.amazonaws.com": {
+            "type": "aws_route53",
+            "name": "Route53",
+            "group": "network",
+        },
+        "route53domains.amazonaws.com": {
+            "type": "aws_route53",
+            "name": "Route53 Domains",
+            "group": "network",
+        },
+        "route53resolver.amazonaws.com": {
+            "type": "aws_route53",
+            "name": "Route53 Resolver",
+            "group": "network",
+        },
+        "s3.amazonaws.com": {"type": "aws_s3", "name": "S3", "group": "storage"},
         "sagemaker.amazonaws.com": {
             "type": "aws_sagemaker_notebook_instance",
             "name": "Sagemaker",
+            "group": "ml",
         },
-        "ssm.amazonaws.com": {"type": "aws_ssm_document", "name": "SystemsManager"},
-        "replicator.lambda.amazonaws.com": {
-            "type": "aws_lambda_function",
-            "name": "Lambda Replicator",
+        "secretsmanager.amazonaws.com": {
+            "type": "aws_secretsmanager",
+            "name": "Secrets Manager",
+            "group": "security",
         },
-        "email.cognito-idp.amazonaws.com": {
-            "type": "aws_cognito_identity_provider",
-            "name": "Cognito IdP Email",
+        "serverlessrepo.amazonaws.com": {
+            "type": "aws_serverlessrepo",
+            "name": "Serverless Application Repository",
+            "group": "compute",
         },
-        "kafka.amazonaws.com": {"type": "aws_msk_cluster", "name": "MSK"},
-        "securityhub.amazonaws.com": {
-            "type": "aws_securityhub_account",
-            "name": "Security Hub",
+        "servicecatalog.amazonaws.com": {
+            "type": "aws_servicecatalog",
+            "name": "Service Catalog",
+            "group": "management",
+        },
+        "servicediscovery.amazonaws.com": {
+            "type": "aws_servicediscovery",
+            "name": "Service Discovery",
+            "group": "management",
+        },
+        "ses.amazonaws.com": {"type": "aws_ses", "name": "SES", "group": "engagement"},
+        "shield.amazonaws.com": {
+            "type": "aws_shield",
+            "name": "Shield",
+            "group": "security",
+        },
+        "signer.amazonaws.com": {
+            "type": "aws_signer",
+            "name": "Signer",
+            "group": "security",
+        },
+        "signin.amazonaws.com": {
+            "type": "aws_signin",
+            "name": "Signin",
+            "group": "security",
+        },
+        "sms.amazonaws.com": {
+            "type": "aws_sms",
+            "name": "Server Migration Service",
+            "group": "migration",
+        },
+        "sns.amazonaws.com": {
+            "type": "aws_sns_topic",
+            "name": "SNS",
+            "group": "integration",
+        },
+        "spotfleet.amazonaws.com": {
+            "type": "aws_spotfleet",
+            "name": "Spot Fleet",
+            "group": "compute",
+        },
+        "sqs.amazonaws.com": {
+            "type": "aws_sqs",
+            "name": "SQS",
+            "group": "integration",
+        },
+        "ssm.amazonaws.com": {
+            "type": "aws_ssm_document",
+            "name": "SystemsManager",
+            "group": "management",
+        },
+        "sso.amazonaws.com": {"type": "aws_sso", "name": "SSO", "group": "security"},
+        "states.amazonaws.com": {
+            "type": "aws_states",
+            "name": "States",
+            "group": "general",
+        },
+        "storagegateway.amazonaws.com": {
+            "type": "aws_storagegateway",
+            "name": "Storage Gateway",
+            "group": "storage",
+        },
+        "sts.amazonaws.com": {"type": "aws_sts", "name": "STS", "group": "security"},
+        "support.amazonaws.com": {
+            "type": "aws_support",
+            "name": "Support",
+            "group": "general",
+        },
+        "swf.amazonaws.com": {"type": "aws_swf", "name": "SWF", "group": "general"},
+        "tagging.amazonaws.com": {
+            "type": "aws_tagging",
+            "name": "Tagging",
+            "group": "general",
+        },
+        "tagpolicies.tag.amazonaws.com": {
+            "type": "aws_tagging",
+            "name": "Tagging",
+            "group": "general",
+        },
+        "transfer.amazonaws.com": {
+            "type": "aws_transfer",
+            "name": "Transfer",
+            "group": "migration",
+        },
+        "translate.amazonaws.com": {
+            "type": "aws_translate",
+            "name": "Translate",
+            "group": "ml",
         },
         "trustedadvisor.amazonaws.com": {
             "type": "aws_trusted_advisor",
             "name": "Trusted Advisor",
+            "group": "management",
         },
-        "quicksight.amazonaws.com": {"type": "aws_quicksight", "name": "QuickSight"},
-        "organizations.amazonaws.com": {
-            "type": "aws_organizations_account",
-            "name": "Organizations",
+        "tts.amazonaws.com": {
+            "type": "aws_tts",
+            "name": "Trusted Advisor",
+            "group": "management",
+        },
+        "vmie.amazonaws.com": {
+            "type": "aws_vmie",
+            "name": "Import Export",
+            "group": "migration",
+        },
+        "waf-regional.amazonaws.com": {
+            "type": "aws_waf",
+            "name": "WAF Regional",
+            "group": "security",
+        },
+        "waf.amazonaws.com": {
+            "type": "aws_waf",
+            "name": "WAF Regional",
+            "group": "security",
+        },
+        "workdocs.amazonaws.com": {
+            "type": "aws_workdocs",
+            "name": "WorkDocs",
+            "group": "business",
+        },
+        "worklink.amazonaws.com": {
+            "type": "aws_worklink",
+            "name": "WorkLink",
+            "group": "business",
+        },
+        "workmail.amazonaws.com": {
+            "type": "aws_workmail",
+            "name": "WorkMail",
+            "group": "business",
+        },
+        "workspaces.amazonaws.com": {
+            "type": "aws_workspaces",
+            "name": "WorkSpaces",
+            "group": "business",
+        },
+        "xray.amazonaws.com": {
+            "type": "aws_xray",
+            "name": "X-Ray",
+            "group": "devtools",
+        },
+        "ops.apigateway.amazonaws.com": {
+            "type": "aws_api_gateway_rest_api",
+            "name": "API Gateway",
+            "group": "network",
+        },
+        "replicator.lambda.amazonaws.com": {
+            "type": "aws_lambda_function",
+            "name": "Lambda Replicator",
+            "group": "compute",
+        },
+        "email.cognito-idp.amazonaws.com": {
+            "type": "aws_cognito_identity_provider",
+            "name": "Cognito IdP Email",
+            "group": "security",
+        },
+        "kafka.amazonaws.com": {
+            "type": "aws_msk_cluster",
+            "name": "MSK",
+            "group": "analytics",
+        },
+        "securityhub.amazonaws.com": {
+            "type": "aws_securityhub_account",
+            "name": "Security Hub",
+            "group": "security",
         },
         "cloudwatch-crossaccount.amazonaws.com": {
             "type": "aws_cloudwatch_crossaccount",
             "name": "Cloudwatch Crossaccount",
+            "group": "management",
         },
         "globalaccelerator.amazonaws.com": {
             "type": "aws_global_accelerator",
             "name": "Global Accelerator",
+            "group": "network",
         },
         "logger.cloudfront.amazonaws.com": {
             "type": "aws_cloudfront_distribution",
             "name": "CloudFront Logger",
+            "group": "network",
         },
-        "rds.amazonaws.com": {"type": "aws_db_instance", "name": "RDS"},
-        "sns.amazonaws.com": {"type": "aws_sns_topic", "name": "SNS"},
     }
 
 
