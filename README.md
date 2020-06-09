@@ -1,5 +1,6 @@
 # Cloud Discovery
 
+[![PyPI version](https://badge.fury.io/py/clouddiscovery.svg)](https://badge.fury.io/py/clouddiscovery)
 ![python version](https://img.shields.io/badge/python-3.6%2C3.7%2C3.8-blue?logo=python)
 [![CircleCI](https://circleci.com/gh/Cloud-Architects/cloud-discovery.svg?style=svg)](https://circleci.com/gh/Cloud-Architects/cloud-discovery)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c0a7a5bc51044c7ca8bd9115965e4467)](https://www.codacy.com/gh/Cloud-Architects/cloud-discovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Cloud-Architects/cloud-discoveryy&amp;utm_campaign=Badge_Grade)
@@ -68,6 +69,7 @@ Following resources are checked in Policy command:
 *   IAM User to policy relationship
 *   IAM Group to policy relationship
 *   IAM Role to policy relationship
+*   AWS Principals that are able to assume roles
 
 ### AWS IoT
 
@@ -93,7 +95,7 @@ This script has been written in python3+ and AWS-CLI and it works in Linux, Wind
 *   Make sure the latest version of AWS-CLI is installed on your workstation, and other components needed, with Python pip already installed:
 
 ```sh
-$ pip install -U -r requirements.txt
+$ pip install -U clouddiscovery
 ```
 
 *   Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
@@ -174,7 +176,7 @@ $ ./cloud-discovery.py aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx 
 1.2 To detect AWS policy resources:
 
 ```sh
-$ ./cloud-discovery.py aws-policy [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+$ ./cloud-discovery.py aws-policy --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
 ```
 1.3 To detect AWS IoT resources:
 
@@ -252,7 +254,7 @@ Make sure you have installed [pre-commit](https://pre-commit.com/#installation).
 
 Install development requirements:
 ```sh
-$ pip install -U -r requirements-dev.txt
+$ pip install -U -r requirements.txt -r requirements-dev.txt
 ```
 
 Add precommit hooks:

@@ -20,7 +20,7 @@ class Policy(BaseCommand):
             command_runner = CommandRunner()
             if self.diagram:
                 diagram = BaseDiagram(
-                    "AWS Permissions map", region + "_account_policies"
+                    "AWS Permissions map", region + "_account_policies", engine="fdp"
                 )
             else:
                 diagram = NoDiagram()
