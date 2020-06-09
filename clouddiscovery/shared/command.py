@@ -31,7 +31,13 @@ class BaseCommand:
 
 
 class CommandRunner(object):
-    def run(self, provider: str, options: BaseOptions, diagram_builder: BaseDiagram):
+    def run(
+        self,
+        provider: str,
+        options: BaseOptions,
+        diagram_builder: BaseDiagram,
+        default_name: str,
+    ):
         """
         Executes a command.
 
@@ -91,14 +97,21 @@ class CommandRunner(object):
             + x.to_node.id
         )
 
-        # TODO: Generate reports in json/csv/pdf/xls
-        Report().general_report(
+        # Diagram integration
+        diagram_name = diagram_builder.build(
             resources=unique_resources, resource_relations=resource_relations
         )
 
-        # Diagram integration
-        diagram_builder.build(
+        # TODO: Generate reports in json/csv/pdf/xls
+        report = Report()
+        report.general_report(
             resources=unique_resources, resource_relations=resource_relations
+        ),
+        report.html_report(
+            resources=unique_resources,
+            resource_relations=resource_relations,
+            default_name=default_name,
+            diagram_name=diagram_name,
         )
 
         # TODO: Export in csv/json/yaml/tf... future...

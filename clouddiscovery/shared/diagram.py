@@ -221,6 +221,8 @@ class BaseDiagram(object):
         self.make_directories()
         self.generate_diagram(resources, resource_relations)
 
+        return self.filename
+
     @staticmethod
     def make_directories():
         # Check if assets/diagram directory exists

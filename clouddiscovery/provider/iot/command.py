@@ -57,7 +57,12 @@ class Iot(BaseCommand):
                     )
                 else:
                     diagram_builder = NoDiagram()
-                command_runner.run("iot", thing_options, diagram_builder)
+                command_runner.run(
+                    provider="iot",
+                    options=thing_options,
+                    diagram_builder=diagram_builder,
+                    default_name="IoT Report - " + region_name,
+                )
             else:
                 things = dict()
                 things["things"] = [{"thingName": self.thing_name}]
@@ -76,4 +81,9 @@ class Iot(BaseCommand):
                 else:
                     diagram_builder = NoDiagram()
 
-                command_runner.run("iot", thing_options, diagram_builder)
+                command_runner.run(
+                    provider="iot",
+                    options=thing_options,
+                    diagram_builder=diagram_builder,
+                    default_name="IoT Report - " + self.thing_name,
+                )

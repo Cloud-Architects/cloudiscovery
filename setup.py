@@ -10,7 +10,7 @@ ROOT = os.path.dirname(__file__)
 VERSION_RE = re.compile(r"""__version__ = ['"]([0-9.]+)['"]""")
 
 
-requires = ["boto3", "ipaddress", "diagrams>=0.13"]
+requires = ["boto3", "ipaddress", "diagrams>=0.13", "jinja2"]
 
 
 def get_version():
