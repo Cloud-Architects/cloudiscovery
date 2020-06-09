@@ -792,6 +792,21 @@ class Principals:
             "name": "CloudFront Logger",
             "group": "network",
         },
+        "connect.amazonaws.com": {
+            "type": "aws_connect",
+            "name": "Connect",
+            "group": "engagement",
+        },
+        "config-conforms.amazonaws.com": {
+            "type": "aws_config",
+            "name": "Config Conforms",
+            "group": "management",
+        },
+        "iotsitewise.amazonaws.com": {
+            "type": "aws_iotsitewise",
+            "name": "IoT SiteWise",
+            "group": "iot",
+        },
     }
 
 
@@ -950,23 +965,22 @@ class IamRole(ResourceProvider):
             if not isinstance(assuming_services, list):
                 assuming_services = [assuming_services]
             for assuming_service in assuming_services:
-                principal_found: Resource = None
                 if assuming_service in Principals.principals:
+                    principal = Principals.principals[assuming_service]
                     principal_found = Resource(
                         digest=ResourceDigest(
-                            id=assuming_service,
-                            type=Principals.principals[assuming_service]["type"],
+                            id=assuming_service, type=principal["type"],
                         ),
-                        name=Principals.principals[assuming_service]["name"],
+                        name=principal["name"],
                         details="",
-                        group="",
+                        group=principal["group"],
                     )
                 else:
                     principal_found = Resource(
                         digest=ResourceDigest(id=assuming_service, type="aws_general"),
                         name=assuming_service,
                         details="",
-                        group="",
+                        group="general",
                     )
                 if principal_found is not None:
                     resources_found.append(principal_found)

@@ -198,6 +198,8 @@ class Mapsources:
         "aws_xray": "XRay",
         "aws_spotfleet": "General",
         "aws_sqs": "SQS",
+        "aws_connect": "Connect",
+        "aws_iotsitewise": "IotSitewise",
     }
 
 
