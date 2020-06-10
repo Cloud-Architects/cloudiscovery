@@ -5,7 +5,6 @@ orbs:
 
 jobs:
   build-and-test-3_8:
-    working_directory: ~/clouddiscovery
     docker:
       - image: circleci/python:3.8
         environment:
