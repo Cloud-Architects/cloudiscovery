@@ -19,7 +19,7 @@ jobs:
       - python/save-cache
       - run:
           command: |
-            . venv/bin/activate
+            ./venv/bin/activate
             pytest
       - store_test_results:
           path: test-results
