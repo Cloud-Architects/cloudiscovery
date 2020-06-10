@@ -1,3 +1,4 @@
 boto3
 ipaddress
+jinja2
 diagrams>=0.13

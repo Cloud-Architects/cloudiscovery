@@ -168,28 +168,28 @@ $ aws configure
 
 ### Usage
 
-1.  Run the cloud-discovery command with following options (if a region not informed, this script will try to get from ~/.aws/credentials):
+1.  Run the clouddiscovery command with following options (if a region not informed, this script will try to get from ~/.aws/credentials):
 
 1.1 To detect AWS VPC resources:
 
 ```sh
-$ ./cloud-discovery.py aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+$ clouddiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
 ```
 1.2 To detect AWS policy resources:
 
 ```sh
-$ ./cloud-discovery.py aws-policy --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+$ clouddiscovery aws-policy --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
 ```
 1.3 To detect AWS IoT resources:
 
 ```sh
-$ ./cloud-discovery.py aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+$ clouddiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
 ```
 
 2.  For help use:
 
 ```sh
-$ ./cloud-discovery.py [aws-vpc|aws-policy|aws-iot] -h
+$ clouddiscovery [aws-vpc|aws-policy|aws-iot] -h
 ```
 
 ### Using a Docker container
@@ -197,7 +197,7 @@ $ ./cloud-discovery.py [aws-vpc|aws-policy|aws-iot] -h
 To build docker container using Dockerfile
 
 ```sh
-$ docker build -t cloud-discovery .
+$ docker build -t clouddiscovery .
 ```
 
 After build container, you must start container using follow command. The run command will mount a filesystem with your actual aws cli credentials, then you won't need configure aws cli again.
@@ -206,12 +206,12 @@ After build container, you must start container using follow command. The run co
 $ docker run \
 -it \
 --mount type=bind,source=$HOME/.aws/,target=/root/.aws/,readonly \
-cloud-network \
+clouddiscovery \
 /bin/bash
 
 ```
 
-*   If you are using Diagram output and due to fact container is a slim image of Python image, you must run cloud-discovery.py with "--diagram False", otherwise you'll have an error about "xdg-open". The output file will be saved in "assets/diagrams".
+*   If you are using Diagram output and due to fact container is a slim image of Python image, you must run clouddiscovery with "--diagram False", otherwise you'll have an error about "xdg-open". The output file will be saved in "assets/diagrams".
 
 ### Translate
 

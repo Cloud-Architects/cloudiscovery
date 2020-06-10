@@ -24,4 +24,9 @@ class Policy(BaseCommand):
             else:
                 diagram = NoDiagram()
             options = BaseOptions(session=self.session, region_name=region)
-            command_runner.run("policy", options, diagram)
+            command_runner.run(
+                provider="policy",
+                options=options,
+                diagram_builder=diagram,
+                default_name="AWS Permissions map",
+            )

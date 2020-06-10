@@ -12,27 +12,31 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
-This script manages cloud-discovery, a tool for analyzing VPC dependencies.
 """
+
 import argparse
 import gettext
-import sys
 
 import pkg_resources
 
-from provider.policy.command import Policy
-from provider.vpc.command import Vpc
-from provider.iot.command import Iot
+import sys
+from os.path import dirname
+
+"""path to pip package"""
+sys.path.append(dirname(__file__))
+
+from provider.policy.command import Policy  # noqa: E402
+from provider.vpc.command import Vpc  # noqa: E402
+from provider.iot.command import Iot  # noqa: E402
 
 # Check version
-from shared.common import exit_critical, generate_session
+from shared.common import exit_critical, generate_session  # noqa E402
 
 if sys.version_info < (3, 6):
     print("Python 3.6 or newer is required", file=sys.stderr)
     sys.exit(1)
 
-__version__ = "2.0.0"
+__version__ = "2.0.508"
 
 AVAILABLE_LANGUAGES = ["en_US", "pt_BR"]
 DIAGRAMS_OPTIONS = ["True", "False"]
@@ -114,7 +118,7 @@ def main():
 
     # defining default language to show messages
     defaultlanguage = gettext.translation(
-        "messages", localedir="locales", languages=[language]
+        "messages", localedir=dirname(__file__) + "/locales", languages=[language]
     )
     defaultlanguage.install()
     _ = defaultlanguage.gettext

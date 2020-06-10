@@ -88,7 +88,12 @@ class Vpc(BaseCommand):
                         )
                     else:
                         diagram_builder = NoDiagram()
-                    command_runner.run("vpc", vpc_options, diagram_builder)
+                    command_runner.run(
+                        provider="vpc",
+                        options=vpc_options,
+                        diagram_builder=diagram_builder,
+                        default_name="VPC Report - " + vpc_id,
+                    )
             else:
                 vpc_options = VpcOptions(
                     session=self.session, region_name=region, vpc_id=self.vpc_id,
@@ -105,7 +110,12 @@ class Vpc(BaseCommand):
                     )
                 else:
                     diagram_builder = NoDiagram()
-                command_runner.run("vpc", vpc_options, diagram_builder)
+                command_runner.run(
+                    provider="vpc",
+                    options=vpc_options,
+                    diagram_builder=diagram_builder,
+                    default_name="VPC Report - " + vpc_id,
+                )
 
 
 def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
