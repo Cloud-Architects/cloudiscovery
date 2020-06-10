@@ -972,14 +972,14 @@ class IamRole(ResourceProvider):
                             id=assuming_service, type=principal["type"],
                         ),
                         name=principal["name"],
-                        details="",
+                        details="principal",
                         group=principal["group"],
                     )
                 else:
                     principal_found = Resource(
                         digest=ResourceDigest(id=assuming_service, type="aws_general"),
                         name=assuming_service,
-                        details="",
+                        details="principal",
                         group="general",
                     )
                 if principal_found is not None:

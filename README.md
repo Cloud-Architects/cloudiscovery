@@ -71,6 +71,8 @@ Following resources are checked in Policy command:
 *   IAM Role to policy relationship
 *   AWS Principals that are able to assume roles
 
+Some roles can be aggregated to simplify the diagram. If a role is associated with a principal and is not attached to any named policy, will be aggregated.
+
 ### AWS IoT
 
 Example of a diagram:

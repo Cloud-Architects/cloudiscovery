@@ -1,6 +1,7 @@
+from provider.policy.diagram import PolicyDiagram
 from shared.command import BaseCommand, CommandRunner
 from shared.common import BaseOptions
-from shared.diagram import NoDiagram, BaseDiagram
+from shared.diagram import NoDiagram
 
 
 class Policy(BaseCommand):
@@ -19,9 +20,7 @@ class Policy(BaseCommand):
 
             command_runner = CommandRunner()
             if self.diagram:
-                diagram = BaseDiagram(
-                    "AWS Permissions map", region + "_account_policies", engine="fdp"
-                )
+                diagram = PolicyDiagram(region + "_account_policies")
             else:
                 diagram = NoDiagram()
             options = BaseOptions(session=self.session, region_name=region)
