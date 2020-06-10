@@ -16,7 +16,7 @@ jobs:
           name: Install Dev Dependencies
       - python/save-cache
       - run:
-          command: pytest
+          command: py.test
           name: Test
       - store_test_results:
           path: test-results
