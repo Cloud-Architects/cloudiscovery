@@ -19,10 +19,9 @@ jobs:
           name: Install Dev Dependencies
       - python/save-cache
       - run:
-          command: py.test
-          name: Test
-          environment:
-            PYTHONPATH: $PWD
+          command: |
+            . venv/bin/activate
+            pytest
       - store_test_results:
           path: test-results
       - store_artifacts:
