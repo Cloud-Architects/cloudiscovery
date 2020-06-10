@@ -4,8 +4,9 @@ orbs:
   python: circleci/python@0.2.1
 
 jobs:
-  build-and-test:
-    executor: python/default
+  build-and-test-3.8:
+    executor: python/3.8
+    working_directory: ~/clouddiscovery
     steps:
       - checkout
       - python/load-cache
@@ -25,4 +26,4 @@ jobs:
 workflows:
   main:
     jobs:
-      - build-and-test
+      - build-and-test-3.8
