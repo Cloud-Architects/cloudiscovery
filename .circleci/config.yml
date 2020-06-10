@@ -5,8 +5,11 @@ orbs:
 
 jobs:
   build-and-test-3_8:
-    executor: python/default
     working_directory: ~/clouddiscovery
+    docker:
+      - image: circleci/python:3.8
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
     steps:
       - checkout
       - python/load-cache
