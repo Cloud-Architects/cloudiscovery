@@ -5,7 +5,7 @@ orbs:
 
 jobs:
   build-and-test-3_8:
-    executor: python/3.8
+    executor: python/default
     working_directory: ~/clouddiscovery
     steps:
       - checkout
