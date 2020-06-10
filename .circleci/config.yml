@@ -18,6 +18,8 @@ jobs:
       - run:
           command: py.test
           name: Test
+          environment:
+            PYTHONPATH: $PWD
       - store_test_results:
           path: test-results
       - store_artifacts:
