@@ -4,7 +4,7 @@ orbs:
   python: circleci/python@0.2.1
 
 jobs:
-  build-and-test-3.8:
+  build-and-test-3_8:
     executor: python/3.8
     working_directory: ~/clouddiscovery
     steps:
@@ -12,7 +12,7 @@ jobs:
       - python/load-cache
       - python/install-deps
       - run:
-          command: pip install --user -r requirements-dev.txt
+          command: pip install --user -r ../requirements-dev.txt
           name: Install Dev Dependencies
       - python/save-cache
       - run:
@@ -26,4 +26,4 @@ jobs:
 workflows:
   main:
     jobs:
-      - build-and-test-3.8
+      - build-and-test-3_8
