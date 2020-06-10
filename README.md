@@ -69,7 +69,7 @@ Following resources are checked in Policy command:
 *   IAM User to policy relationship
 *   IAM Group to policy relationship
 *   IAM Role to policy relationship
-*   AWS Principals that are able to assume roles
+*   [AWS Principals](https://gist.github.com/shortjared/4c1e3fe52bdfa47522cfe5b41e5d6f22) that are able to assume roles
 
 Some roles can be aggregated to simplify the diagram. If a role is associated with a principal and is not attached to any named policy, will be aggregated.
 
