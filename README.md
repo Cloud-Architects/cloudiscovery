@@ -16,7 +16,7 @@ Cloud Discovery helps you to analyze resources in your cloud (AWS/GCP/Azure/Alib
 
 Example of a diagram:
 
-![diagrams logo](docs/assets/aws-vpc.png)
+![diagrams logo](clouddiscovery/docs/assets/aws-vpc.png)
 
 Following resources are checked in VPC command:
 
@@ -57,7 +57,7 @@ The subnets are aggregated to simplify the diagram and hide infrastructure redun
 
 Example of a diagram:
 
-![diagrams logo](docs/assets/aws-policy.png)
+![diagrams logo](clouddiscovery/docs/assets/aws-policy.png)
 
 Following resources are checked in Policy command:
 
@@ -77,7 +77,7 @@ Some roles can be aggregated to simplify the diagram. If a role is associated wi
 
 Example of a diagram:
 
-![diagrams logo](docs/assets/aws-iot.png)
+![diagrams logo](clouddiscovery/docs/assets/aws-iot.png)
 
 Following resources are checked in IoT command:
 
