@@ -2,8 +2,10 @@
 
 import os
 import re
+import sys
 
 from setuptools import setup, find_packages
+from setuptools.command.install import install
 
 
 ROOT = os.path.dirname(__file__)
@@ -16,6 +18,21 @@ requires = ["boto3", "ipaddress", "diagrams>=0.13", "jinja2"]
 def get_version():
     init = open(os.path.join(ROOT, "clouddiscovery", "__init__.py")).read()
     return VERSION_RE.search(init).group(1)
+
+
+class VerifyVersionCommand(install):
+    """Custom command to verify that the git tag matches our version"""
+
+    description = "verify that the git tag matches our version"
+
+    def run(self):
+        tag = os.getenv("CIRCLE_TAG")
+
+        if tag != get_version():
+            info = "Git tag: {0} does not match the version of this app: {1}".format(
+                tag, get_version()
+            )
+            sys.exit(info)
 
 
 setup(
@@ -47,4 +64,5 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
+    cmdclass={"verify": VerifyVersionCommand},
 )

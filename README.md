@@ -269,6 +269,12 @@ To run pre-commit hooks, you can issue the following command:
 $ pre-commit run --all-files
 ```
 
+## Making a release
+
+1.  Update the version in setup.py and create a new git tag with `git tag $VERSION`.
+
+2.  Once you push the tag to GitHub with `git push --tags`, a new CircleCI build is triggered.
+
 ### Similar projects and products
 
 *   [mingrammer/diagrams](https://github.com/mingrammer/diagrams) - library being used to draw diagrams
