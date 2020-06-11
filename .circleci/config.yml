@@ -16,7 +16,7 @@ jobs:
       - python/install-deps:
           dependency-file: requirements-dev.txt
       - python/save-cache
-      - python/test:
+      - python/test
       - store_test_results:
           path: test-results
       - store_artifacts:
