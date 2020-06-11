@@ -4,42 +4,8 @@ orbs:
   python: circleci/python@0.3.0
 
 jobs:
-  build-and-test-3_8:
+  build-and-test:
     executor: default
-    parameters:
-      tag: 3.8
-    steps:
-      - checkout
-      - python/load-cache
-      - python/install-deps
-      - python/install-deps:
-          dependency-file: requirements-dev.txt
-      - python/save-cache
-      - python/test
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: test-results
-  build-and-test-3_7:
-    executor: default
-    parameters:
-      tag: 3.7
-    steps:
-      - checkout
-      - python/load-cache
-      - python/install-deps
-      - python/install-deps:
-          dependency-file: requirements-dev.txt
-      - python/save-cache
-      - python/test
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: test-results
-  build-and-test-3_6:
-    executor: default
-    parameters:
-      tag: 3.6
     steps:
       - checkout
       - python/load-cache
@@ -56,6 +22,5 @@ jobs:
 workflows:
   main:
     jobs:
-      - build-and-test-3_8
-      - build-and-test-3_7
-      - build-and-test-3_6
+      - build-and-test
+          tag: 3.8
