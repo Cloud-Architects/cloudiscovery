@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  python: circleci/python@0.2.1
+  python: circleci/python@0.3.0
 
 jobs:
   build-and-test:
@@ -10,19 +10,51 @@ jobs:
       - checkout
       - python/load-cache
       - python/install-deps
-      - run:
-          command: pip install --user -r requirements-dev.txt
-          name: Install Dev Dependencies
+      - python/install-deps:
+          dependency-file: requirements-dev.txt
       - python/save-cache
-      - run:
-          command: pytest
-          name: Test
+      - python/test
       - store_test_results:
           path: test-results
       - store_artifacts:
           path: test-results
+  deploy:
+    executor: python/default
+    steps:
+      - checkout
+      - python/load-cache
+      - python/install-deps
+      - python/install-deps:
+          dependency-file: requirements-dev.txt
+      - python/save-cache
+      - run:
+          name: verify git tag vs. version
+          command: |
+            . venv/bin/activate
+            python setup.py verify
+      - python/dist
+      - run:
+          name: init .pypirc
+          command: |
+            echo -e "[pypi]" >> ~/.pypirc
+            echo -e "username = $PYPI_USER" >> ~/.pypirc
+            echo -e "password = $PYPI_TOKEN" >> ~/.pypirc
+      - run:
+          name: upload to pypi
+          command: |
+            . venv/bin/activate
+            twine upload dist/*
 
 workflows:
   main:
     jobs:
       - build-and-test
+      - deploy:
+          requires:
+            - build-and-test
+          filters:
+            tags:
+              only: /[0-9]+(\.[0-9]+)*/
+            branches:
+              only:
+                - release

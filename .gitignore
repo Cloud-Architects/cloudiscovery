@@ -7,6 +7,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # C extensions
 *.so
@@ -34,6 +35,9 @@ share/python-wheels/
 MANIFEST
 assets/diagrams/
 .vscode/
+venv/
+clouddiscovery/assets/
+assets/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -109,3 +113,5 @@ dmypy.json
 # End of https://www.gitignore.io/api/python
 
 test-results
+
+.idea/

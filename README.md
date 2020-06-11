@@ -1,11 +1,14 @@
 # Cloud Discovery
 
+[![PyPI version](https://badge.fury.io/py/clouddiscovery.svg)](https://badge.fury.io/py/clouddiscovery)
 ![python version](https://img.shields.io/badge/python-3.6%2C3.7%2C3.8-blue?logo=python)
 [![CircleCI](https://circleci.com/gh/Cloud-Architects/cloud-discovery.svg?style=svg)](https://circleci.com/gh/Cloud-Architects/cloud-discovery)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c0a7a5bc51044c7ca8bd9115965e4467)](https://www.codacy.com/gh/Cloud-Architects/cloud-discovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Cloud-Architects/cloud-discoveryy&amp;utm_campaign=Badge_Grade)
 [![GitHub license](https://img.shields.io/github/license/Cloud-Architects/cloud-discovery.svg)](https://github.com/Cloud-Architects/cloud-discovery/blob/develop/LICENSE)
 
-Cloud Discovery helps you to analyze resources in your cloud (AWS/GCP/Azure/Alibaba/IBM) account. Now this tool only can check resources in AWS, but we working to expand to other providers. 
+![aws provider](https://img.shields.io/badge/provider-AWS-orange?logo=amazon-aws&color=ff9900)
+
+Cloud Discovery helps you to analyze resources in your cloud (AWS/GCP/Azure/Alibaba/IBM) account. Now this tool only can check resources in AWS, but we are working to expand to other providers. 
 
 ## Features
 
@@ -13,7 +16,7 @@ Cloud Discovery helps you to analyze resources in your cloud (AWS/GCP/Azure/Alib
 
 Example of a diagram:
 
-![diagrams logo](docs/assets/aws-vpc.png)
+![diagrams logo](clouddiscovery/docs/assets/aws-vpc.png)
 
 Following resources are checked in VPC command:
 
@@ -54,7 +57,7 @@ The subnets are aggregated to simplify the diagram and hide infrastructure redun
 
 Example of a diagram:
 
-![diagrams logo](docs/assets/aws-policy.png)
+![diagrams logo](clouddiscovery/docs/assets/aws-policy.png)
 
 Following resources are checked in Policy command:
 
@@ -66,12 +69,15 @@ Following resources are checked in Policy command:
 *   IAM User to policy relationship
 *   IAM Group to policy relationship
 *   IAM Role to policy relationship
+*   [AWS Principals](https://gist.github.com/shortjared/4c1e3fe52bdfa47522cfe5b41e5d6f22) that are able to assume roles
+
+Some roles can be aggregated to simplify the diagram. If a role is associated with a principal and is not attached to any named policy, will be aggregated.
 
 ### AWS IoT
 
 Example of a diagram:
 
-![diagrams logo](docs/assets/aws-iot.png)
+![diagrams logo](clouddiscovery/docs/assets/aws-iot.png)
 
 Following resources are checked in IoT command:
 
@@ -82,15 +88,16 @@ Following resources are checked in IoT command:
 *   IoT Jobs
 *   IoT Certificates
 
+## Requirements and Installation
 
-### Requirements and Installation
+### AWS Resources
 
-This script has been written in python3+ using AWS-CLI and it works in Linux, Windows and OSX.
+This script has been written in python3+ and AWS-CLI and it works in Linux, Windows and OSX.
 
 *   Make sure the latest version of AWS-CLI is installed on your workstation, and other components needed, with Python pip already installed:
 
 ```sh
-$ pip install -U -r requirements.txt
+$ pip install -U clouddiscovery
 ```
 
 *   Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
@@ -161,28 +168,28 @@ $ aws configure
 
 ### Usage
 
-1. Run the cloud-discovery command with following options (if a region not informed, this script will try to get from ~/.aws/credentials):
+1.  Run the clouddiscovery command with following options (if a region not informed, this script will try to get from ~/.aws/credentials):
 
 1.1 To detect AWS VPC resources:
 
 ```sh
-$ ./cloud-discovery.py aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+$ clouddiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
 ```
 1.2 To detect AWS policy resources:
 
 ```sh
-$ ./cloud-discovery.py aws-policy [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+$ clouddiscovery aws-policy --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
 ```
 1.3 To detect AWS IoT resources:
 
 ```sh
-$ ./cloud-discovery.py aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+$ clouddiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
 ```
 
-2. For help use:
+2.  For help use:
 
 ```sh
-$ ./cloud-discovery.py [vpc|policy|iot] -h
+$ clouddiscovery [aws-vpc|aws-policy|aws-iot] -h
 ```
 
 ### Using a Docker container
@@ -190,7 +197,7 @@ $ ./cloud-discovery.py [vpc|policy|iot] -h
 To build docker container using Dockerfile
 
 ```sh
-$ docker build -t cloud-discovery .
+$ docker build -t clouddiscovery .
 ```
 
 After build container, you must start container using follow command. The run command will mount a filesystem with your actual aws cli credentials, then you won't need configure aws cli again.
@@ -199,19 +206,18 @@ After build container, you must start container using follow command. The run co
 $ docker run \
 -it \
 --mount type=bind,source=$HOME/.aws/,target=/root/.aws/,readonly \
-cloud-network \
+clouddiscovery \
 /bin/bash
 
 ```
 
-*   If you are using Diagram output and due to fact container is a slim image of Python image, you must run cloud-discovery.py with "--diagram False", otherwise you'll have an error about "xdg-open". The output file will be saved in "assets/diagrams".
+*   If you are using Diagram output and due to fact container is a slim image of Python image, you must run clouddiscovery with "--diagram False", otherwise you'll have an error about "xdg-open". The output file will be saved in "assets/diagrams".
 
 ### Translate
 
 This project support English and Portuguese (Brazil) languages. To contribute with a translation, follow this steps:
 
 *   Create a folder inside locales folder with prefix of new idiom with appropiate [locale code](https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html). Copy "locales/messages.pot" to locales/newfolder/LC_MESSAGES/.
-
 *   To build ".mo" file running this command from project root folder:
 
 ```sh
@@ -227,7 +233,7 @@ If you have improvements or fixes, we would love to have your contributions. Ple
 When developing, it's recommended to use [venv](https://docs.python.org/3/library/venv.html).
 
 In order to create a venv on macOS and Linux:
-```
+```shell script
 $ python3 -m venv env
 ```
 On Windows:
@@ -250,7 +256,7 @@ Make sure you have installed [pre-commit](https://pre-commit.com/#installation).
 
 Install development requirements:
 ```sh
-$ pip install -U -r requirements-dev.txt
+$ pip install -U -r requirements.txt -r requirements-dev.txt
 ```
 
 Add precommit hooks:
@@ -262,6 +268,12 @@ To run pre-commit hooks, you can issue the following command:
 ```
 $ pre-commit run --all-files
 ```
+
+## Making a release
+
+1.  Update the version in setup.py and create a new git tag with `git tag $VERSION`.
+
+2.  Once you push the tag to GitHub with `git push --tags`, a new CircleCI build is triggered.
 
 ### Similar projects and products
 
