@@ -22,5 +22,4 @@ jobs:
 workflows:
   main:
     jobs:
-      - build-and-test:
-          tag: "3.8"
+      - build-and-test
