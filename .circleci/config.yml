@@ -32,7 +32,7 @@ jobs:
           command: |
             . venv/bin/activate
             python setup.py verify
-      - dist
+      - python/dist
       - run:
           name: init .pypirc
           command: |
