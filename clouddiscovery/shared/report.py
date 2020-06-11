@@ -1,28 +1,21 @@
-from typing import List
-
-import os
 import base64
-
-from shared.common import Resource, ResourceEdge, message_handler
-from shared.error_handler import exception
+import os
+from pathlib import Path
+from typing import List
 
 from jinja2 import Environment, FileSystemLoader
 
+from shared.common import Resource, ResourceEdge, message_handler
+from shared.diagram import PATH_DIAGRAM_OUTPUT
+from shared.error_handler import exception
+
 PATH_REPORT_HTML_OUTPUT = "./assets/html_report/"
-PATH_DIAGRAM_OUTPUT = "./assets/diagrams/"
 
 
 class Report(object):
     @staticmethod
     def make_directories():
-        # Check if assets/diagram directory exists
-        if not os.path.isdir(PATH_DIAGRAM_OUTPUT):
-            try:
-                os.mkdir(PATH_DIAGRAM_OUTPUT)
-            except OSError:
-                print("Creation of the directory %s failed \n" % PATH_DIAGRAM_OUTPUT)
-            else:
-                print("Successfully created the directory %s \n" % PATH_DIAGRAM_OUTPUT)
+        Path(PATH_REPORT_HTML_OUTPUT).mkdir(parents=True, exist_ok=True)
 
     @exception
     def general_report(

@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 from typing import List, Dict
 
 from diagrams import Diagram, Cluster, Edge
@@ -225,14 +225,7 @@ class BaseDiagram(object):
 
     @staticmethod
     def make_directories():
-        # Check if assets/diagram directory exists
-        if not os.path.isdir(PATH_DIAGRAM_OUTPUT):
-            try:
-                os.mkdir(PATH_DIAGRAM_OUTPUT)
-            except OSError:
-                print("Creation of the directory %s failed" % PATH_DIAGRAM_OUTPUT)
-            else:
-                print("Successfully created the directory %s " % PATH_DIAGRAM_OUTPUT)
+        Path(PATH_DIAGRAM_OUTPUT).mkdir(parents=True, exist_ok=True)
 
     def group_by_group(
         self, resources: List[Resource], initial_resource_relations: List[ResourceEdge]
