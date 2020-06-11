@@ -13,12 +13,10 @@ jobs:
       - checkout
       - python/load-cache
       - python/install-deps
-      - run:
-          command: pip install --user -r requirements-dev.txt
-          name: Install Dev Dependencies
+      - python/install-deps:
+          dependency-file: requirements-dev.txt
       - python/save-cache
-      - run:
-          command: pytest
+      - python/test:
       - store_test_results:
           path: test-results
       - store_artifacts:
