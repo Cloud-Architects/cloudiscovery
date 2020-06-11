@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  python: circleci/python@0.3.0
+
 jobs:
   build-and-test-3_8:
     docker:
@@ -15,9 +18,7 @@ jobs:
           name: Install Dev Dependencies
       - python/save-cache
       - run:
-          command: |
-            ./venv/bin/activate
-            pytest
+          command: pytest
       - store_test_results:
           path: test-results
       - store_artifacts:
