@@ -82,8 +82,6 @@ def aggregate_asg_groups(
 ):
     for group_name, group_elements in groups.items():
         if group_name.startswith(prefix):
-            prefix_len = len(prefix)
-            asg_name = group_name[prefix_len:]
             agg_type = "none"
             elem_ids = []
             for element in group_elements:
@@ -91,7 +89,7 @@ def aggregate_asg_groups(
                 elem_ids.append(element.digest.id)
             agg_resource = Resource(
                 digest=ResourceDigest(id=group_name, type=agg_type),
-                name=aggregate_name + "{} ({})".format(asg_name, len(group_elements)),
+                name=aggregate_name + "({})".format(len(group_elements)),
                 details=",".join(elem_ids),
             )
             add_resource_to_group(groups, "", agg_resource)
