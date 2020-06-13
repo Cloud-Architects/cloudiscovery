@@ -7,7 +7,8 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
-    get_name_tags,
+    get_name_tag,
+    get_tag,
 )
 from shared.error_handler import exception
 
@@ -88,12 +89,11 @@ class EC2(ResourceProvider):
 
                     if "VpcId" in instances:
                         if instances["VpcId"] == self.vpc_options.vpc_id:
-                            nametags = get_name_tags(instances)
+                            nametag = get_name_tag(instances)
+                            asg_name = get_tag(instances, "aws:autoscaling:groupName")
 
                             instance_name = (
-                                instances["InstanceId"]
-                                if nametags is False
-                                else nametags
+                                instances["InstanceId"] if nametag is None else nametag
                             )
 
                             ec2_digest = ResourceDigest(
@@ -115,6 +115,15 @@ class EC2(ResourceProvider):
                                     ),
                                 )
                             )
+                            if asg_name is not None:
+                                self.relations_found.append(
+                                    ResourceEdge(
+                                        from_node=ec2_digest,
+                                        to_node=ResourceDigest(
+                                            id=asg_name, type="aws_autoscaling_group"
+                                        ),
+                                    )
+                                )
 
         return resources_found
 
@@ -269,13 +278,12 @@ class AUTOSCALING(ResourceProvider):
             for data_subnet in subnets["Subnets"]:
 
                 if data_subnet["VpcId"] == self.vpc_options.vpc_id:
-                    digest = ResourceDigest(
-                        id=data["AutoScalingGroupARN"], type="aws_autoscaling_group"
-                    )
+                    asg_name = data["AutoScalingGroupName"]
+                    digest = ResourceDigest(id=asg_name, type="aws_autoscaling_group")
                     resources_found.append(
                         Resource(
                             digest=digest,
-                            name=data["AutoScalingGroupName"],
+                            name=asg_name,
                             details="Using LaunchConfigurationName {0}".format(
                                 data["LaunchConfigurationName"]
                             ),

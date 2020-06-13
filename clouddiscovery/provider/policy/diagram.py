@@ -1,16 +1,9 @@
 from typing import List, Dict
 
 from shared.common import ResourceEdge, Resource, ResourceDigest
-from shared.diagram import BaseDiagram, Mapsources
+from shared.diagram import BaseDiagram, Mapsources, add_resource_to_group
 
 ROLE_AGGREGATE_PREFIX = "aggregate_"
-
-
-def add_resource_to_group(ordered_resources, group, resource):
-    if group in ordered_resources:
-        ordered_resources[group].append(resource)
-    else:
-        ordered_resources[group] = [resource]
 
 
 class PolicyDiagram(BaseDiagram):

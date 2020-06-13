@@ -5,7 +5,7 @@ from shared.common import (
     ResourceProvider,
     Resource,
     message_handler,
-    get_name_tags,
+    get_name_tag,
     ResourceDigest,
     ResourceEdge,
 )
@@ -36,12 +36,12 @@ class INTERNETGATEWAY(ResourceProvider):
 
         # One VPC has only 1 IGW then it's a direct check
         if len(response["InternetGateways"]) > 0:
-            nametags = get_name_tags(response)
+            nametag = get_name_tag(response["InternetGateways"][0])
 
             name = (
                 response["InternetGateways"][0]["InternetGatewayId"]
-                if nametags is False
-                else nametags
+                if nametag is None
+                else nametag
             )
 
             igw_digest = ResourceDigest(
@@ -88,9 +88,9 @@ class NATGATEWAY(ResourceProvider):
             for data in response["NatGateways"]:
 
                 if data["VpcId"] == self.vpc_options.vpc_id:
-                    nametags = get_name_tags(data)
+                    nametag = get_name_tag(data)
 
-                    name = data["NatGatewayId"] if nametags is False else nametags
+                    name = data["NatGatewayId"] if nametag is None else nametag
 
                     nat_digest = ResourceDigest(
                         id=data["NatGatewayId"], type="aws_nat_gateway"
@@ -245,9 +245,9 @@ class RouteTable(ResourceProvider):
 
         # Iterate to get all route table filtered
         for data in response["RouteTables"]:
-            nametags = get_name_tags(data)
+            nametag = get_name_tag(data)
 
-            name = data["RouteTableId"] if nametags is False else nametags
+            name = data["RouteTableId"] if nametag is None else nametag
             table_digest = ResourceDigest(
                 id=data["RouteTableId"], type="aws_route_table"
             )
@@ -319,9 +319,9 @@ class SUBNET(ResourceProvider):
         message_handler("Collecting data from Subnets...", "HEADER")
 
         for data in response["Subnets"]:
-            nametags = get_name_tags(data)
+            nametag = get_name_tag(data)
 
-            name = data["SubnetId"] if nametags is False else nametags
+            name = data["SubnetId"] if nametag is None else nametag
 
             subnet_digest = ResourceDigest(id=data["SubnetId"], type="aws_subnet")
             resources_found.append(
@@ -384,8 +384,8 @@ class NACL(ResourceProvider):
                     )
                 )
 
-            nametags = get_name_tags(data)
-            name = data["NetworkAclId"] if nametags is False else nametags
+            nametag = get_name_tag(data)
+            name = data["NetworkAclId"] if nametag is None else nametag
             resources_found.append(
                 Resource(
                     digest=nacl_digest,
@@ -467,9 +467,9 @@ class VPCPEERING(ResourceProvider):
                 data["AccepterVpcInfo"]["VpcId"] == self.vpc_options.vpc_id
                 or data["RequesterVpcInfo"]["VpcId"] == self.vpc_options.vpc_id
             ):
-                nametags = get_name_tags(data)
+                nametag = get_name_tag(data)
 
-                name = data["VpcPeeringConnectionId"] if nametags is False else nametags
+                name = data["VpcPeeringConnectionId"] if nametag is None else nametag
 
                 peering_digest = ResourceDigest(
                     id=data["VpcPeeringConnectionId"],
