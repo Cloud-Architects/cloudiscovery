@@ -114,7 +114,7 @@ class Vpc(BaseCommand):
                     provider="vpc",
                     options=vpc_options,
                     diagram_builder=diagram_builder,
-                    default_name="VPC Report - " + vpc_id,
+                    default_name="VPC Report - " + self.vpc_id,
                 )
 
 
