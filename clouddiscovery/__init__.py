@@ -174,7 +174,7 @@ def main():
 
 def check_region(region_parameter, region_name, session):
     """
-    Default region us-east-1 as a default region here
+    Region us-east-1 as a default region here
 
     This is just to list aws regions, doesn't matter default region
     """
