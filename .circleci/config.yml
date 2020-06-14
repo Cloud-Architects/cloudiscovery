@@ -15,9 +15,7 @@ jobs:
       - python/save-cache
       - run:
           name: test
-          command: |
-            . venv/bin/activate
-            python setup.py test
+          command: python setup.py test
       - store_test_results:
           path: test-results
       - store_artifacts:
