@@ -1,6 +1,6 @@
 import datetime
 import re
-from typing import NamedTuple, List
+from typing import NamedTuple, List, Optional
 
 import boto3
 
@@ -65,17 +65,18 @@ class ResourceProvider:
         return self.relations_found
 
 
-def get_name_tags(d):
-    for k, v in d.items():
-        if isinstance(v, dict):
-            get_name_tags(v)
-        else:
-            if k == "Tags":
-                for value in v:
-                    if value["Key"] == "Name":
-                        return value["Value"]
+def get_name_tag(d) -> Optional[str]:
+    return get_tag(d, "Name")
 
-    return False
+
+def get_tag(d, tag_name) -> Optional[str]:
+    for k, v in d.items():
+        if k == "Tags":
+            for value in v:
+                if value["Key"] == tag_name:
+                    return value["Value"]
+
+    return None
 
 
 def generate_session(profile_name):

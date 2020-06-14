@@ -53,6 +53,8 @@ The subnets are aggregated to simplify the diagram and hide infrastructure redun
 1.  Private*   ones with a route `0.0.0.0/0` to Internet Gateway
 2.  Public*   ones without any route to IGW
 
+If EC2 instances and ECS instances are part of an autoscaling group, those instances will be aggregated on a diagram.
+
 ### AWS Policy
 
 Example of a diagram:

@@ -203,6 +203,14 @@ class Mapsources:
     }
 
 
+def add_resource_to_group(ordered_resources, group, resource):
+    if Mapsources.mapresources.get(resource.digest.type) is not None:
+        if group in ordered_resources:
+            ordered_resources[group].append(resource)
+        else:
+            ordered_resources[group] = [resource]
+
+
 class BaseDiagram(object):
     def __init__(self, name: str, filename: str, engine: str = "sfdp"):
         """
@@ -292,6 +300,8 @@ class BaseDiagram(object):
                         nodes[resource.digest] = node
 
         for resource_relation in relations:
+            if resource_relation.from_node == resource_relation.to_node:
+                continue
             if (
                 resource_relation.from_node in nodes
                 and resource_relation.to_node in nodes
