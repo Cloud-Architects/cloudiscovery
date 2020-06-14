@@ -146,15 +146,10 @@ def main():
     if args.region_name is not None:
         region_name = args.region_name
 
-    # if region is all, get all regions
-    if args.region_name == "all":
-        client = session.client("ec2")
-        region_names = [
-            region["RegionName"] for region in client.describe_regions()["Regions"]
-        ]
-    else:
-        check_region(region_name, session)
-        region_names = [region_name]
+    # get regions
+    region_names = check_region(
+        region_parameter=args.region_name, region_name=region_name, session=session
+    )
 
     if args.command == "aws-vpc":
         command = Vpc(
@@ -177,9 +172,9 @@ def main():
     command.run()
 
 
-def check_region(region_name, session):
+def check_region(region_parameter, region_name, session):
     """
-    Adding us-east-1 as a default region here
+    Default region us-east-1 as a default region here
 
     This is just to list aws regions, doesn't matter default region
     """
@@ -189,9 +184,14 @@ def check_region(region_name, session):
         region["RegionName"] for region in client.describe_regions()["Regions"]
     ]
 
-    if region_name not in valid_region_names:
-        message = "There is no region named: {0}".format(region_name)
-        exit_critical(message)
+    if region_parameter != "all":
+        if region_name not in valid_region_names:
+            message = "There is no region named: {0}".format(region_name)
+            exit_critical(message)
+        else:
+            valid_region_names = [region_name]
+
+    return valid_region_names
 
 
 if __name__ == "__main__":
