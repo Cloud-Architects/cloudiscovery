@@ -1,6 +1,8 @@
+import json
+from concurrent.futures.thread import ThreadPoolExecutor
 from typing import List
 
-from provider.vpc.command import VpcOptions
+from provider.vpc.command import VpcOptions, check_ipvpc_inpolicy
 from shared.common import (
     ResourceProvider,
     Resource,
@@ -8,6 +10,7 @@ from shared.common import (
     get_name_tag,
     ResourceDigest,
     ResourceEdge,
+    datetime_to_string,
 )
 from shared.error_handler import exception
 
@@ -583,3 +586,62 @@ class VPCENDPOINT(ResourceProvider):
                         )
 
         return resources_found
+
+
+class RESTAPIPOLICY(ResourceProvider):
+    def __init__(self, vpc_options: VpcOptions):
+        """
+        Rest api gateway policy
+
+        :param vpc_options:
+        """
+        super().__init__()
+        self.vpc_options = vpc_options
+
+    @exception
+    def get_resources(self) -> List[Resource]:
+
+        client = self.vpc_options.client("apigateway")
+
+        resources_found: List[Resource] = []
+
+        # get REST API available
+        response = client.get_rest_apis()
+
+        message_handler("Collecting data from REST API Policies...", "HEADER")
+
+        with ThreadPoolExecutor(15) as executor:
+            results = executor.map(
+                lambda data: self.analyze_restapi(data), response["items"]
+            )
+
+        for result in results:
+            if result[0] is True:
+                resources_found.append(result[1])
+
+        return resources_found
+
+    def analyze_restapi(self, data):
+
+        if "policy" in data:
+            documentpolicy = data["policy"]
+        else:
+            return False, None
+
+        document = json.dumps(documentpolicy, default=datetime_to_string)
+
+        # check either vpc_id or potential subnet ip are found
+        ipvpc_found = check_ipvpc_inpolicy(
+            document=document, vpc_options=self.vpc_options
+        )
+
+        if ipvpc_found is not False:
+            digest = ResourceDigest(id=data["id"], type="aws_api_gateway_rest_api")
+            self.relations_found.append(
+                ResourceEdge(from_node=digest, to_node=self.vpc_options.vpc_digest())
+            )
+            return (
+                True,
+                Resource(digest=digest, name=data["name"], details="", group="network"),
+            )
+        return False, None
