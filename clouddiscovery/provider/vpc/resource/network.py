@@ -611,9 +611,7 @@ class RESTAPIPOLICY(ResourceProvider):
         message_handler("Collecting data from REST API Policies...", "HEADER")
 
         with ThreadPoolExecutor(15) as executor:
-            results = executor.map(
-                lambda data: self.analyze_restapi(data), response["items"]
-            )
+            results = executor.map(self.analyze_restapi, response["items"])
 
         for result in results:
             if result[0] is True:
