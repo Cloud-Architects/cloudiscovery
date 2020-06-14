@@ -178,7 +178,12 @@ def main():
 
 
 def check_region(region_name, session):
-    client = session.client("ec2")
+    """
+    Adding us-east-1 as a default region here
+
+    This is just to list aws regions, doesn't matter default region
+    """
+    client = session.client("ec2", region_name="us-east-1")
 
     valid_region_names = [
         region["RegionName"] for region in client.describe_regions()["Regions"]
