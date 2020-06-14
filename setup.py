@@ -12,7 +12,7 @@ ROOT = os.path.dirname(__file__)
 VERSION_RE = re.compile(r"""__version__ = ['"]([0-9.]+)['"]""")
 
 
-requires = ["boto3", "ipaddress", "diagrams>=0.13", "jinja2"]
+requires = ["boto3", "ipaddress", "diagrams>=0.13", "jinja2<3.0"]
 
 
 def get_version():
@@ -50,6 +50,9 @@ setup(
     },
     packages=find_packages(exclude=["tests*"]),
     install_requires=requires,
+    setup_requires=["pytest-runner"],
+    tests_require=["pytest", "pytest-cov", "pytest-xdist", "assertpy"],
+    tests_suite="tests",
     python_requires=">=3.6",
     scripts=["bin/clouddiscovery", "bin/clouddiscovery.cmd"],
     license="Apache License 2.0",
