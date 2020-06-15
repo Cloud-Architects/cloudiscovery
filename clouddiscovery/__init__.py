@@ -16,11 +16,10 @@ limitations under the License.
 
 import argparse
 import gettext
-
-import pkg_resources
-
 import sys
 from os.path import dirname
+
+import pkg_resources
 
 """path to pip package"""
 sys.path.append(dirname(__file__))
@@ -40,6 +39,7 @@ __version__ = "2.0.508"
 
 AVAILABLE_LANGUAGES = ["en_US", "pt_BR"]
 DIAGRAMS_OPTIONS = ["True", "False"]
+DEFAULT_REGION = "us-east-1"
 
 
 def generate_parser():
@@ -67,19 +67,20 @@ def generate_parser():
 
     policy_parser = subparsers.add_parser("aws-policy", help="Analyze policies")
 
-    add_default_arguments(policy_parser)
+    add_default_arguments(policy_parser, is_global=True)
 
     return parser
 
 
-def add_default_arguments(parser):
-    parser.add_argument(
-        "-r",
-        "--region-name",
-        required=False,
-        help='Inform REGION NAME to analyze or "all" to check on all regions. \
-        If not informed, try to get from config file',
-    )
+def add_default_arguments(parser, is_global=False):
+    if not is_global:
+        parser.add_argument(
+            "-r",
+            "--region-name",
+            required=False,
+            help='Inform REGION NAME to analyze or "all" to check on all regions. \
+            If not informed, try to get from config file',
+        )
     parser.add_argument(
         "-p", "--profile-name", required=False, help="Profile to be used"
     )
@@ -139,17 +140,20 @@ def main():
     session.get_credentials()
     region_name = session.region_name
 
-    if args.region_name is None and region_name is None:
-        exit_critical(_("Neither region parameter or region config were informed"))
+    if "region_name" not in args:
+        region_names = [DEFAULT_REGION]
+    else:
+        if args.region_name is None and region_name is None:
+            exit_critical(_("Neither region parameter or region config were informed"))
 
-    # assuming region parameter precedes region configuration
-    if args.region_name is not None:
-        region_name = args.region_name
+        # assuming region parameter precedes region configuration
+        if args.region_name is not None:
+            region_name = args.region_name
 
-    # get regions
-    region_names = check_region(
-        region_parameter=args.region_name, region_name=region_name, session=session
-    )
+        # get regions
+        region_names = check_region(
+            region_parameter=args.region_name, region_name=region_name, session=session
+        )
 
     if args.command == "aws-vpc":
         command = Vpc(
@@ -178,7 +182,7 @@ def check_region(region_parameter, region_name, session):
 
     This is just to list aws regions, doesn't matter default region
     """
-    client = session.client("ec2", region_name="us-east-1")
+    client = session.client("ec2", region_name=DEFAULT_REGION)
 
     valid_region_names = [
         region["RegionName"] for region in client.describe_regions()["Regions"]
