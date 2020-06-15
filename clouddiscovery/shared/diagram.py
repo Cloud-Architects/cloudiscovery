@@ -101,10 +101,10 @@ class Mapsources:
         "aws_vpc": "VPC",
         "aws_iot": "IotCore",
         "aws_iot_certificate": "IotCertificate",
-        "aws_iot_policy": "IotCertificate",
-        "aws_iot_type": "IotCore",
-        "aws_iot_billing_group": "IotCore",
-        "aws_iot_job": "IotJobs",
+        "aws_iot_policy": "IotCertificate",  # TODO: need to fix with new diagram release
+        "aws_iot_type": "IotCore",  # TODO: need to fix with new diagram release
+        "aws_iot_billing_group": "IotCore",  # TODO: need to fix with new diagram release
+        "aws_iot_job": "IotJobs",  # TODO: need to fix with new diagram release
         "aws_alexa": "General",
         "aws_acm": "ACM",
         "aws_mq": "MQ",
