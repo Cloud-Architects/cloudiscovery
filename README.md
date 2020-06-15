@@ -181,7 +181,7 @@ $ clouddiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--pro
 1.2 To detect AWS policy resources:
 
 ```sh
-$ clouddiscovery aws-policy --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+$ clouddiscovery aws-policy [--profile-name profile] [--diagram True/False]
 ```
 1.3 To detect AWS IoT resources:
 
