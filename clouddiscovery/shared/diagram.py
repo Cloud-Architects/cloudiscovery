@@ -200,6 +200,7 @@ class Mapsources:
         "aws_sqs": "SQS",
         "aws_connect": "Connect",
         "aws_iotsitewise": "IotSitewise",
+        "aws_neptune_cluster": "Neptune",
     }
 
 
