@@ -49,6 +49,8 @@ Following resources are checked in VPC command:
 *   Media Live
 *   Media Store Policy
 *   REST Api Policy
+*   Neptune
+*   CloudHSM
 
 The subnets are aggregated to simplify the diagram and hide infrastructure redundancies. There can be two types of subnet aggregates:
 1.  Private*   ones with a route `0.0.0.0/0` to Internet Gateway
@@ -144,7 +146,8 @@ $ aws configure
                 "Action" : [
                   "kafka:ListClusters",
                   "synthetics:DescribeCanaries",
-                  "medialive:ListInputs"
+                  "medialive:ListInputs",
+                  "cloudhsm:DescribeClusters"
                 ],
                 "Resource": [ "*" ]
               }

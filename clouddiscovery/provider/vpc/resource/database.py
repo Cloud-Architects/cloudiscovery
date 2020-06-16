@@ -202,7 +202,7 @@ class DOCUMENTDB(ResourceProvider):
 class NEPTUNE(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
-        Documentdb
+        Neptune
 
         :param vpc_options:
         """
