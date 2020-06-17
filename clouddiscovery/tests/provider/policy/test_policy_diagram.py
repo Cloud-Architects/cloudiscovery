@@ -8,7 +8,7 @@ from shared.common import Resource, ResourceDigest, ResourceEdge
 
 class TestPolicyDiagram(TestCase):
     def test_role_aggregation(self):
-        sut = PolicyDiagram("name")
+        sut = PolicyDiagram()
         principal_digest = ResourceDigest(
             id="ecs.amazonaws.com", type="aws_ecs_cluster"
         )
