@@ -24,12 +24,16 @@ import pkg_resources
 """path to pip package"""
 sys.path.append(dirname(__file__))
 
-from provider.policy.command import Policy  # noqa: E402
-from provider.vpc.command import Vpc  # noqa: E402
-from provider.iot.command import Iot  # noqa: E402
+# pylint: disable=wrong-import-position
+
+from provider.policy.command import Policy
+from provider.vpc.command import Vpc
+from provider.iot.command import Iot
 
 # Check version
-from shared.common import exit_critical, generate_session  # noqa E402
+from shared.common import exit_critical, generate_session
+
+# pylint: enable=wrong-import-position
 
 if sys.version_info < (3, 6):
     print("Python 3.6 or newer is required", file=sys.stderr)
@@ -128,10 +132,10 @@ def main():
     # diagram version check
     if diagram:
         # Checking diagram version. Must be 0.13 or higher
-        if pkg_resources.get_distribution("diagrams").version < "0.13":
+        if pkg_resources.get_distribution("diagrams").version < "0.14":
             exit_critical(
                 _(
-                    "You must update diagrams package to 0.13 or higher. "
+                    "You must update diagrams package to 0.14 or higher. "
                     "- See on https://github.com/mingrammer/diagrams"
                 )
             )

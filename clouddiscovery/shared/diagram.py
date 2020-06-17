@@ -14,9 +14,15 @@ class Mapsources:
     # diagrams modules that store classes that represent diagram elements
     diagrams_modules = [
         "analytics",
+        "ar",
+        "blockchain",
+        "business",
         "compute",
+        "cost",
         "database",
         "devtools",
+        "enablement",
+        "enduser",
         "engagement",
         "game",
         "general",
@@ -26,8 +32,11 @@ class Mapsources:
         "media",
         "migration",
         "ml",
+        "mobile",
         "network",
+        "quantum",
         "robotics",
+        "satellite",
         "security",
         "storage",
     ]
@@ -70,8 +79,8 @@ class Mapsources:
         "aws_media_tailor": "ElementalMediatailor",
         "aws_media_live": "ElementalMedialive",
         "aws_api_gateway_rest_api": "APIGateway",
-        "aws_sagemaker_notebook_instance": "Sagemaker",  # TODO: need to fix with new diagram release
-        "aws_sagemaker_training_job": "Sagemaker",  # TODO: need to fix with new diagram release
+        "aws_sagemaker_notebook_instance": "SagemakerNotebook",
+        "aws_sagemaker_training_job": "SagemakerTrainingJob",
         "aws_ssm_document": "SSM",
         "aws_cognito_identity_provider": "Cognito",
         "aws_iot_thing": "InternetOfThings",
@@ -102,20 +111,20 @@ class Mapsources:
         "aws_vpc": "VPC",
         "aws_iot": "IotCore",
         "aws_iot_certificate": "IotCertificate",
-        "aws_iot_policy": "IotCertificate",  # TODO: need to fix with new diagram release
+        "aws_iot_policy": "IotPolicy",
         "aws_iot_type": "IotCore",  # TODO: need to fix with new diagram release
         "aws_iot_billing_group": "IotCore",  # TODO: need to fix with new diagram release
-        "aws_iot_job": "IotJobs",  # TODO: need to fix with new diagram release
-        "aws_alexa": "General",
+        "aws_iot_job": "IotJobs",
+        "aws_alexa_skill": "IotAlexaSkill",
         "aws_acm": "ACM",
         "aws_mq": "MQ",
         "aws_athena": "Athena",
         "aws_artifact": "Artifact",
         "aws_batch": "Artifact",
-        "aws_billingconsole": "General",
-        "aws_ce": "General",
+        "aws_billingconsole": "General",  # TODO: need to fix with new diagram release
+        "aws_ce": "CostExplorer",
         "aws_lex": "Lex",
-        "aws_chime": "Lex",
+        "aws_chime": "Chime",
         "aws_clouddirectory": "CloudDirectory",
         "aws_cloudformation": "Cloudformation",
         "aws_cloudhsm": "CloudHSM",
@@ -128,10 +137,10 @@ class Mapsources:
         "aws_discovery": "ApplicationDiscoveryService",
         "aws_dax": "DynamodbDax",
         "aws_deeplens": "Deeplens",
-        "aws_delivery_logs": "General",
-        "aws_diode": "General",
+        "aws_delivery_logs": "General",  # TODO: need to fix with new diagram release
+        "aws_diode": "General",  # TODO: need to fix with new diagram release
         "aws_directconnect": "DirectConnect",
-        "aws_dlm": "General",
+        "aws_dlm": "General",  # TODO: need to fix with new diagram release
         "aws_ds": "DirectoryService",
         "aws_dynamodb": "Dynamodb",
         "aws_ecr": "EC2ContainerRegistry",
@@ -144,23 +153,23 @@ class Mapsources:
         "aws_glacier": "S3Glacier",
         "aws_greengrass": "Greengrass",
         "aws_guardduty": "Guardduty",
-        "aws_health": "General",
+        "aws_health": "General",  # TODO: need to fix with new diagram release
         "aws_iam": "IAM",
-        "aws_importexport": "General",
-        "aws_jellyfish": "General",
+        "aws_importexport": "General",  # TODO: need to fix with new diagram release
+        "aws_jellyfish": "General",  # TODO: need to fix with new diagram release
         "aws_kinesis": "Kinesis",
         "aws_kinesisanalytics": "KinesisDataAnalytics",
         "aws_kms": "KMS",
         "aws_lakeformation": "LakeFormation",
         "aws_license_manager": "LicenseManager",
         "aws_lightsail": "Lightsail",
-        "aws_logs": "General",
+        "aws_logs": "General",  # TODO: need to fix with new diagram release
         "aws_machinelearning": "MachineLearning",
         "aws_macie": "Macie",
-        "aws_managedservices": "General",
+        "aws_managedservices": "ManagedServices",
         "aws_marketplace": "Marketplace",
-        "aws_mobile_hub": "General",
-        "aws_monitoring": "General",
+        "aws_mobile_hub": "General",  # TODO: need to fix with new diagram release
+        "aws_monitoring": "General",  # TODO: need to fix with new diagram release
         "aws_opsworks": "Opsworks",
         "aws_pinpoint": "Pinpoint",
         "aws_polly": "Polly",
@@ -168,40 +177,41 @@ class Mapsources:
         "aws_ram": "ResourceAccessManager",
         "aws_redshift": "Redshift",
         "aws_rekognition": "Rekognition",
-        "aws_resource_groups": "General",
+        "aws_resource_groups": "General",  # TODO: need to fix with new diagram release
         "aws_robomaker": "Robomaker",
         "aws_route53": "Route53",
         "aws_s3": "S3",
         "aws_secretsmanager": "SecretsManager",
         "aws_serverlessrepo": "ServerlessApplicationRepository",
         "aws_servicecatalog": "ServiceCatalog",
-        "aws_servicediscovery": "General",
+        "aws_servicediscovery": "General",  # TODO: need to fix with new diagram release
         "aws_ses": "SimpleEmailServiceSes",
         "aws_shield": "Shield",
-        "aws_signer": "General",
-        "aws_signin": "General",
+        "aws_signer": "General",  # TODO: need to fix with new diagram release
+        "aws_signin": "General",  # TODO: need to fix with new diagram release
         "aws_sms": "ServerMigrationService",
-        "aws_sso": "General",
-        "aws_states": "General",
+        "aws_sso": "General",  # TODO: need to fix with new diagram release
+        "aws_states": "General",  # TODO: need to fix with new diagram release
         "aws_storagegateway": "StorageGateway",
-        "aws_support": "General",
-        "aws_swf": "General",
-        "aws_tagging": "General",
+        "aws_support": "Support",
+        "aws_swf": "General",  # TODO: need to fix with new diagram release
+        "aws_tagging": "General",  # TODO: need to fix with new diagram release
         "aws_transfer": "MigrationAndTransfer",
         "aws_translate": "Translate",
-        "aws_tts": "General",
-        "aws_vmie": "General",
+        "aws_tts": "General",  # TODO: need to fix with new diagram release
+        "aws_vmie": "General",  # TODO: need to fix with new diagram release
         "aws_waf": "WAF",
-        "aws_workdocs": "General",
-        "aws_worklink": "General",
-        "aws_workmail": "General",
-        "aws_workspaces": "General",
+        "aws_workdocs": "Workdocs",
+        "aws_worklink": "Worklink",
+        "aws_workmail": "Workmail",
+        "aws_workspaces": "Workspaces",
         "aws_xray": "XRay",
-        "aws_spotfleet": "General",
+        "aws_spotfleet": "General",  # TODO: need to fix with new diagram release
         "aws_sqs": "SQS",
         "aws_connect": "Connect",
         "aws_iotsitewise": "IotSitewise",
         "aws_neptune_cluster": "Neptune",
+        "aws_alexa_for_business": "AlexaForBusiness",
     }
 
 

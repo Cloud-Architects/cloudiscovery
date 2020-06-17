@@ -17,7 +17,7 @@ class Principals:
     # Source: https://gist.github.com/shortjared/4c1e3fe52bdfa47522cfe5b41e5d6f22
     principals = {
         "a4b.amazonaws.com": {
-            "type": "aws_alexa",
+            "type": "aws_alexa_for_business",
             "name": "Alexa for Business",
             "group": "business",
         },
@@ -28,7 +28,7 @@ class Principals:
         },
         "acm.amazonaws.com": {"type": "aws_acm", "name": "ACM", "group": "security"},
         "alexa-appkit": {
-            "type": "aws_alexa",
+            "type": "aws_alexa_skill",
             "name": "Alexa App kti",
             "group": "business",
         },
