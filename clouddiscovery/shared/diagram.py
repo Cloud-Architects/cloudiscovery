@@ -214,24 +214,24 @@ def add_resource_to_group(ordered_resources, group, resource):
 
 
 class BaseDiagram(object):
-    def __init__(self, name: str, filename: str, engine: str = "sfdp"):
+    def __init__(self, engine: str = "sfdp"):
         """
         Class to perform data aggregation, diagram generation and image saving
 
         The class accepts the following parameters
-        :param name:
-        :param filename:
         :param engine:
         """
-        self.name = name
-        self.filename = filename
         self.engine = engine
 
-    def build(self, resources: List[Resource], resource_relations: List[ResourceEdge]):
+    def build(
+        self,
+        resources: List[Resource],
+        resource_relations: List[ResourceEdge],
+        title: str,
+        filename: str,
+    ):
         self.make_directories()
-        self.generate_diagram(resources, resource_relations)
-
-        return self.filename
+        self.generate_diagram(resources, resource_relations, title, filename)
 
     @staticmethod
     def make_directories():
@@ -259,7 +259,11 @@ class BaseDiagram(object):
 
     @exception
     def generate_diagram(
-        self, resources: List[Resource], initial_resource_relations: List[ResourceEdge]
+        self,
+        resources: List[Resource],
+        initial_resource_relations: List[ResourceEdge],
+        title: str,
+        filename: str,
     ):
         ordered_resources = self.group_by_group(resources, initial_resource_relations)
         relations = self.process_relationships(
@@ -267,8 +271,8 @@ class BaseDiagram(object):
         )
 
         with Diagram(
-            name=self.name,
-            filename=PATH_DIAGRAM_OUTPUT + self.filename,
+            name=title,
+            filename=PATH_DIAGRAM_OUTPUT + filename,
             direction="TB",
             graph_attr={"nodesep": "2.0", "ranksep": "1.0", "splines": "curved"},
         ) as d:
@@ -329,12 +333,22 @@ class NoDiagram(BaseDiagram):
 
         Command should be refactored not to have such class
         """
-        super().__init__("", "")
+        super().__init__("")
 
     def generate_diagram(
-        self, resources: List[Resource], resource_relations: List[ResourceEdge]
+        self,
+        resources: List[Resource],
+        resource_relations: List[ResourceEdge],
+        title: str,
+        filename: str,
     ):
         pass
 
-    def build(self, resources: List[Resource], resource_relations: List[ResourceEdge]):
+    def build(
+        self,
+        resources: List[Resource],
+        resource_relations: List[ResourceEdge],
+        title: str,
+        filename: str,
+    ):
         pass

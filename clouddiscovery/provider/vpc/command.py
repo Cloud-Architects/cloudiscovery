@@ -3,7 +3,7 @@ from ipaddress import ip_network
 from provider.vpc.diagram import VpcDiagram
 from shared.command import CommandRunner, BaseCommand
 from shared.common import (
-    BaseOptions,
+    BaseAwsOptions,
     ResourceDigest,
     VPCE_REGEX,
     SOURCE_IP_ADDRESS_REGEX,
@@ -11,7 +11,7 @@ from shared.common import (
 from shared.diagram import NoDiagram, BaseDiagram
 
 
-class VpcOptions(BaseOptions):
+class VpcOptions(BaseAwsOptions):
     vpc_id: str
 
     def __new__(cls, session, region_name, vpc_id):
@@ -22,7 +22,7 @@ class VpcOptions(BaseOptions):
         :param region_name:
         :param vpc_id:
         """
-        self = super(BaseOptions, cls).__new__(cls, (session, region_name))
+        self = super(BaseAwsOptions, cls).__new__(cls, (session, region_name))
         self.vpc_id = vpc_id
         return self
 
@@ -79,20 +79,15 @@ class Vpc(BaseCommand):
                     self.check_vpc(vpc_options)
                     diagram_builder: BaseDiagram
                     if self.diagram:
-                        diagram_builder = VpcDiagram(
-                            name="AWS VPC {} Resources - Region {}".format(
-                                vpc_id, region
-                            ),
-                            filename=vpc_id,
-                            vpc_id=vpc_id,
-                        )
+                        diagram_builder = VpcDiagram(vpc_id=vpc_id)
                     else:
                         diagram_builder = NoDiagram()
                     command_runner.run(
                         provider="vpc",
                         options=vpc_options,
                         diagram_builder=diagram_builder,
-                        default_name="VPC Report - " + vpc_id,
+                        title="AWS VPC {} Resources - Region {}".format(vpc_id, region),
+                        filename=vpc_options.resulting_file_name(vpc_id + "_vpc"),
                     )
             else:
                 vpc_options = VpcOptions(
@@ -101,20 +96,17 @@ class Vpc(BaseCommand):
 
                 self.check_vpc(vpc_options)
                 if self.diagram:
-                    diagram_builder = VpcDiagram(
-                        name="AWS VPC {} Resources - Region {}".format(
-                            self.vpc_id, region
-                        ),
-                        filename=self.vpc_id,
-                        vpc_id=self.vpc_id,
-                    )
+                    diagram_builder = VpcDiagram(vpc_id=self.vpc_id)
                 else:
                     diagram_builder = NoDiagram()
                 command_runner.run(
                     provider="vpc",
                     options=vpc_options,
                     diagram_builder=diagram_builder,
-                    default_name="VPC Report - " + self.vpc_id,
+                    title="AWS VPC {} Resources - Region {}".format(
+                        self.vpc_id, region
+                    ),
+                    filename=vpc_options.resulting_file_name(self.vpc_id + "_vpc"),
                 )
 
 

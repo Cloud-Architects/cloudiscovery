@@ -14,7 +14,7 @@ from shared.common import Resource, ResourceDigest, ResourceEdge
 
 class TestVpcDiagram(TestCase):
     def test_public_subnet(self):
-        sut = VpcDiagram("name", "filename", "4")
+        sut = VpcDiagram("4")
         subnet_1_digest = ResourceDigest(id="1", type="aws_subnet")
         subnet_2_digest = ResourceDigest(id="2", type="aws_subnet")
         route_digest = ResourceDigest(id="3", type="aws_route_table")
@@ -78,7 +78,7 @@ class TestVpcDiagram(TestCase):
         )
 
     def test_private_subnet(self):
-        sut = VpcDiagram("name", "filename", "3")
+        sut = VpcDiagram("3")
         subnet_digest = ResourceDigest(id="1", type="aws_subnet")
         route_digest = ResourceDigest(id="2", type="aws_route_table")
         vpc_digest = ResourceDigest(id="3", type="aws_vpc")
@@ -125,7 +125,7 @@ class TestVpcDiagram(TestCase):
         )
 
     def test_should_detect_public_and_private_subnet(self):
-        sut = VpcDiagram("name", "filename", "6")
+        sut = VpcDiagram("6")
         public_subnet_digest = ResourceDigest(id="1", type="aws_subnet")
         private_subnet_digest = ResourceDigest(id="2", type="aws_subnet")
         main_route_digest = ResourceDigest(id="3", type="aws_route_table")
@@ -194,7 +194,7 @@ class TestVpcDiagram(TestCase):
         )
 
     def test_asg_ecs(self):
-        sut = VpcDiagram("name", "filename", "4")
+        sut = VpcDiagram("4")
         subnet_1_digest = ResourceDigest(id="1", type="aws_subnet")
         subnet_2_digest = ResourceDigest(id="2", type="aws_subnet")
         route_digest = ResourceDigest(id="3", type="aws_route_table")

@@ -1,10 +1,10 @@
 from provider.iot.diagram import IoTDiagram
 from shared.command import CommandRunner, BaseCommand
-from shared.common import BaseOptions, ResourceDigest
+from shared.common import BaseAwsOptions, ResourceDigest
 from shared.diagram import NoDiagram, BaseDiagram
 
 
-class IotOptions(BaseOptions):
+class IotOptions(BaseAwsOptions):
     thing_name: str
 
     def __new__(cls, session, region_name, thing_name):
@@ -15,7 +15,7 @@ class IotOptions(BaseOptions):
         :param region_name:
         :param thing_name:
         """
-        self = super(BaseOptions, cls).__new__(cls, (session, region_name))
+        self = super(BaseAwsOptions, cls).__new__(cls, (session, region_name))
         self.thing_name = thing_name
         return self
 
@@ -50,18 +50,15 @@ class Iot(BaseCommand):
                 )
                 diagram_builder: BaseDiagram
                 if self.diagram:
-                    diagram_builder = IoTDiagram(
-                        name="AWS IoT Resources - Region {}".format(region_name),
-                        filename=region_name + "_iot",
-                        thing_name="",
-                    )
+                    diagram_builder = IoTDiagram(thing_name="")
                 else:
                     diagram_builder = NoDiagram()
                 command_runner.run(
                     provider="iot",
                     options=thing_options,
                     diagram_builder=diagram_builder,
-                    default_name="IoT Report - " + region_name,
+                    title="AWS IoT Resources - Region {}".format(region_name),
+                    filename=thing_options.resulting_file_name("iot"),
                 )
             else:
                 things = dict()
@@ -71,13 +68,7 @@ class Iot(BaseCommand):
                 )
 
                 if self.diagram:
-                    diagram_builder = IoTDiagram(
-                        name="AWS IoT {} Resources - Region {}".format(
-                            self.thing_name, region_name
-                        ),
-                        filename=self.thing_name + "_iot",
-                        thing_name=self.thing_name,
-                    )
+                    diagram_builder = IoTDiagram(thing_name=self.thing_name)
                 else:
                     diagram_builder = NoDiagram()
 
@@ -85,5 +76,10 @@ class Iot(BaseCommand):
                     provider="iot",
                     options=thing_options,
                     diagram_builder=diagram_builder,
-                    default_name="IoT Report - " + self.thing_name,
+                    title="AWS IoT {} Resources - Region {}".format(
+                        self.thing_name, region_name
+                    ),
+                    filename=thing_options.resulting_file_name(
+                        self.thing_name + "_iot"
+                    ),
                 )

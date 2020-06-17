@@ -96,16 +96,14 @@ def aggregate_asg_groups(
 
 
 class VpcDiagram(BaseDiagram):
-    def __init__(self, name: str, filename: str, vpc_id: str):
+    def __init__(self, vpc_id: str):
         """
         VPC diagram
 
-        :param name:
-        :param filename:
         :param vpc_id:
         """
         super().__init__(
-            name, filename, "sfdp"
+            "sfdp"
         )  # Change to fdp and clusters once mingrammer/diagrams#17 is done
         self.vpc_id = vpc_id
 

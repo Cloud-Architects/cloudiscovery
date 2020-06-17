@@ -1,5 +1,6 @@
 import base64
 import os
+import os.path
 from pathlib import Path
 from typing import List
 
@@ -50,8 +51,8 @@ class Report(object):
         self,
         resources: List[Resource],
         resource_relations: List[ResourceEdge],
-        default_name: str,
-        diagram_name: str,
+        title: str,
+        filename: str,
     ):
         dir_template = Environment(
             loader=FileSystemLoader(
@@ -62,13 +63,14 @@ class Report(object):
 
         """generate image64 to add to report"""
         diagram_image = None
-        if diagram_name is not None:
-            image_name = PATH_DIAGRAM_OUTPUT + diagram_name + ".png"
-            with open(image_name, "rb") as image_file:
-                diagram_image = base64.b64encode(image_file.read()).decode("utf-8")
+        if filename is not None:
+            image_name = PATH_DIAGRAM_OUTPUT + filename + ".png"
+            if os.path.exists(image_name):
+                with open(image_name, "rb") as image_file:
+                    diagram_image = base64.b64encode(image_file.read()).decode("utf-8")
 
         html_output = dir_template.get_template("report_html.html").render(
-            default_name=default_name,
+            default_name=title,
             resources_found=resources,
             resources_relations=resource_relations,
             diagram_image=diagram_image,
@@ -76,7 +78,7 @@ class Report(object):
 
         self.make_directories()
 
-        name_output = PATH_REPORT_HTML_OUTPUT + default_name + ".html"
+        name_output = PATH_REPORT_HTML_OUTPUT + filename + ".html"
 
         with open(name_output, "w") as file_output:
             file_output.write(html_output)
