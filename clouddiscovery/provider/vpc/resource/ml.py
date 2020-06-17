@@ -8,6 +8,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
 )
+from shared.common_aws import _describe_subnet
 from shared.error_handler import exception
 
 
@@ -41,32 +42,33 @@ class SAGEMAKERNOTEBOOK(ResourceProvider):
             )
 
             # Using subnet to check VPC
-            ec2 = self.vpc_options.client("ec2")
+            subnets = _describe_subnet(
+                vpc_options=self.vpc_options, subnets_id=notebook_instance["SubnetId"]
+            )
 
-            subnets = ec2.describe_subnets(SubnetIds=[notebook_instance["SubnetId"]])
-
-            if subnets["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
-                sagemaker_notebook_digest = ResourceDigest(
-                    id=data["NotebookInstanceArn"],
-                    type="aws_sagemaker_notebook_instance",
-                )
-                resources_found.append(
-                    Resource(
-                        digest=sagemaker_notebook_digest,
-                        name=data["NotebookInstanceName"],
-                        details="",
-                        group="ml",
+            if subnets is not None:
+                if subnets["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
+                    sagemaker_notebook_digest = ResourceDigest(
+                        id=data["NotebookInstanceArn"],
+                        type="aws_sagemaker_notebook_instance",
                     )
-                )
-
-                self.relations_found.append(
-                    ResourceEdge(
-                        from_node=sagemaker_notebook_digest,
-                        to_node=ResourceDigest(
-                            id=notebook_instance["SubnetId"], type="aws_subnet"
-                        ),
+                    resources_found.append(
+                        Resource(
+                            digest=sagemaker_notebook_digest,
+                            name=data["NotebookInstanceName"],
+                            details="",
+                            group="ml",
+                        )
                     )
-                )
+
+                    self.relations_found.append(
+                        ResourceEdge(
+                            from_node=sagemaker_notebook_digest,
+                            to_node=ResourceDigest(
+                                id=notebook_instance["SubnetId"], type="aws_subnet"
+                            ),
+                        )
+                    )
 
         return resources_found
 
@@ -103,30 +105,34 @@ class SAGEMAKERTRAININGOB(ResourceProvider):
                 for subnets in training_job["VpcConfig"]["Subnets"]:
 
                     # Using subnet to check VPC
-                    ec2 = self.vpc_options.client("ec2")
+                    subnet = _describe_subnet(
+                        vpc_options=self.vpc_options, subnets_id=subnets
+                    )
 
-                    subnet = ec2.describe_subnets(SubnetIds=[subnets])
+                    if subnet is not None:
 
-                    if subnet["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
+                        if subnet["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
 
-                        sagemaker_trainingjob_digest = ResourceDigest(
-                            id=data["TrainingJobArn"],
-                            type="aws_sagemaker_training_job",
-                        )
-                        resources_found.append(
-                            Resource(
-                                digest=sagemaker_trainingjob_digest,
-                                name=data["TrainingJobName"],
-                                details="",
-                                group="ml",
+                            sagemaker_trainingjob_digest = ResourceDigest(
+                                id=data["TrainingJobArn"],
+                                type="aws_sagemaker_training_job",
                             )
-                        )
-
-                        self.relations_found.append(
-                            ResourceEdge(
-                                from_node=sagemaker_trainingjob_digest,
-                                to_node=ResourceDigest(id=subnets, type="aws_subnet"),
+                            resources_found.append(
+                                Resource(
+                                    digest=sagemaker_trainingjob_digest,
+                                    name=data["TrainingJobName"],
+                                    details="",
+                                    group="ml",
+                                )
                             )
-                        )
+
+                            self.relations_found.append(
+                                ResourceEdge(
+                                    from_node=sagemaker_trainingjob_digest,
+                                    to_node=ResourceDigest(
+                                        id=subnets, type="aws_subnet"
+                                    ),
+                                )
+                            )
 
         return resources_found

@@ -13,6 +13,7 @@ from shared.common import (
     ResourceEdge,
     datetime_to_string,
 )
+from shared.common_aws import _describe_subnet
 from shared.error_handler import exception
 
 
@@ -47,31 +48,32 @@ class EFS(ResourceProvider):
             # iterate filesystems to get mount targets
             for datafilesystem in filesystem["MountTargets"]:
 
-                # describe subnet to get VpcId
-                ec2 = self.vpc_options.client("ec2")
+                # Using subnet to check VPC
+                subnets = _describe_subnet(
+                    vpc_options=self.vpc_options, subnets_id=datafilesystem["SubnetId"]
+                )
 
-                subnets = ec2.describe_subnets(SubnetIds=[datafilesystem["SubnetId"]])
-
-                if subnets["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
-                    digest = ResourceDigest(
-                        id=data["FileSystemId"], type="aws_efs_file_system"
-                    )
-                    resources_found.append(
-                        Resource(
-                            digest=digest,
-                            name=data["Name"],
-                            details="",
-                            group="storage",
+                if subnets is not None:
+                    if subnets["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
+                        digest = ResourceDigest(
+                            id=data["FileSystemId"], type="aws_efs_file_system"
                         )
-                    )
-                    self.relations_found.append(
-                        ResourceEdge(
-                            from_node=digest,
-                            to_node=ResourceDigest(
-                                id=datafilesystem["SubnetId"], type="aws_subnet"
-                            ),
+                        resources_found.append(
+                            Resource(
+                                digest=digest,
+                                name=data["Name"],
+                                details="",
+                                group="storage",
+                            )
                         )
-                    )
+                        self.relations_found.append(
+                            ResourceEdge(
+                                from_node=digest,
+                                to_node=ResourceDigest(
+                                    id=datafilesystem["SubnetId"], type="aws_subnet"
+                                ),
+                            )
+                        )
 
         return resources_found
 
