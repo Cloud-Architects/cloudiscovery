@@ -10,7 +10,7 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
-    BaseOptions,
+    BaseAwsOptions,
 )
 from shared.diagram import BaseDiagram
 from shared.report import Report
@@ -32,13 +32,14 @@ class BaseCommand:
 
 class CommandRunner(object):
 
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-arguments
     def run(
         self,
         provider: str,
-        options: BaseOptions,
+        options: BaseAwsOptions,
         diagram_builder: BaseDiagram,
-        default_name: str,
+        title: str,
+        filename: str,
     ):
         """
         Executes a command.
@@ -100,8 +101,11 @@ class CommandRunner(object):
         )
 
         # Diagram integration
-        diagram_name = diagram_builder.build(
-            resources=unique_resources, resource_relations=resource_relations
+        diagram_builder.build(
+            resources=unique_resources,
+            resource_relations=resource_relations,
+            title=title,
+            filename=filename,
         )
 
         # TODO: Generate reports in json/csv/pdf/xls
@@ -112,8 +116,8 @@ class CommandRunner(object):
         report.html_report(
             resources=unique_resources,
             resource_relations=resource_relations,
-            default_name=default_name,
-            diagram_name=diagram_name,
+            title=title,
+            filename=filename,
         )
 
         # TODO: Export in csv/json/yaml/tf... future...

@@ -7,13 +7,11 @@ ROLE_AGGREGATE_PREFIX = "aggregate_"
 
 
 class PolicyDiagram(BaseDiagram):
-    def __init__(self, filename: str):
+    def __init__(self):
         """
         Policy diagram
-
-        :param filename:
         """
-        super().__init__("AWS Permissions map", filename, "fdp")
+        super().__init__("fdp")
 
     # pylint: disable=too-many-locals,too-many-branches
     def group_by_group(

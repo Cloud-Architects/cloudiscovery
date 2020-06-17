@@ -1,7 +1,7 @@
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import List
 
-from shared.common import BaseOptions
+from shared.common import BaseAwsOptions
 from shared.common import (
     ResourceProvider,
     Resource,
@@ -811,7 +811,7 @@ class Principals:
 
 
 class IamPolicy(ResourceProvider):
-    def __init__(self, options: BaseOptions):
+    def __init__(self, options: BaseAwsOptions):
         """
         Iam policy
 
@@ -852,7 +852,7 @@ class IamPolicy(ResourceProvider):
 
 
 class IamGroup(ResourceProvider):
-    def __init__(self, options: BaseOptions):
+    def __init__(self, options: BaseAwsOptions):
         """
         Iam group
 
@@ -913,7 +913,7 @@ class IamGroup(ResourceProvider):
 
 
 class IamRole(ResourceProvider):
-    def __init__(self, options: BaseOptions):
+    def __init__(self, options: BaseAwsOptions):
         """
         Iam role
 
@@ -1025,7 +1025,7 @@ class IamRole(ResourceProvider):
 
 
 class InstanceProfile(ResourceProvider):
-    def __init__(self, vpc_options: BaseOptions):
+    def __init__(self, vpc_options: BaseAwsOptions):
         """
         Instance profile
 

@@ -23,12 +23,20 @@ class bcolors:
     }
 
 
-class BaseOptions(NamedTuple):
+class BaseAwsOptions(NamedTuple):
     session: boto3.Session
     region_name: str
 
     def client(self, service_name: str):
         return self.session.client(service_name, region_name=self.region_name)
+
+    def resulting_file_name(self, suffix):
+        return "{}_{}_{}".format(self.account_number(), self.region_name, suffix)
+
+    def account_number(self):
+        client = self.session.client("sts", region_name=self.region_name)
+        account_id = client.get_caller_identity()["Account"]
+        return account_id
 
 
 class ResourceDigest(NamedTuple):

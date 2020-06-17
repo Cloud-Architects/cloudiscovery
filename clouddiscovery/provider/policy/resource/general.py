@@ -1,6 +1,6 @@
 from typing import List
 
-from shared.common import BaseOptions
+from shared.common import BaseAwsOptions
 from shared.common import (
     ResourceProvider,
     Resource,
@@ -12,7 +12,7 @@ from shared.error_handler import exception
 
 
 class IamUser(ResourceProvider):
-    def __init__(self, options: BaseOptions):
+    def __init__(self, options: BaseAwsOptions):
         """
         Iam user
 
