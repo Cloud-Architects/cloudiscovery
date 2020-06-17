@@ -82,6 +82,7 @@ def get_tag(d, tag_name) -> Optional[str]:
 def generate_session(profile_name):
     try:
         return boto3.Session(profile_name=profile_name)
+    # pylint: disable=broad-except
     except Exception as e:
         message = "You must configure awscli before use this script.\nError: {0}".format(
             str(e)
@@ -102,6 +103,7 @@ def message_handler(message, position):
     print(bcolors.colors.get(position), message, bcolors.colors.get("ENDC"), sep="")
 
 
+# pylint: disable=inconsistent-return-statements
 def datetime_to_string(o):
     if isinstance(o, datetime.datetime):
         return o.__str__()

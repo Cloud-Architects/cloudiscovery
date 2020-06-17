@@ -15,6 +15,7 @@ class PolicyDiagram(BaseDiagram):
         """
         super().__init__("AWS Permissions map", filename, "fdp")
 
+    # pylint: disable=too-many-locals,too-many-branches
     def group_by_group(
         self, resources: List[Resource], initial_resource_relations: List[ResourceEdge]
     ) -> Dict[str, List[Resource]]:
@@ -42,7 +43,7 @@ class PolicyDiagram(BaseDiagram):
                             ordered_resources, resource.group, resource
                         )
                     else:
-                        for principal in principals.keys():
+                        for principal in principals:
                             add_resource_to_group(
                                 ordered_resources, "to_agg_" + principal, resource
                             )

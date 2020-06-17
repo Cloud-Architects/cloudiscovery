@@ -118,10 +118,12 @@ class Vpc(BaseCommand):
                 )
 
 
+# pylint: disable=too-many-branches
 def check_ipvpc_inpolicy(document, vpc_options: VpcOptions):
     document = document.replace("\\", "").lower()
 
     # Checking if VPC is inside document, it's a 100% true information
+    # pylint: disable=no-else-return
     if vpc_options.vpc_id in document:
         return "direct VPC reference"
     else:

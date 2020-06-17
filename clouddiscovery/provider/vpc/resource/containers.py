@@ -22,6 +22,7 @@ class ECS(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    # pylint: disable=too-many-locals,too-many-branches
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("ecs")
@@ -34,6 +35,7 @@ class ECS(ResourceProvider):
 
         message_handler("Collecting data from ECS Cluster...", "HEADER")
 
+        # pylint: disable=too-many-nested-blocks
         if len(response["clusters"]) > 0:
 
             for data in response["clusters"]:
@@ -136,8 +138,5 @@ class ECS(ResourceProvider):
                                                 ),
                                             )
                                         )
-                                    pass
-                            pass
-                        pass
 
         return resources_found

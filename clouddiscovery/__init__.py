@@ -96,6 +96,7 @@ def add_default_arguments(parser, is_global=False):
     )
 
 
+# pylint: disable=too-many-branches
 def main():
     # Entry point for the CLI.
     # Load commands
