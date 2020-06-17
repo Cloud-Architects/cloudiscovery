@@ -82,48 +82,46 @@ class EC2(ResourceProvider):
 
         message_handler("Collecting data from EC2 Instances...", "HEADER")
 
-        if len(response["Reservations"]) > 0:
+        for data in response["Reservations"]:
+            for instances in data["Instances"]:
 
-            for data in response["Reservations"]:
-                for instances in data["Instances"]:
+                if "VpcId" in instances:
+                    if instances["VpcId"] == self.vpc_options.vpc_id:
+                        nametag = get_name_tag(instances)
+                        asg_name = get_tag(instances, "aws:autoscaling:groupName")
 
-                    if "VpcId" in instances:
-                        if instances["VpcId"] == self.vpc_options.vpc_id:
-                            nametag = get_name_tag(instances)
-                            asg_name = get_tag(instances, "aws:autoscaling:groupName")
+                        instance_name = (
+                            instances["InstanceId"] if nametag is None else nametag
+                        )
 
-                            instance_name = (
-                                instances["InstanceId"] if nametag is None else nametag
+                        ec2_digest = ResourceDigest(
+                            id=instances["InstanceId"], type="aws_instance"
+                        )
+                        resources_found.append(
+                            Resource(
+                                digest=ec2_digest,
+                                name=instance_name,
+                                details="",
+                                group="compute",
                             )
-
-                            ec2_digest = ResourceDigest(
-                                id=instances["InstanceId"], type="aws_instance"
+                        )
+                        self.relations_found.append(
+                            ResourceEdge(
+                                from_node=ec2_digest,
+                                to_node=ResourceDigest(
+                                    id=instances["SubnetId"], type="aws_subnet"
+                                ),
                             )
-                            resources_found.append(
-                                Resource(
-                                    digest=ec2_digest,
-                                    name=instance_name,
-                                    details="",
-                                    group="compute",
-                                )
-                            )
+                        )
+                        if asg_name is not None:
                             self.relations_found.append(
                                 ResourceEdge(
                                     from_node=ec2_digest,
                                     to_node=ResourceDigest(
-                                        id=instances["SubnetId"], type="aws_subnet"
+                                        id=asg_name, type="aws_autoscaling_group"
                                     ),
                                 )
                             )
-                            if asg_name is not None:
-                                self.relations_found.append(
-                                    ResourceEdge(
-                                        from_node=ec2_digest,
-                                        to_node=ResourceDigest(
-                                            id=asg_name, type="aws_autoscaling_group"
-                                        ),
-                                    )
-                                )
 
         return resources_found
 

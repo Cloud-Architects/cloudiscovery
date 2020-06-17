@@ -109,10 +109,12 @@ class VpcDiagram(BaseDiagram):
         )  # Change to fdp and clusters once mingrammer/diagrams#17 is done
         self.vpc_id = vpc_id
 
+    # pylint: disable=too-many-branches
     def group_by_group(
         self, resources: List[Resource], initial_resource_relations: List[ResourceEdge]
     ) -> Dict[str, List[Resource]]:
         groups: Dict[str, List[Resource]] = {"": []}
+        # pylint: disable=too-many-nested-blocks
         for resource in resources:
             if resource.digest.type == "aws_subnet":
                 associated_tables = []

@@ -5,10 +5,7 @@ repos:
     hooks:
       - id: black
         language_version: python3
-  # flake8: pinned version required since flake8 doesn't have 'stable' or other generic tag in their repo
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.2
+  - repo: git://github.com/guykisel/prospector-mirror
+    rev: '7ff847e779347033ebbd9e3b88279e7f3a998b45'
     hooks:
-      - id: flake8
-        additional_dependencies: [flake8-docstrings]
-        args: ["--config=setup.cfg"]
+      - id: prospector
