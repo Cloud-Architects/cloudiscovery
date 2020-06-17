@@ -1,4 +1,4 @@
 boto3
 ipaddress
 jinja2<3.0
-diagrams>=0.13
+diagrams>=0.14

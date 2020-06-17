@@ -9,6 +9,7 @@ def exception(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
+        # pylint: disable=broad-except
         except Exception as e:
             if "Could not connect to the endpoint URL" in str(e):
                 message = "\nThe service {} is not available in this region".format(

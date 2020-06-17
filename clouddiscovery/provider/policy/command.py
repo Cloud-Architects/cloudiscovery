@@ -5,16 +5,6 @@ from shared.diagram import NoDiagram
 
 
 class Policy(BaseCommand):
-    def __init__(self, region_names, session, diagram):
-        """
-        Policy
-
-        :param region_names:
-        :param session:
-        :param diagram:
-        """
-        super().__init__(region_names, session, diagram)
-
     def run(self):
         for region in self.region_names:
 

@@ -31,6 +31,8 @@ class BaseCommand:
 
 
 class CommandRunner(object):
+
+    # pylint: disable=too-many-locals
     def run(
         self,
         provider: str,
@@ -72,8 +74,8 @@ class CommandRunner(object):
         all_resources: List[Resource] = []
         resource_relations: List[ResourceEdge] = []
 
-        for provider in providers:
-            provider_instance = provider[1](options)
+        for providerTuple in providers:
+            provider_instance = providerTuple[1](options)
 
             provider_resources = provider_instance.get_resources()
             if provider_resources is not None:
