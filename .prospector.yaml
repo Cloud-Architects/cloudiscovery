@@ -1,0 +1,17 @@
+ignore-paths:
+  - tests
+
+pep8:
+  disable:
+    - D100
+    - D101
+    - D102
+    - D103
+    - D104
+    - D200
+    - D212
+    - D400
+    - D401
+    - W503
+  options:
+    max-line-length: 120
