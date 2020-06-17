@@ -74,3 +74,53 @@ class IAMPOLICY(ResourceProvider):
             )
 
         return False, None
+
+
+class CLOUDHSM(ResourceProvider):
+    def __init__(self, vpc_options: VpcOptions):
+        """
+        Cloud HSM
+
+        :param vpc_options:
+        """
+        super().__init__()
+        self.vpc_options = vpc_options
+
+    @exception
+    def get_resources(self) -> List[Resource]:
+
+        client = self.vpc_options.client("cloudhsmv2")
+
+        resources_found = []
+
+        response = client.describe_clusters()
+
+        message_handler("Collecting data from CloudHSM clusters...", "HEADER")
+
+        if len(response["Clusters"]) > 0:
+
+            for data in response["Clusters"]:
+
+                if data["VpcId"] == self.vpc_options.vpc_id:
+                    cloudhsm_digest = ResourceDigest(
+                        id=data["ClusterId"], type="aws_cloudhsm"
+                    )
+                    resources_found.append(
+                        Resource(
+                            digest=cloudhsm_digest,
+                            name=data["ClusterId"],
+                            details="",
+                            group="security",
+                        )
+                    )
+
+                    for subnet in data["SubnetMapping"]:
+                        subnet_id = data["SubnetMapping"][subnet]
+                        self.relations_found.append(
+                            ResourceEdge(
+                                from_node=cloudhsm_digest,
+                                to_node=ResourceDigest(id=subnet_id, type="aws_subnet"),
+                            )
+                        )
+
+        return resources_found

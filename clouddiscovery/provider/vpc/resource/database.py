@@ -197,3 +197,58 @@ class DOCUMENTDB(ResourceProvider):
                 )
 
         return resources_found
+
+
+class NEPTUNE(ResourceProvider):
+    def __init__(self, vpc_options: VpcOptions):
+        """
+        Neptune
+
+        :param vpc_options:
+        """
+        super().__init__()
+        self.vpc_options = vpc_options
+
+    @exception
+    def get_resources(self) -> List[Resource]:
+
+        client = self.vpc_options.client("neptune")
+
+        resources_found = []
+
+        response = client.describe_db_instances(
+            Filters=[{"Name": "engine", "Values": ["neptune"]}]
+        )
+
+        message_handler("Collecting data from Neptune Instances...", "HEADER")
+
+        # iterate cache clusters to get subnet groups
+        for data in response["DBInstances"]:
+
+            if data["DBSubnetGroup"]["VpcId"] == self.vpc_options.vpc_id:
+                neptune_digest = ResourceDigest(
+                    id=data["DBInstanceArn"], type="aws_neptune_cluster"
+                )
+                subnet_ids = []
+                for subnet in data["DBSubnetGroup"]["Subnets"]:
+                    subnet_ids.append(subnet["SubnetIdentifier"])
+                    self.relations_found.append(
+                        ResourceEdge(
+                            from_node=neptune_digest,
+                            to_node=ResourceDigest(
+                                id=subnet["SubnetIdentifier"], type="aws_subnet"
+                            ),
+                        )
+                    )
+                resources_found.append(
+                    Resource(
+                        digest=neptune_digest,
+                        name=data["DBInstanceIdentifier"],
+                        details="Neptune using subnets {} and engine {}".format(
+                            ", ".join(subnet_ids), data["Engine"]
+                        ),
+                        group="database",
+                    )
+                )
+
+        return resources_found
