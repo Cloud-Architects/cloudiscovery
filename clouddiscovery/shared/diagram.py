@@ -71,6 +71,7 @@ class Mapsources:
         "aws_media_live": "ElementalMedialive",
         "aws_api_gateway_rest_api": "APIGateway",
         "aws_sagemaker_notebook_instance": "Sagemaker",  # TODO: need to fix with new diagram release
+        "aws_sagemaker_training_job": "Sagemaker",  # TODO: need to fix with new diagram release
         "aws_ssm_document": "SSM",
         "aws_cognito_identity_provider": "Cognito",
         "aws_iot_thing": "InternetOfThings",

@@ -69,3 +69,64 @@ class SAGEMAKERNOTEBOOK(ResourceProvider):
                 )
 
         return resources_found
+
+
+class SAGEMAKERTRAININGOB(ResourceProvider):
+    def __init__(self, vpc_options: VpcOptions):
+        """
+        Sagemaker training job
+
+        :param vpc_options:
+        """
+        super().__init__()
+        self.vpc_options = vpc_options
+
+    @exception
+    def get_resources(self) -> List[Resource]:
+
+        client = self.vpc_options.client("sagemaker")
+
+        resources_found = []
+
+        response = client.list_training_jobs()
+
+        message_handler("Collecting data from Sagemaker Training Job...", "HEADER")
+
+        for data in response["TrainingJobSummaries"]:
+
+            training_job = client.describe_training_job(
+                TrainingJobName=data["TrainingJobName"]
+            )
+
+            if "VpcConfig" in training_job:
+
+                for subnets in training_job["VpcConfig"]["Subnets"]:
+
+                    # Using subnet to check VPC
+                    ec2 = self.vpc_options.client("ec2")
+
+                    subnet = ec2.describe_subnets(SubnetIds=[subnets])
+
+                    if subnet["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
+
+                        sagemaker_trainingjob_digest = ResourceDigest(
+                            id=data["TrainingJobArn"],
+                            type="aws_sagemaker_training_job",
+                        )
+                        resources_found.append(
+                            Resource(
+                                digest=sagemaker_trainingjob_digest,
+                                name=data["TrainingJobName"],
+                                details="",
+                                group="ml",
+                            )
+                        )
+
+                        self.relations_found.append(
+                            ResourceEdge(
+                                from_node=sagemaker_trainingjob_digest,
+                                to_node=ResourceDigest(id=subnets, type="aws_subnet"),
+                            )
+                        )
+
+        return resources_found
