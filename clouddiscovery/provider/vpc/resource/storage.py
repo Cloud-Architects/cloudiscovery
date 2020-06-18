@@ -12,6 +12,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     datetime_to_string,
+    get_name_tag,
 )
 from shared.error_handler import exception
 
@@ -44,6 +45,9 @@ class EFS(ResourceProvider):
                 FileSystemId=data["FileSystemId"]
             )
 
+            nametag = get_name_tag(data)
+            filesystem_name = data["FileSystemId"] if nametag is None else nametag
+
             # iterate filesystems to get mount targets
             for datafilesystem in filesystem["MountTargets"]:
 
@@ -59,7 +63,7 @@ class EFS(ResourceProvider):
                     resources_found.append(
                         Resource(
                             digest=digest,
-                            name=data["Name"],
+                            name=filesystem_name,
                             details="",
                             group="storage",
                         )
