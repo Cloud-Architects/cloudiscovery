@@ -18,6 +18,7 @@ import argparse
 import gettext
 import sys
 from os.path import dirname
+import os
 
 import pkg_resources
 
@@ -31,13 +32,20 @@ from provider.vpc.command import Vpc
 from provider.iot.command import Iot
 
 # Check version
-from shared.common import exit_critical, generate_session
+from shared.common import exit_critical, generate_session, message_handler
 
 # pylint: enable=wrong-import-position
 
 if sys.version_info < (3, 6):
     print("Python 3.6 or newer is required", file=sys.stderr)
     sys.exit(1)
+
+if "Graphviz".lower() not in os.environ["PATH"].lower():
+    message_handler(
+        "WARNING: Make sure that you have Graphviz installed and present on PATH. Did you already installed Graphviz? \
+        We couldn't find on PATH.",
+        "WARNING",
+    )
 
 __version__ = "2.0.508"
 
