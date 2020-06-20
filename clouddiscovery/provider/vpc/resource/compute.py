@@ -9,6 +9,8 @@ from shared.common import (
     ResourceEdge,
     get_name_tag,
     get_tag,
+    resource_tags_from_tuples,
+    resource_tags_from_dict,
 )
 from shared.error_handler import exception
 
@@ -49,12 +51,15 @@ class LAMBDA(ResourceProvider):
                                 to_node=ResourceDigest(id=subnet_id, type="aws_subnet"),
                             )
                         )
+                    list_tags_response = client.list_tags(Resource=data["FunctionArn"])
+
                     resources_found.append(
                         Resource(
                             digest=lambda_digest,
                             name=data["FunctionName"],
                             details="",
                             group="compute",
+                            tags=resource_tags_from_dict(list_tags_response["Tags"]),
                         )
                     )
 
@@ -103,6 +108,7 @@ class EC2(ResourceProvider):
                                 name=instance_name,
                                 details="",
                                 group="compute",
+                                tags=resource_tags_from_tuples(instances["Tags"]),
                             )
                         )
                         self.relations_found.append(

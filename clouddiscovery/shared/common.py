@@ -1,6 +1,6 @@
 import datetime
 import re
-from typing import NamedTuple, List, Optional
+from typing import NamedTuple, List, Optional, Dict
 
 import boto3
 
@@ -50,11 +50,46 @@ class ResourceEdge(NamedTuple):
     label: str = None
 
 
+class ResourceTag(NamedTuple):
+    key: str
+    value: str
+
+
 class Resource(NamedTuple):
     digest: ResourceDigest
     name: str
     details: str = ""
     group: str = ""
+    tags: List[ResourceTag] = []
+
+
+def resource_tags_from_tuples(tuples: List[Dict[str, str]]) -> List[ResourceTag]:
+    """
+        List of key-value tuples that store tags, syntax:
+        [
+            {
+                'Key': 'string',
+                'Value': 'string'
+            },
+        ]
+    """
+    result = []
+    for tuple_elem in tuples:
+        result.append(ResourceTag(key=tuple_elem["Key"], value=tuple_elem["Value"]))
+    return result
+
+
+def resource_tags_from_dict(tags: Dict[str, str]) -> List[ResourceTag]:
+    """
+        List of key-value dict that store tags, syntax:
+        {
+            'string': 'string'
+        }
+    """
+    result = []
+    for key, value in tags.items():
+        result.append(ResourceTag(key=key, value=value))
+    return result
 
 
 class ResourceProvider:

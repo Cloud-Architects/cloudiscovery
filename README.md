@@ -102,13 +102,13 @@ This script has been written in python3+ and AWS-CLI and it works in Linux, Wind
 *   Make sure the latest version of AWS-CLI is installed on your workstation, and other components needed, with Python pip already installed:
 
 ```sh
-$ pip install -U clouddiscovery
+pip install -U clouddiscovery
 ```
 
 *   Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
 
 ```sh
-$ aws configure
+aws configure
 ```
 
 ### AWS Permissions 
@@ -179,23 +179,23 @@ $ aws configure
 1.1 To detect AWS VPC resources:
 
 ```sh
-$ clouddiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+clouddiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
 ```
 1.2 To detect AWS policy resources:
 
 ```sh
-$ clouddiscovery aws-policy [--profile-name profile] [--diagram True/False]
+clouddiscovery aws-policy [--profile-name profile] [--diagram True/False]
 ```
 1.3 To detect AWS IoT resources:
 
 ```sh
-$ clouddiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+clouddiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
 ```
 
 2.  For help use:
 
 ```sh
-$ clouddiscovery [aws-vpc|aws-policy|aws-iot] -h
+clouddiscovery [aws-vpc|aws-policy|aws-iot] -h
 ```
 
 ### Using a Docker container
@@ -203,13 +203,13 @@ $ clouddiscovery [aws-vpc|aws-policy|aws-iot] -h
 To build docker container using Dockerfile
 
 ```sh
-$ docker build -t clouddiscovery .
+docker build -t clouddiscovery .
 ```
 
 After build container, you must start container using follow command. The run command will mount a filesystem with your actual aws cli credentials, then you won't need configure aws cli again.
 
 ```sh
-$ docker run \
+docker run \
 -it \
 --mount type=bind,source=$HOME/.aws/,target=/root/.aws/,readonly \
 clouddiscovery \
@@ -227,7 +227,7 @@ This project support English and Portuguese (Brazil) languages. To contribute wi
 *   To build ".mo" file running this command from project root folder:
 
 ```sh
-$ python msgfmt.py -o locales/NEWFOLDER/LC_MESSAGES/messages.mo locales/NEWFOLDER/LC_MESSAGES/messages
+python msgfmt.py -o locales/NEWFOLDER/LC_MESSAGES/messages.mo locales/NEWFOLDER/LC_MESSAGES/messages
 ```
 
 ### Contributing
@@ -239,46 +239,45 @@ If you have improvements or fixes, we would love to have your contributions. Ple
 When developing, it's recommended to use [venv](https://docs.python.org/3/library/venv.html).
 
 In order to create a venv on macOS and Linux:
-```shell script
-$ python3 -m venv env
+```sh
+python3 -m venv env
 ```
 On Windows:
-```
-$ py -m venv venv
+```sh
+py -m venv venv
 OR
-$ python -v venv venv
+python -v venv venv
 ```
 Once installed, you need to activate the virtual environment. Activation will put specific paths for `python` and `pip` commands.
 On macOS and Linux call:
-```
-$ source venv/bin/activate
+```sh
+source venv/bin/activate
 ```
 On Windows:
-```
-$ .\venv\Scripts\activate
+```sh
+.\venv\Scripts\activate
 ```
 
 Make sure you have installed [pre-commit](https://pre-commit.com/#installation).
 
 Install development requirements:
 ```sh
-$ pip install -U -r requirements.txt -r requirements-dev.txt
+pip install -U -r requirements.txt -r requirements-dev.txt
 ```
 
 Add precommit hooks:
-```
-$ pre-commit install
+```sh
+pre-commit install
 ```
 
 To run pre-commit hooks, you can issue the following command:
-```
-$ pre-commit run --all-files
+```sh
+pre-commit run --all-files
 ```
 
 ## Making a release
 
 1.  Update the version in setup.py and create a new git tag with `git tag $VERSION`.
-
 2.  Once you push the tag to GitHub with `git push --tags`, a new CircleCI build is triggered.
 
 ### Similar projects and products
