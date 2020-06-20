@@ -9,8 +9,7 @@ from shared.common import (
     ResourceEdge,
     get_name_tag,
     get_tag,
-    resource_tags_from_tuples,
-    resource_tags_from_dict,
+    resource_tags,
 )
 from shared.error_handler import exception
 
@@ -59,7 +58,7 @@ class LAMBDA(ResourceProvider):
                             name=data["FunctionName"],
                             details="",
                             group="compute",
-                            tags=resource_tags_from_dict(list_tags_response["Tags"]),
+                            tags=resource_tags(list_tags_response),
                         )
                     )
 
@@ -108,7 +107,7 @@ class EC2(ResourceProvider):
                                 name=instance_name,
                                 details="",
                                 group="compute",
-                                tags=resource_tags_from_tuples(instances["Tags"]),
+                                tags=resource_tags(instances),
                             )
                         )
                         self.relations_found.append(
@@ -153,36 +152,33 @@ class EKS(ResourceProvider):
 
         message_handler("Collecting data from EKS Clusters...", "HEADER")
 
-        if len(response["clusters"]) > 0:
+        for data in response["clusters"]:
 
-            for data in response["clusters"]:
+            cluster = client.describe_cluster(name=data)
 
-                cluster = client.describe_cluster(name=data)
-
-                if (
-                    cluster["cluster"]["resourcesVpcConfig"]["vpcId"]
-                    == self.vpc_options.vpc_id
-                ):
-                    digest = ResourceDigest(
-                        id=cluster["cluster"]["arn"], type="aws_eks_cluster"
+            if (
+                cluster["cluster"]["resourcesVpcConfig"]["vpcId"]
+                == self.vpc_options.vpc_id
+            ):
+                digest = ResourceDigest(
+                    id=cluster["cluster"]["arn"], type="aws_eks_cluster"
+                )
+                resources_found.append(
+                    Resource(
+                        digest=digest,
+                        name=cluster["cluster"]["name"],
+                        details="",
+                        group="compute",
+                        tags=resource_tags(data),
                     )
-                    resources_found.append(
-                        Resource(
-                            digest=digest,
-                            name=cluster["cluster"]["name"],
-                            details="",
-                            group="compute",
+                )
+                for subnet_id in cluster["cluster"]["resourcesVpcConfig"]["subnetIds"]:
+                    self.relations_found.append(
+                        ResourceEdge(
+                            from_node=digest,
+                            to_node=ResourceDigest(id=subnet_id, type="aws_subnet"),
                         )
                     )
-                    for subnet_id in cluster["cluster"]["resourcesVpcConfig"][
-                        "subnetIds"
-                    ]:
-                        self.relations_found.append(
-                            ResourceEdge(
-                                from_node=digest,
-                                to_node=ResourceDigest(id=subnet_id, type="aws_subnet"),
-                            )
-                        )
 
         return resources_found
 
@@ -208,42 +204,39 @@ class EMR(ResourceProvider):
 
         message_handler("Collecting data from EMR Clusters...", "HEADER")
 
-        if len(response["Clusters"]) > 0:
+        for data in response["Clusters"]:
 
-            for data in response["Clusters"]:
+            cluster = client.describe_cluster(ClusterId=data["Id"])
 
-                cluster = client.describe_cluster(ClusterId=data["Id"])
+            # Using subnet to check VPC
+            ec2 = self.vpc_options.client("ec2")
 
-                # Using subnet to check VPC
-                ec2 = self.vpc_options.client("ec2")
+            subnets = ec2.describe_subnets(
+                SubnetIds=[cluster["Cluster"]["Ec2InstanceAttributes"]["Ec2SubnetId"]]
+            )
 
-                subnets = ec2.describe_subnets(
-                    SubnetIds=[
-                        cluster["Cluster"]["Ec2InstanceAttributes"]["Ec2SubnetId"]
-                    ]
+            if subnets["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
+                digest = ResourceDigest(id=data["Id"], type="aws_emr_cluster")
+                resources_found.append(
+                    Resource(
+                        digest=digest,
+                        name=data["Name"],
+                        details="",
+                        group="compute",
+                        tags=resource_tags(cluster["Cluster"]),
+                    )
                 )
-
-                if subnets["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
-                    digest = ResourceDigest(id=data["Id"], type="aws_emr_cluster")
-                    resources_found.append(
-                        Resource(
-                            digest=digest,
-                            name=data["Name"],
-                            details="",
-                            group="compute",
-                        )
+                self.relations_found.append(
+                    ResourceEdge(
+                        from_node=digest,
+                        to_node=ResourceDigest(
+                            id=cluster["Cluster"]["Ec2InstanceAttributes"][
+                                "Ec2SubnetId"
+                            ],
+                            type="aws_subnet",
+                        ),
                     )
-                    self.relations_found.append(
-                        ResourceEdge(
-                            from_node=digest,
-                            to_node=ResourceDigest(
-                                id=cluster["Cluster"]["Ec2InstanceAttributes"][
-                                    "Ec2SubnetId"
-                                ],
-                                type="aws_subnet",
-                            ),
-                        )
-                    )
+                )
 
         return resources_found
 
@@ -292,6 +285,7 @@ class AUTOSCALING(ResourceProvider):
                                 data["LaunchConfigurationName"]
                             ),
                             group="compute",
+                            tags=resource_tags(data),
                         )
                     )
                     self.relations_found.append(

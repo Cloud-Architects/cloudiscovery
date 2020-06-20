@@ -11,6 +11,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     datetime_to_string,
+    resource_tags,
 )
 from shared.error_handler import exception
 
@@ -52,7 +53,13 @@ class INTERNETGATEWAY(ResourceProvider):
                 type="aws_internet_gateway",
             )
             resources_found.append(
-                Resource(digest=igw_digest, name=name, details="", group="network")
+                Resource(
+                    digest=igw_digest,
+                    name=name,
+                    details="",
+                    group="network",
+                    tags=resource_tags(response["InternetGateways"][0]),
+                )
             )
             self.relations_found.append(
                 ResourceEdge(
@@ -108,6 +115,7 @@ class NATGATEWAY(ResourceProvider):
                                 data["SubnetId"],
                             ),
                             group="network",
+                            tags=resource_tags(data),
                         )
                     )
                     self.relations_found.append(
@@ -147,6 +155,9 @@ class ELASTICLOADBALANCING(ResourceProvider):
 
             for data in response["LoadBalancerDescriptions"]:
                 if data["VPCId"] == self.vpc_options.vpc_id:
+                    tags_response = client.describe_tags(
+                        LoadBalancerNames=[data["LoadBalancerName"]]
+                    )
                     elb_digest = ResourceDigest(
                         id=data["LoadBalancerName"], type="aws_elb_classic"
                     )
@@ -163,6 +174,7 @@ class ELASTICLOADBALANCING(ResourceProvider):
                             name=data["LoadBalancerName"],
                             details="",
                             group="network",
+                            tags=resource_tags(tags_response["TagDescriptions"][0]),
                         )
                     )
 
@@ -195,6 +207,9 @@ class ELASTICLOADBALANCINGV2(ResourceProvider):
             for data in response["LoadBalancers"]:
 
                 if data["VpcId"] == self.vpc_options.vpc_id:
+                    tags_response = client.describe_tags(
+                        ResourceArns=[data["LoadBalancerArn"]]
+                    )
                     elb_digest = ResourceDigest(
                         id=data["LoadBalancerName"], type="aws_elb"
                     )
@@ -217,6 +232,7 @@ class ELASTICLOADBALANCINGV2(ResourceProvider):
                             name=data["LoadBalancerName"],
                             details="",
                             group="network",
+                            tags=resource_tags(tags_response["TagDescriptions"][0]),
                         )
                     )
 
@@ -293,6 +309,7 @@ class RouteTable(ResourceProvider):
                     name=name,
                     details="default: {}, public: {}".format(is_main, is_public),
                     group="network",
+                    tags=resource_tags(data),
                 )
             )
         return resources_found
@@ -335,6 +352,7 @@ class SUBNET(ResourceProvider):
                         data["CidrBlock"], data["AvailabilityZone"]
                     ),
                     group="network",
+                    tags=resource_tags(data),
                 )
             )
 
@@ -395,6 +413,7 @@ class NACL(ResourceProvider):
                     name=name,
                     details="NACL using Subnets {}".format(", ".join(subnet_ids)),
                     group="network",
+                    tags=resource_tags(data),
                 )
             )
 
@@ -432,6 +451,7 @@ class SECURITYGROUP(ResourceProvider):
                     name=data["GroupName"],
                     details="",
                     group="network",
+                    tags=resource_tags(data),
                 )
             )
             self.relations_found.append(
@@ -493,6 +513,7 @@ class VPCPEERING(ResourceProvider):
                             data["RequesterVpcInfo"]["VpcId"],
                         ),
                         group="network",
+                        tags=resource_tags(data),
                     )
                 )
                 self.relations_found.append(
@@ -515,8 +536,14 @@ class VPC(ResourceProvider):
 
     @exception
     def get_resources(self) -> List[Resource]:
+        client = self.vpc_options.client("ec2")
+        vpc_response = client.describe_vpcs(VpcIds=[self.vpc_options.vpc_id])
         return [
-            Resource(digest=self.vpc_options.vpc_digest(), name=self.vpc_options.vpc_id)
+            Resource(
+                digest=self.vpc_options.vpc_digest(),
+                name=self.vpc_options.vpc_id,
+                tags=resource_tags(vpc_response["Vpcs"][0]),
+            )
         ]
 
 
@@ -558,6 +585,7 @@ class VPCENDPOINT(ResourceProvider):
                                 ", ".join(data["RouteTableIds"])
                             ),
                             group="network",
+                            tags=resource_tags(data),
                         )
                     )
                     self.relations_found.append(
@@ -575,6 +603,7 @@ class VPCENDPOINT(ResourceProvider):
                                 ", ".join(data["SubnetIds"])
                             ),
                             group="network",
+                            tags=resource_tags(data),
                         )
                     )
                     for subnet_id in data["SubnetIds"]:
@@ -640,6 +669,12 @@ class RESTAPIPOLICY(ResourceProvider):
             )
             return (
                 True,
-                Resource(digest=digest, name=data["name"], details="", group="network"),
+                Resource(
+                    digest=digest,
+                    name=data["name"],
+                    details="",
+                    group="network",
+                    tags=resource_tags(data),
+                ),
             )
         return False, None

@@ -7,6 +7,7 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
+    resource_tags,
 )
 from shared.error_handler import exception
 
@@ -45,6 +46,7 @@ class SYNTHETICSCANARIES(ResourceProvider):
                             name=data["Name"],
                             details="",
                             group="management",
+                            tags=resource_tags(data),
                         )
                     )
                     for subnet_id in data["VpcConfig"]["SubnetIds"]:

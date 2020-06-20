@@ -63,19 +63,50 @@ class Resource(NamedTuple):
     tags: List[ResourceTag] = []
 
 
+def resource_tags(resource_data: dict) -> List[ResourceTag]:
+    if "Tags" in resource_data:
+        tags_input = resource_data["Tags"]
+    elif "tags" in resource_data:
+        tags_input = resource_data["tags"]
+    elif "TagList" in resource_data:
+        tags_input = resource_data["TagList"]
+    else:
+        tags_input = None
+
+    tags = []
+    if isinstance(tags_input, list):
+        tags = resource_tags_from_tuples(tags_input)
+    elif isinstance(tags_input, dict):
+        tags = resource_tags_from_dict(tags_input)
+
+    return tags
+
+
 def resource_tags_from_tuples(tuples: List[Dict[str, str]]) -> List[ResourceTag]:
     """
         List of key-value tuples that store tags, syntax:
         [
             {
                 'Key': 'string',
-                'Value': 'string'
+                'Value': 'string',
+                ...
+            },
+        ]
+        OR
+        [
+            {
+                'key': 'string',
+                'value': 'string',
+                ...
             },
         ]
     """
     result = []
     for tuple_elem in tuples:
-        result.append(ResourceTag(key=tuple_elem["Key"], value=tuple_elem["Value"]))
+        if "Key" in tuple_elem and "Value" in tuple_elem:
+            result.append(ResourceTag(key=tuple_elem["Key"], value=tuple_elem["Value"]))
+        elif "key" in tuple_elem and "value" in tuple_elem:
+            result.append(ResourceTag(key=tuple_elem["key"], value=tuple_elem["value"]))
     return result
 
 
