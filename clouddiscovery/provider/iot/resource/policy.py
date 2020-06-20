@@ -7,6 +7,7 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
+    resource_tags,
 )
 from shared.error_handler import exception
 
@@ -40,6 +41,9 @@ class POLICY(ResourceProvider):
 
                 for policy in policies["policies"]:
                     data_policy = client.get_policy(policyName=policy["policyName"])
+                    tag_response = client.list_tags_for_resource(
+                        resourceArn=data_policy["policyArn"]
+                    )
 
                     iot_policy_digest = ResourceDigest(
                         id=data_policy["policyArn"], type="aws_iot_policy"
@@ -50,6 +54,7 @@ class POLICY(ResourceProvider):
                             name=data_policy["policyName"],
                             details="",
                             group="iot",
+                            tags=resource_tags(tag_response),
                         )
                     )
 
