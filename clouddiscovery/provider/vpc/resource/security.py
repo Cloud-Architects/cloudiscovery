@@ -10,6 +10,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     datetime_to_string,
+    resource_tags,
 )
 from shared.error_handler import exception
 
@@ -111,6 +112,7 @@ class CLOUDHSM(ResourceProvider):
                             name=data["ClusterId"],
                             details="",
                             group="security",
+                            tags=resource_tags(data),
                         )
                     )
 

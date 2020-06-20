@@ -70,6 +70,8 @@ def resource_tags(resource_data: dict) -> List[ResourceTag]:
         tags_input = resource_data["tags"]
     elif "TagList" in resource_data:
         tags_input = resource_data["TagList"]
+    elif "TagSet" in resource_data:
+        tags_input = resource_data["TagSet"]
     else:
         tags_input = None
 
