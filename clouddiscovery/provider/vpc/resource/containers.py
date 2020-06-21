@@ -7,6 +7,7 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
+    resource_tags,
 )
 from shared.common_aws import describe_subnet
 from shared.error_handler import exception
@@ -32,7 +33,9 @@ class ECS(ResourceProvider):
         resources_found = []
 
         clusters_list = client.list_clusters()
-        response = client.describe_clusters(clusters=clusters_list["clusterArns"])
+        response = client.describe_clusters(
+            clusters=clusters_list["clusterArns"], include=["TAGS"]
+        )
 
         message_handler("Collecting data from ECS Cluster...", "HEADER")
 
@@ -82,6 +85,7 @@ class ECS(ResourceProvider):
                                                     name=data["clusterName"],
                                                     details="",
                                                     group="container",
+                                                    tags=resource_tags(data),
                                                 )
                                             )
                                             self.relations_found.append(
@@ -131,6 +135,7 @@ class ECS(ResourceProvider):
                                                 name=data["clusterName"],
                                                 details="Instance in EC2 cluster",
                                                 group="container",
+                                                tags=resource_tags(data),
                                             )
                                         )
                                         self.relations_found.append(

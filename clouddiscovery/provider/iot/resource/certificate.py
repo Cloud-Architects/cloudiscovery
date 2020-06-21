@@ -7,6 +7,7 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
+    resource_tags,
 )
 from shared.error_handler import exception
 
@@ -39,6 +40,11 @@ class CERTIFICATE(ResourceProvider):
                     lst_cert = data.split("/")
 
                     data_cert = client.describe_certificate(certificateId=lst_cert[1])
+                    tag_response = client.list_tags_for_resource(
+                        resourceArn=data_cert["certificateDescription"][
+                            "certificateArn"
+                        ]
+                    )
 
                     iot_cert_digest = ResourceDigest(
                         id=data_cert["certificateDescription"]["certificateId"],
@@ -50,6 +56,7 @@ class CERTIFICATE(ResourceProvider):
                             name=data_cert["certificateDescription"]["certificateId"],
                             details="",
                             group="iot",
+                            tags=resource_tags(tag_response),
                         )
                     )
 

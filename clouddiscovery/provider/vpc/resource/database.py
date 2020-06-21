@@ -7,6 +7,7 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
+    resource_tags,
 )
 from shared.error_handler import exception
 
@@ -56,6 +57,10 @@ class RDS(ResourceProvider):
 
         for data in response["DBInstances"]:
             if data["DBSubnetGroup"]["VpcId"] == self.vpc_options.vpc_id:
+                tags_response = client.list_tags_for_resource(
+                    ResourceName=data["DBInstanceArn"]
+                )
+
                 rds_digest = ResourceDigest(
                     id=data["DBInstanceArn"], type="aws_db_instance"
                 )
@@ -79,6 +84,7 @@ class RDS(ResourceProvider):
                             ", ".join(subnet_ids), data["Engine"]
                         ),
                         group="database",
+                        tags=resource_tags(tags_response),
                     )
                 )
 
@@ -171,6 +177,9 @@ class DOCUMENTDB(ResourceProvider):
         for data in response["DBInstances"]:
 
             if data["DBSubnetGroup"]["VpcId"] == self.vpc_options.vpc_id:
+                tags_response = client.list_tags_for_resource(
+                    ResourceName=data["DBInstanceArn"]
+                )
                 docdb_digest = ResourceDigest(
                     id=data["DBInstanceArn"], type="aws_docdb_cluster"
                 )
@@ -193,6 +202,7 @@ class DOCUMENTDB(ResourceProvider):
                             ", ".join(subnet_ids), data["Engine"]
                         ),
                         group="database",
+                        tags=resource_tags(tags_response),
                     )
                 )
 
@@ -226,6 +236,9 @@ class NEPTUNE(ResourceProvider):
         for data in response["DBInstances"]:
 
             if data["DBSubnetGroup"]["VpcId"] == self.vpc_options.vpc_id:
+                tags_response = client.list_tags_for_resource(
+                    ResourceName=data["DBInstanceArn"]
+                )
                 neptune_digest = ResourceDigest(
                     id=data["DBInstanceArn"], type="aws_neptune_cluster"
                 )
@@ -248,6 +261,7 @@ class NEPTUNE(ResourceProvider):
                             ", ".join(subnet_ids), data["Engine"]
                         ),
                         group="database",
+                        tags=resource_tags(tags_response),
                     )
                 )
 

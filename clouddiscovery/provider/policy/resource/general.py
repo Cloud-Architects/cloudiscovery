@@ -1,6 +1,6 @@
 from typing import List
 
-from shared.common import BaseAwsOptions
+from shared.common import BaseAwsOptions, resource_tags
 from shared.common import (
     ResourceProvider,
     Resource,
@@ -31,12 +31,14 @@ class IamUser(ResourceProvider):
         users_found = []
         for users in pages:
             for data in users["Users"]:
+                tag_response = self.client.list_user_tags(UserName=data["UserName"],)
                 users_found.append(
                     Resource(
                         digest=ResourceDigest(id=data["UserName"], type="aws_iam_user"),
                         name=data["UserName"],
                         details="",
                         group="User",
+                        tags=resource_tags(tag_response),
                     )
                 )
         self.users_found = users_found

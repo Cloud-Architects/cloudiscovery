@@ -9,6 +9,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     datetime_to_string,
+    resource_tags,
 )
 from shared.common_aws import describe_subnet
 from shared.error_handler import exception
@@ -36,6 +37,7 @@ class MEDIACONNECT(ResourceProvider):
         message_handler("Collecting data from Media Connect...", "HEADER")
 
         for data in response["Flows"]:
+            tags_response = client.list_tags_for_resource(ResourceArn=data["FlowArn"])
 
             data_flow = client.describe_flow(FlowArn=data["FlowArn"])
 
@@ -62,6 +64,7 @@ class MEDIACONNECT(ResourceProvider):
                                         self.vpc_options.vpc_id, data_interfaces["Name"]
                                     ),
                                     group="mediaservices",
+                                    tags=resource_tags(tags_response),
                                 )
                             )
                             self.relations_found.append(
@@ -99,6 +102,7 @@ class MEDIALIVE(ResourceProvider):
         message_handler("Collecting data from Media Live Inputs...", "HEADER")
 
         for data in response["Inputs"]:
+            tags_response = client.list_tags_for_resource(ResourceArn=data["Arn"])
             for destinations in data["Destinations"]:
                 if "Vpc" in destinations:
                     # describe networkinterface to get VpcId
@@ -116,6 +120,7 @@ class MEDIALIVE(ResourceProvider):
                                 name="Input " + destinations["Ip"],
                                 details="",
                                 group="mediaservices",
+                                tags=resource_tags(tags_response),
                             )
                         )
                         self.relations_found.append(
@@ -160,6 +165,7 @@ class MEDIASTORE(ResourceProvider):
             )
 
             if ipvpc_found is not False:
+                tags_response = client.list_tags_for_resource(Resource=data["ARN"])
                 digest = ResourceDigest(id=data["ARN"], type="aws_mediastore_polocy")
                 resources_found.append(
                     Resource(
@@ -167,6 +173,7 @@ class MEDIASTORE(ResourceProvider):
                         name=data["Name"],
                         details="",
                         group="mediaservices",
+                        tags=resource_tags(tags_response),
                     )
                 )
                 self.relations_found.append(

@@ -12,6 +12,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     datetime_to_string,
+    resource_tags,
 )
 from shared.common_aws import describe_subnet
 from shared.error_handler import exception
@@ -64,6 +65,7 @@ class EFS(ResourceProvider):
                                 name=data["Name"],
                                 details="",
                                 group="storage",
+                                tags=resource_tags(data),
                             )
                         )
                         self.relations_found.append(
@@ -125,12 +127,19 @@ class S3POLICY(ResourceProvider):
         )
 
         if ipvpc_found is True:
+            tags_response = client.get_bucket_tagging(Bucket=data["Name"])
             digest = ResourceDigest(id=data["Name"], type="aws_s3_bucket_policy")
             self.relations_found.append(
                 ResourceEdge(from_node=digest, to_node=self.vpc_options.vpc_digest())
             )
             return (
                 True,
-                Resource(digest=digest, name=data["Name"], details="", group="storage"),
+                Resource(
+                    digest=digest,
+                    name=data["Name"],
+                    details="",
+                    group="storage",
+                    tags=resource_tags(tags_response),
+                ),
             )
         return False, None

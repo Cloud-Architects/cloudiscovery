@@ -1,7 +1,7 @@
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import List
 
-from shared.common import BaseAwsOptions
+from shared.common import BaseAwsOptions, resource_tags
 from shared.common import (
     ResourceProvider,
     Resource,
@@ -599,7 +599,7 @@ class Principals:
         },
         "s3.amazonaws.com": {"type": "aws_s3", "name": "S3", "group": "storage"},
         "sagemaker.amazonaws.com": {
-            "type": "aws_sagemaker_notebook_instance",
+            "type": "aws_sagemaker",
             "name": "Sagemaker",
             "group": "ml",
         },
@@ -936,12 +936,14 @@ class IamRole(ResourceProvider):
                 resource_digest = ResourceDigest(
                     id=data["RoleName"], type="aws_iam_role"
                 )
+                tag_response = self.client.list_role_tags(RoleName=data["RoleName"],)
                 resources_found.append(
                     Resource(
                         digest=resource_digest,
                         name=data["RoleName"],
                         details="",
                         group="",
+                        tags=resource_tags(tag_response),
                     )
                 )
                 if (

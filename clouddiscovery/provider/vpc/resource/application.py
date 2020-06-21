@@ -10,6 +10,7 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
+    resource_tags,
 )
 from shared.error_handler import exception
 
@@ -71,6 +72,7 @@ class SQSPOLICY(ResourceProvider):
                 )
 
                 if ipvpc_found is not False:
+                    list_tags_response = client.list_queue_tags(QueueUrl=queue)
                     resource_digest = ResourceDigest(
                         id=queuearn, type="aws_sqs_queue_policy"
                     )
@@ -87,6 +89,7 @@ class SQSPOLICY(ResourceProvider):
                             name=queue,
                             details="",
                             group="application",
+                            tags=resource_tags(list_tags_response),
                         ),
                     )
 

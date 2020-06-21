@@ -9,6 +9,7 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
+    resource_tags,
 )
 from shared.error_handler import exception
 
@@ -57,6 +58,9 @@ class ELASTICSEARCH(ResourceProvider):
                     == self.vpc_options.vpc_id
                     or ipvpc_found is True
                 ):
+                    list_tags_response = client.list_tags(
+                        ARN=elasticsearch_domain["DomainStatus"]["ARN"]
+                    )
                     digest = ResourceDigest(
                         id=elasticsearch_domain["DomainStatus"]["DomainId"],
                         type="aws_elasticsearch_domain",
@@ -67,6 +71,7 @@ class ELASTICSEARCH(ResourceProvider):
                             name=elasticsearch_domain["DomainStatus"]["DomainName"],
                             details="",
                             group="analytics",
+                            tags=resource_tags(list_tags_response),
                         )
                     )
                     for subnet_id in elasticsearch_domain["DomainStatus"]["VPCOptions"][
@@ -130,6 +135,7 @@ class MSK(ResourceProvider):
                                 name=data["ClusterName"],
                                 details="",
                                 group="analytics",
+                                tags=resource_tags(data),
                             )
                         )
                         self.relations_found.append(

@@ -7,6 +7,7 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
+    resource_tags,
 )
 from shared.error_handler import exception
 
@@ -31,6 +32,7 @@ class THINGS(ResourceProvider):
 
         for thing in self.iot_options.thing_name["things"]:
             client.describe_thing(thingName=thing["thingName"])
+            tag_response = client.list_tags_for_resource(resourceArn=thing["thingArn"])
 
             resources_found.append(
                 Resource(
@@ -38,6 +40,7 @@ class THINGS(ResourceProvider):
                     name=thing["thingName"],
                     details="",
                     group="iot",
+                    tags=resource_tags(tag_response),
                 )
             )
 
@@ -77,12 +80,16 @@ class TYPE(ResourceProvider):
                         iot_type_digest = ResourceDigest(
                             id=thing_type["thingTypeArn"], type="aws_iot_type"
                         )
+                        tag_response = client.list_tags_for_resource(
+                            resourceArn=thing_type["thingTypeArn"]
+                        )
                         resources_found.append(
                             Resource(
                                 digest=iot_type_digest,
                                 name=thing_type["thingTypeName"],
                                 details="",
                                 group="iot",
+                                tags=resource_tags(tag_response),
                             )
                         )
 
@@ -134,12 +141,16 @@ class JOB(ResourceProvider):
                         iot_job_digest = ResourceDigest(
                             id=job["jobId"], type="aws_iot_job"
                         )
+                        tag_response = client.list_tags_for_resource(
+                            resourceArn=job["jobArn"]
+                        )
                         resources_found.append(
                             Resource(
                                 digest=iot_job_digest,
                                 name=job["jobId"],
                                 details="",
                                 group="iot",
+                                tags=resource_tags(tag_response),
                             )
                         )
 
@@ -189,12 +200,16 @@ class BILLINGGROUP(ResourceProvider):
                         iot_billing_group_digest = ResourceDigest(
                             id=billing_group["groupArn"], type="aws_iot_billing_group"
                         )
+                        tag_response = client.list_tags_for_resource(
+                            resourceArn=billing_group["groupArn"]
+                        )
                         resources_found.append(
                             Resource(
                                 digest=iot_billing_group_digest,
                                 name=billing_group["groupName"],
                                 details="",
                                 group="iot",
+                                tags=resource_tags(tag_response),
                             )
                         )
 

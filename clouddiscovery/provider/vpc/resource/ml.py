@@ -7,6 +7,7 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
+    resource_tags,
 )
 from shared.common_aws import describe_subnet
 from shared.error_handler import exception
@@ -40,6 +41,7 @@ class SAGEMAKERNOTEBOOK(ResourceProvider):
             notebook_instance = client.describe_notebook_instance(
                 NotebookInstanceName=data["NotebookInstanceName"]
             )
+            tags_response = client.list_tags(ResourceArn=data["NotebookInstanceArn"],)
 
             # Using subnet to check VPC
             subnets = describe_subnet(
@@ -58,6 +60,7 @@ class SAGEMAKERNOTEBOOK(ResourceProvider):
                             name=data["NotebookInstanceName"],
                             details="",
                             group="ml",
+                            tags=resource_tags(tags_response),
                         )
                     )
 
@@ -95,7 +98,7 @@ class SAGEMAKERTRAININGOB(ResourceProvider):
         message_handler("Collecting data from Sagemaker Training Job...", "HEADER")
 
         for data in response["TrainingJobSummaries"]:
-
+            tags_response = client.list_tags(ResourceArn=data["TrainingJobArn"],)
             training_job = client.describe_training_job(
                 TrainingJobName=data["TrainingJobName"]
             )
@@ -123,6 +126,7 @@ class SAGEMAKERTRAININGOB(ResourceProvider):
                                     name=data["TrainingJobName"],
                                     details="",
                                     group="ml",
+                                    tags=resource_tags(tags_response),
                                 )
                             )
 

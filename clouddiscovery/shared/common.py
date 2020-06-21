@@ -1,6 +1,6 @@
 import datetime
 import re
-from typing import NamedTuple, List, Optional
+from typing import NamedTuple, List, Optional, Dict
 
 import boto3
 
@@ -50,11 +50,79 @@ class ResourceEdge(NamedTuple):
     label: str = None
 
 
+class ResourceTag(NamedTuple):
+    key: str
+    value: str
+
+
 class Resource(NamedTuple):
     digest: ResourceDigest
     name: str
     details: str = ""
     group: str = ""
+    tags: List[ResourceTag] = []
+
+
+def resource_tags(resource_data: dict) -> List[ResourceTag]:
+    if "Tags" in resource_data:
+        tags_input = resource_data["Tags"]
+    elif "tags" in resource_data:
+        tags_input = resource_data["tags"]
+    elif "TagList" in resource_data:
+        tags_input = resource_data["TagList"]
+    elif "TagSet" in resource_data:
+        tags_input = resource_data["TagSet"]
+    else:
+        tags_input = None
+
+    tags = []
+    if isinstance(tags_input, list):
+        tags = resource_tags_from_tuples(tags_input)
+    elif isinstance(tags_input, dict):
+        tags = resource_tags_from_dict(tags_input)
+
+    return tags
+
+
+def resource_tags_from_tuples(tuples: List[Dict[str, str]]) -> List[ResourceTag]:
+    """
+        List of key-value tuples that store tags, syntax:
+        [
+            {
+                'Key': 'string',
+                'Value': 'string',
+                ...
+            },
+        ]
+        OR
+        [
+            {
+                'key': 'string',
+                'value': 'string',
+                ...
+            },
+        ]
+    """
+    result = []
+    for tuple_elem in tuples:
+        if "Key" in tuple_elem and "Value" in tuple_elem:
+            result.append(ResourceTag(key=tuple_elem["Key"], value=tuple_elem["Value"]))
+        elif "key" in tuple_elem and "value" in tuple_elem:
+            result.append(ResourceTag(key=tuple_elem["key"], value=tuple_elem["value"]))
+    return result
+
+
+def resource_tags_from_dict(tags: Dict[str, str]) -> List[ResourceTag]:
+    """
+        List of key-value dict that store tags, syntax:
+        {
+            'string': 'string'
+        }
+    """
+    result = []
+    for key, value in tags.items():
+        result.append(ResourceTag(key=key, value=value))
+    return result
 
 
 class ResourceProvider:

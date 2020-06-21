@@ -79,6 +79,7 @@ class Mapsources:
         "aws_media_tailor": "ElementalMediatailor",
         "aws_media_live": "ElementalMedialive",
         "aws_api_gateway_rest_api": "APIGateway",
+        "aws_sagemaker": "Sagemaker",
         "aws_sagemaker_notebook_instance": "SagemakerNotebook",
         "aws_sagemaker_training_job": "SagemakerTrainingJob",
         "aws_ssm_document": "SSM",
@@ -190,7 +191,7 @@ class Mapsources:
         "aws_signer": "General",  # TODO: need to fix with new diagram release
         "aws_signin": "General",  # TODO: need to fix with new diagram release
         "aws_sms": "ServerMigrationService",
-        "aws_sso": "General",  # TODO: need to fix with new diagram release
+        "aws_sso": "SingleSignOn",
         "aws_states": "General",  # TODO: need to fix with new diagram release
         "aws_storagegateway": "StorageGateway",
         "aws_support": "Support",
@@ -199,14 +200,14 @@ class Mapsources:
         "aws_transfer": "MigrationAndTransfer",
         "aws_translate": "Translate",
         "aws_tts": "General",  # TODO: need to fix with new diagram release
-        "aws_vmie": "General",  # TODO: need to fix with new diagram release
+        "aws_vmie": "EC2",
         "aws_waf": "WAF",
         "aws_workdocs": "Workdocs",
         "aws_worklink": "Worklink",
         "aws_workmail": "Workmail",
         "aws_workspaces": "Workspaces",
         "aws_xray": "XRay",
-        "aws_spotfleet": "General",  # TODO: need to fix with new diagram release
+        "aws_spotfleet": "EC2",
         "aws_sqs": "SQS",
         "aws_connect": "Connect",
         "aws_iotsitewise": "IotSitewise",
