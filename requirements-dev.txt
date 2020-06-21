@@ -13,3 +13,5 @@ pytest-xdist
 pytest-pythonpath
 pre-commit
 assertpy
+wheel
+twine
