@@ -1,5 +1,5 @@
 [MASTER]
-init-hook='import sys; sys.path.append("clouddiscovery;cloudiscovery")'
+init-hook='import sys; sys.path.append("cloudiscovery")'
 
 [FORMAT]
 max-line-length=120

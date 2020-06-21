@@ -14,7 +14,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-aws-network-discovery/
 build/
 develop-eggs/
 dist/
@@ -36,7 +35,7 @@ MANIFEST
 assets/diagrams/
 .vscode/
 venv/
-clouddiscovery/assets/
+cloudiscovery/assets/
 assets/
 
 # PyInstaller
