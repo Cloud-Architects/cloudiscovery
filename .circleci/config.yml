@@ -31,9 +31,7 @@ jobs:
       - python/save-cache
       - run:
           name: verify git tag vs. version
-          command: |
-            . venv/bin/activate
-            python setup.py verify
+          command: python setup.py verify
       - python/dist
       - run:
           name: init .pypirc
@@ -43,9 +41,7 @@ jobs:
             echo -e "password = $PYPI_TOKEN" >> ~/.pypirc
       - run:
           name: upload to pypi
-          command: |
-            . venv/bin/activate
-            twine upload dist/*
+          command: twine upload dist/*
 
 workflows:
   main:
