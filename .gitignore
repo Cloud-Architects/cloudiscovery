@@ -37,6 +37,7 @@ assets/diagrams/
 venv/
 cloudiscovery/assets/
 assets/
+!docs/*
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
