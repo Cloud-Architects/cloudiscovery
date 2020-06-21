@@ -297,7 +297,7 @@ pre-commit run --all-files
 
 ## Making a release
 
-1.  Update the version in setup.py and create a new git tag with `git tag $VERSION`.
+1.  Update the version in cloudiscovery/__init\__.py and create a new git tag with `git tag $VERSION`.
 2.  Once you push the tag to GitHub with `git push --tags`, a new CircleCI build is triggered.
 
 ### Similar projects and products
