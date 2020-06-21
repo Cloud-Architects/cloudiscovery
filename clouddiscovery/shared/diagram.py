@@ -82,6 +82,7 @@ class Mapsources:
         "aws_sagemaker": "Sagemaker",
         "aws_sagemaker_notebook_instance": "SagemakerNotebook",
         "aws_sagemaker_training_job": "SagemakerTrainingJob",
+        "aws_sagemaker_model": "SagemakerModel",
         "aws_ssm_document": "SSM",
         "aws_cognito_identity_provider": "Cognito",
         "aws_iot_thing": "InternetOfThings",

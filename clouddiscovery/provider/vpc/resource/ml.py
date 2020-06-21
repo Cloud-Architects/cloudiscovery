@@ -140,3 +140,66 @@ class SAGEMAKERTRAININGOB(ResourceProvider):
                             )
 
         return resources_found
+
+
+class SAGEMAKERMODEL(ResourceProvider):
+    def __init__(self, vpc_options: VpcOptions):
+        """
+        Sagemaker model
+
+        :param vpc_options:
+        """
+        super().__init__()
+        self.vpc_options = vpc_options
+
+    @exception
+    def get_resources(self) -> List[Resource]:
+
+        client = self.vpc_options.client("sagemaker")
+
+        resources_found = []
+
+        response = client.list_models()
+
+        message_handler("Collecting data from Sagemaker Model...", "HEADER")
+
+        for data in response["Models"]:
+            tags_response = client.list_tags(ResourceArn=data["ModelArn"],)
+            model = client.describe_training_job(TrainingJobName=data["ModelName"])
+
+            if "VpcConfig" in model:
+
+                for subnets in model["VpcConfig"]["Subnets"]:
+
+                    # Using subnet to check VPC
+                    subnet = describe_subnet(
+                        vpc_options=self.vpc_options, subnet_ids=subnets
+                    )
+
+                    if subnet is not None:
+
+                        if subnet["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
+
+                            sagemaker_model_digest = ResourceDigest(
+                                id=data["ModelArn"], type="aws_sagemaker_model",
+                            )
+                            resources_found.append(
+                                Resource(
+                                    digest=sagemaker_model_digest,
+                                    name=data["ModelName"],
+                                    details="",
+                                    group="ml",
+                                    tags=resource_tags(tags_response),
+                                )
+                            )
+
+                            self.relations_found.append(
+                                ResourceEdge(
+                                    from_node=sagemaker_model_digest,
+                                    to_node=ResourceDigest(
+                                        id=subnets, type="aws_subnet"
+                                    ),
+                                )
+                            )
+
+        return resources_found
