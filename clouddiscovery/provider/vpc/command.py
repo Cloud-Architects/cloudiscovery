@@ -31,7 +31,8 @@ class VpcOptions(BaseAwsOptions):
 
 
 class Vpc(BaseCommand):
-    def __init__(self, vpc_id, region_names, session, diagram):
+    # pylint: disable=too-many-arguments
+    def __init__(self, vpc_id, region_names, session, diagram, filters):
         """
         VPC command
 
@@ -39,8 +40,9 @@ class Vpc(BaseCommand):
         :param region_names:
         :param session:
         :param diagram:
+        :param filters:
         """
-        super().__init__(region_names, session, diagram)
+        super().__init__(region_names, session, diagram, filters)
         self.vpc_id = vpc_id
 
     @staticmethod
@@ -63,7 +65,7 @@ class Vpc(BaseCommand):
         print(message)
 
     def run(self):
-        command_runner = CommandRunner()
+        command_runner = CommandRunner(self.filters)
 
         for region in self.region_names:
 

@@ -24,7 +24,8 @@ class IotOptions(BaseAwsOptions):
 
 
 class Iot(BaseCommand):
-    def __init__(self, thing_name, region_names, session, diagram):
+    # pylint: disable=too-many-arguments
+    def __init__(self, thing_name, region_names, session, diagram, filters):
         """
         Iot command
 
@@ -32,12 +33,13 @@ class Iot(BaseCommand):
         :param region_names:
         :param session:
         :param diagram:
+        :param filters:
         """
-        super().__init__(region_names, session, diagram)
+        super().__init__(region_names, session, diagram, filters)
         self.thing_name = thing_name
 
     def run(self):
-        command_runner = CommandRunner()
+        command_runner = CommandRunner(self.filters)
 
         for region_name in self.region_names:
 

@@ -180,17 +180,17 @@ aws configure
 1.1 To detect AWS VPC resources:
 
 ```sh
-clouddiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+clouddiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx]
 ```
 1.2 To detect AWS policy resources:
 
 ```sh
-clouddiscovery aws-policy [--profile-name profile] [--diagram True/False]
+clouddiscovery aws-policy [--profile-name profile] [--diagram True/False] [--filter xxx]
 ```
 1.3 To detect AWS IoT resources:
 
 ```sh
-clouddiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False]
+clouddiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx]
 ```
 
 2.  For help use:
@@ -198,6 +198,22 @@ clouddiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--pr
 ```sh
 clouddiscovery [aws-vpc|aws-policy|aws-iot] -h
 ```
+
+### Filtering
+
+It's possible to filter resources by tags and resource type. To filter, add an option `--filter <VALUE>`, where `<VALUE>` can be:
+
+1.  `Name=tags.costCenter;Value=20000` - to filter resources by a tag name `costCenter` and with value `20000`.
+2.  `Name=type;Value=aws_lambda_function` to only list lambda functions.
+
+If a resource doesn't have a tag, it will be included. It's possible to pass multiple values, to be able to select a value from a set. Values are split by `:` sign. If a desired value has a `:` sign, wrap it in `'` signs e.g. `--filter="Name=tags.costCenter;Value=20000:'20001:1'`.
+
+It is possible to pass multiple filter options, just pass `-f filter_1 -f filter_2`. In that case, the tool will return resources that match either of the filters
+
+Useful [CF tags](https://aws.amazon.com/blogs/devops/tracking-the-cost-of-your-aws-cloudformation-stack/):
+1.  `aws:cloudformation:stack-name` - Stack name
+2.  `aws:cloudformation:stack-id` - Stack id
+3.  `aws:cloudformation:logical-id` - Logical id defined in CF template
 
 ### Using a Docker container
 
