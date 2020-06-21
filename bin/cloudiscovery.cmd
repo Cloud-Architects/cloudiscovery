@@ -49,12 +49,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import clouddiscovery
+import cloudiscovery
 import sys
 
 
 def main():
-    return clouddiscovery.main()
+    return cloudiscovery.main()
 
 
 if __name__ == '__main__':

@@ -16,11 +16,11 @@ limitations under the License.
 import sys
 
 
-import clouddiscovery
+import cloudiscovery
 
 
 def main():
-    return clouddiscovery.main()
+    return cloudiscovery.main()
 
 
 if __name__ == "__main__":

@@ -1,3 +1,3 @@
 exclude_paths:
-  - 'clouddiscovery/tests/**'
+  - 'cloudiscovery/tests/**'
   - 'tests/**'
