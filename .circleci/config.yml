@@ -4,7 +4,7 @@ orbs:
   python: circleci/python@0.3.0
 
 jobs:
-  build-and-test:
+  build:
     executor: python/default
     steps:
       - checkout
@@ -31,9 +31,7 @@ jobs:
       - python/save-cache
       - run:
           name: verify git tag vs. version
-          command: |
-            . venv/bin/activate
-            python setup.py verify
+          command: python setup.py verify
       - python/dist
       - run:
           name: init .pypirc
@@ -43,20 +41,21 @@ jobs:
             echo -e "password = $PYPI_TOKEN" >> ~/.pypirc
       - run:
           name: upload to pypi
-          command: |
-            . venv/bin/activate
-            twine upload dist/*
+          command: twine upload dist/*
 
 workflows:
-  main:
+  version: 2
+  build-and-deploy:
     jobs:
-      - build-and-test
+      - build:
+          filters:  # required since `deploy` has tag filters AND requires `build`
+            tags:
+              only: /.*/
       - deploy:
           requires:
-            - build-and-test
+            - build
           filters:
             tags:
               only: /[0-9]+(\.[0-9]+)*/
             branches:
-              only:
-                - release
+              ignore: /.*/
