@@ -1,15 +1,15 @@
 # Install dependencies
 -r requirements.txt
 
-# Install test dependencies
+# Install dev dependencies
 black
-flake8
-flake8-docstrings
+prospector
 pytest
 pytest-runner
 pytest-flake8
 pytest-black
 pytest-cov
 pytest-xdist
+pytest-pythonpath
 pre-commit
 assertpy

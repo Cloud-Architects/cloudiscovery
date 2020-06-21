@@ -1,0 +1,8 @@
+[MASTER]
+init-hook='import sys; sys.path.append("cloudiscovery")'
+
+[FORMAT]
+max-line-length=120
+
+[MESSAGES CONTROL]
+disable=pointless-string-statement,locally-disabled,bad-super-call,unnecessary-lambda,missing-class-docstring,arguments-differ,unused-argument,useless-object-inheritance,too-few-public-methods,missing-module-docstring,import-error,eval-used,bad-continuation,invalid-name,missing-function-docstring,no-self-use,no-name-in-module,too-many-lines,attribute-defined-outside-init,fixme,exec-used,expression-not-assigned,too-many-branches

@@ -1,0 +1,55 @@
+<p><strong><span style="font-size: 15pt;">cloudiscovery </span>- <span style="font-size: 12pt;">A tool to help you discover resources in the cloud environment.</span></strong></p>
+<p><span style="font-size: 14pt;"><strong>{{ default_name }}</strong></span></p>
+<p><span style="font-size: 12pt;">Found resources</span></p>
+<table style="border-collapse: collapse; width: 100%;" border="1">
+<tbody>
+<tr>
+<td style="width: 20%; text-align: center;"><strong>Type</strong></td>
+<td style="width: 20%; text-align: center;"><strong>Group</strong></td>
+<td style="width: 20%; text-align: center;"><strong>Id</strong></td>
+<td style="width: 20%; text-align: center;"><strong>Name</strong></td>
+<td style="width: 20%; text-align: center;"><strong>Details</strong></td>
+<td style="width: 20%; text-align: center;"><strong>Tags</strong></td>
+</tr>
+{% for resource_found in resources_found %}
+    <tr>
+    <td style="width: 20%;">{{ resource_found.digest.type}}</td>
+    <td style="width: 20%;">{{ resource_found.group}}</td>
+    <td style="width: 20%;">{{ resource_found.digest.id}}</td>
+    <td style="width: 20%;">{{ resource_found.name}}</td>
+    <td style="width: 20%;">{{ resource_found.detail}}</td>
+    <td style="width: 20%;">
+        {% for tag in resource_found.tags %}
+        <small><b>{{ tag.key}}</b>: {{ tag.value}}</small><br />
+        {%- endfor %}
+    </td>
+    </tr>
+{%- endfor %}
+</tbody>
+</table>
+<p><span style="font-size: 12pt;">Found relations</span></p>
+<table style="border-collapse: collapse; width: 100%; height: 92px;" border="1">
+<tbody>
+<tr style="height: 46px;">
+<td style="width: 25%; text-align: center; background-color: #bfedd2; height: 46px;">From type</td>
+<td style="width: 25%; text-align: center; background-color: #bfedd2; height: 46px;">From id</td>
+<td style="width: 25%; text-align: center; background-color: #c2e0f4; height: 46px;">To type</td>
+<td style="width: 25%; text-align: center; background-color: #c2e0f4; height: 46px;">To id</td>
+</tr>
+{% for resource_relations in resources_relations %}
+<tr style="height: 46px;">
+<td style="width: 25%; height: 46px;">{{ resource_relations.from_node.type}}</td>
+<td style="width: 25%; height: 46px;">{{ resource_relations.from_node.id}}</td>
+<td style="width: 25%; height: 46px;">{{ resource_relations.to_node.type}}</td>
+<td style="width: 25%; height: 46px;">{{ resource_relations.to_node.id}}</td>
+</tr>
+{%- endfor %}
+</tbody>
+</table>
+{% if diagram_image is not none %}   
+    <p>Diagram</p>
+    {% set base64img = "data:image/png;base64," + diagram_image %}
+    <img src={{ base64img }} widht="1024" height="768">
+{%endif %}
+
+<p>&nbsp;</p>
