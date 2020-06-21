@@ -20,4 +20,4 @@ pep8:
 
 mccabe:
   options:
-    max-complexity: 17
+    max-complexity: 19

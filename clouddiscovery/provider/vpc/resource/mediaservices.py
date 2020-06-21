@@ -11,6 +11,7 @@ from shared.common import (
     datetime_to_string,
     resource_tags,
 )
+from shared.common_aws import describe_subnet
 from shared.error_handler import exception
 
 
@@ -44,36 +45,37 @@ class MEDIACONNECT(ResourceProvider):
 
                 for data_interfaces in data_flow["Flow"]["VpcInterfaces"]:
 
-                    # describe subnet to get VpcId
-                    ec2 = self.vpc_options.client("ec2")
-
-                    subnets = ec2.describe_subnets(
-                        SubnetIds=[data_interfaces["SubnetId"]]
+                    # Using subnet to check VPC
+                    subnets = describe_subnet(
+                        vpc_options=self.vpc_options,
+                        subnet_ids=data_interfaces["SubnetId"],
                     )
 
-                    if subnets["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
-                        digest = ResourceDigest(
-                            id=data["FlowArn"], type="aws_media_connect"
-                        )
-                        resources_found.append(
-                            Resource(
-                                digest=digest,
-                                name=data["Name"],
-                                details="Flow using VPC {} in VPC Interface {}".format(
-                                    self.vpc_options.vpc_id, data_interfaces["Name"]
-                                ),
-                                group="mediaservices",
-                                tags=resource_tags(tags_response),
+                    if subnets is not None:
+                        if subnets["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
+                            digest = ResourceDigest(
+                                id=data["FlowArn"], type="aws_media_connect"
                             )
-                        )
-                        self.relations_found.append(
-                            ResourceEdge(
-                                from_node=digest,
-                                to_node=ResourceDigest(
-                                    id=data_interfaces["SubnetId"], type="aws_subnet",
-                                ),
+                            resources_found.append(
+                                Resource(
+                                    digest=digest,
+                                    name=data["Name"],
+                                    details="Flow using VPC {} in VPC Interface {}".format(
+                                        self.vpc_options.vpc_id, data_interfaces["Name"]
+                                    ),
+                                    group="mediaservices",
+                                    tags=resource_tags(tags_response),
+                                )
                             )
-                        )
+                            self.relations_found.append(
+                                ResourceEdge(
+                                    from_node=digest,
+                                    to_node=ResourceDigest(
+                                        id=data_interfaces["SubnetId"],
+                                        type="aws_subnet",
+                                    ),
+                                )
+                            )
 
         return resources_found
 

@@ -11,6 +11,7 @@ from shared.common import (
     get_tag,
     resource_tags,
 )
+from shared.common_aws import describe_subnet
 from shared.error_handler import exception
 
 
@@ -209,34 +210,35 @@ class EMR(ResourceProvider):
             cluster = client.describe_cluster(ClusterId=data["Id"])
 
             # Using subnet to check VPC
-            ec2 = self.vpc_options.client("ec2")
-
-            subnets = ec2.describe_subnets(
-                SubnetIds=[cluster["Cluster"]["Ec2InstanceAttributes"]["Ec2SubnetId"]]
+            subnets = describe_subnet(
+                vpc_options=self.vpc_options,
+                subnet_ids=cluster["Cluster"]["Ec2InstanceAttributes"]["Ec2SubnetId"],
             )
 
-            if subnets["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
-                digest = ResourceDigest(id=data["Id"], type="aws_emr_cluster")
-                resources_found.append(
-                    Resource(
-                        digest=digest,
-                        name=data["Name"],
-                        details="",
-                        group="compute",
-                        tags=resource_tags(cluster["Cluster"]),
+            if subnets is not None:
+
+                if subnets["Subnets"][0]["VpcId"] == self.vpc_options.vpc_id:
+                    digest = ResourceDigest(id=data["Id"], type="aws_emr_cluster")
+                    resources_found.append(
+                        Resource(
+                            digest=digest,
+                            name=data["Name"],
+                            details="",
+                            group="compute",
+                            tags=resource_tags(cluster["Cluster"]),
+                        )
                     )
-                )
-                self.relations_found.append(
-                    ResourceEdge(
-                        from_node=digest,
-                        to_node=ResourceDigest(
-                            id=cluster["Cluster"]["Ec2InstanceAttributes"][
-                                "Ec2SubnetId"
-                            ],
-                            type="aws_subnet",
-                        ),
+                    self.relations_found.append(
+                        ResourceEdge(
+                            from_node=digest,
+                            to_node=ResourceDigest(
+                                id=cluster["Cluster"]["Ec2InstanceAttributes"][
+                                    "Ec2SubnetId"
+                                ],
+                                type="aws_subnet",
+                            ),
+                        )
                     )
-                )
 
         return resources_found
 
@@ -266,35 +268,38 @@ class AUTOSCALING(ResourceProvider):
 
             asg_subnets = data["VPCZoneIdentifier"].split(",")
 
-            # describe subnet to get VpcId
-            ec2 = self.vpc_options.client("ec2")
+            # Using subnet to check VPC
+            subnets = describe_subnet(
+                vpc_options=self.vpc_options, subnet_ids=asg_subnets
+            )
 
-            subnets = ec2.describe_subnets(SubnetIds=asg_subnets)
+            if subnets is not None:
+                # Iterate subnet to get VPC
+                for data_subnet in subnets["Subnets"]:
 
-            # Iterate subnet to get VPC
-            for data_subnet in subnets["Subnets"]:
-
-                if data_subnet["VpcId"] == self.vpc_options.vpc_id:
-                    asg_name = data["AutoScalingGroupName"]
-                    digest = ResourceDigest(id=asg_name, type="aws_autoscaling_group")
-                    resources_found.append(
-                        Resource(
-                            digest=digest,
-                            name=asg_name,
-                            details="Using LaunchConfigurationName {0}".format(
-                                data["LaunchConfigurationName"]
-                            ),
-                            group="compute",
-                            tags=resource_tags(data),
+                    if data_subnet["VpcId"] == self.vpc_options.vpc_id:
+                        asg_name = data["AutoScalingGroupName"]
+                        digest = ResourceDigest(
+                            id=asg_name, type="aws_autoscaling_group"
                         )
-                    )
-                    self.relations_found.append(
-                        ResourceEdge(
-                            from_node=digest,
-                            to_node=ResourceDigest(
-                                id=data_subnet["SubnetId"], type="aws_subnet"
-                            ),
+                        resources_found.append(
+                            Resource(
+                                digest=digest,
+                                name=asg_name,
+                                details="Using LaunchConfigurationName {0}".format(
+                                    data["LaunchConfigurationName"]
+                                ),
+                                group="compute",
+                                tags=resource_tags(data),
+                            )
                         )
-                    )
+                        self.relations_found.append(
+                            ResourceEdge(
+                                from_node=digest,
+                                to_node=ResourceDigest(
+                                    id=data_subnet["SubnetId"], type="aws_subnet"
+                                ),
+                            )
+                        )
 
         return resources_found

@@ -9,6 +9,7 @@ from shared.common import (
     ResourceEdge,
     resource_tags,
 )
+from shared.common_aws import describe_subnet
 from shared.error_handler import exception
 
 
@@ -60,39 +61,42 @@ class ECS(ResourceProvider):
                                     "networkConfiguration"
                                 ]["awsvpcConfiguration"]["subnets"]
 
-                                # describe subnet to get VpcId
-                                ec2 = self.vpc_options.client("ec2")
-
-                                subnets = ec2.describe_subnets(
-                                    SubnetIds=service_subnets
+                                # Using subnet to check VPC
+                                subnets = describe_subnet(
+                                    vpc_options=self.vpc_options,
+                                    subnet_ids=service_subnets,
                                 )
 
-                                # Iterate subnet to get VPC
-                                for data_subnet in subnets["Subnets"]:
+                                if subnets is not None:
+                                    # Iterate subnet to get VPC
+                                    for data_subnet in subnets["Subnets"]:
 
-                                    if data_subnet["VpcId"] == self.vpc_options.vpc_id:
-                                        cluster_digest = ResourceDigest(
-                                            id=data["clusterArn"],
-                                            type="aws_ecs_cluster",
-                                        )
-                                        resources_found.append(
-                                            Resource(
-                                                digest=cluster_digest,
-                                                name=data["clusterName"],
-                                                details="",
-                                                group="container",
-                                                tags=resource_tags(data),
+                                        if (
+                                            data_subnet["VpcId"]
+                                            == self.vpc_options.vpc_id
+                                        ):
+                                            cluster_digest = ResourceDigest(
+                                                id=data["clusterArn"],
+                                                type="aws_ecs_cluster",
                                             )
-                                        )
-                                        self.relations_found.append(
-                                            ResourceEdge(
-                                                from_node=cluster_digest,
-                                                to_node=ResourceDigest(
-                                                    id=data_subnet["SubnetId"],
-                                                    type="aws_subnet",
-                                                ),
+                                            resources_found.append(
+                                                Resource(
+                                                    digest=cluster_digest,
+                                                    name=data["clusterName"],
+                                                    details="",
+                                                    group="container",
+                                                    tags=resource_tags(data),
+                                                )
                                             )
-                                        )
+                                            self.relations_found.append(
+                                                ResourceEdge(
+                                                    from_node=cluster_digest,
+                                                    to_node=ResourceDigest(
+                                                        id=data_subnet["SubnetId"],
+                                                        type="aws_subnet",
+                                                    ),
+                                                )
+                                            )
                             else:
                                 # EC2 services require container instances, list of them should be fine for now
                                 pass
