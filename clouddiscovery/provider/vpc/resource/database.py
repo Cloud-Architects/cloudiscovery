@@ -121,9 +121,6 @@ class ELASTICACHE(ResourceProvider):
             )
 
             if cachesubnet["CacheSubnetGroups"][0]["VpcId"] == self.vpc_options.vpc_id:
-                tags_response = client.list_tags_for_resource(
-                    ResourceName=data["DBInstanceArn"]
-                )
                 ec_digest = ResourceDigest(
                     id=data["CacheClusterId"], type="aws_elasticache_cluster"
                 )
@@ -147,7 +144,6 @@ class ELASTICACHE(ResourceProvider):
                             ", ".join(subnet_ids), data["Engine"]
                         ),
                         group="database",
-                        tags=resource_tags(tags_response),
                     )
                 )
 
