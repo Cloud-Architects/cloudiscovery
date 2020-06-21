@@ -10,7 +10,7 @@ from shared.common import (
     get_name_tag,
     get_tag,
 )
-from shared.common_aws import _describe_subnet
+from shared.common_aws import describe_subnet
 from shared.error_handler import exception
 
 
@@ -210,9 +210,9 @@ class EMR(ResourceProvider):
                 cluster = client.describe_cluster(ClusterId=data["Id"])
 
                 # Using subnet to check VPC
-                subnets = _describe_subnet(
+                subnets = describe_subnet(
                     vpc_options=self.vpc_options,
-                    subnets_id=cluster["Cluster"]["Ec2InstanceAttributes"][
+                    subnet_ids=cluster["Cluster"]["Ec2InstanceAttributes"][
                         "Ec2SubnetId"
                     ],
                 )
@@ -270,8 +270,8 @@ class AUTOSCALING(ResourceProvider):
             asg_subnets = data["VPCZoneIdentifier"].split(",")
 
             # Using subnet to check VPC
-            subnets = _describe_subnet(
-                vpc_options=self.vpc_options, subnets_id=asg_subnets
+            subnets = describe_subnet(
+                vpc_options=self.vpc_options, subnet_ids=asg_subnets
             )
 
             if subnets is not None:

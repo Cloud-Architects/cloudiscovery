@@ -12,9 +12,8 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     datetime_to_string,
-    get_name_tag,
 )
-from shared.common_aws import _describe_subnet
+from shared.common_aws import describe_subnet
 from shared.error_handler import exception
 
 
@@ -46,15 +45,12 @@ class EFS(ResourceProvider):
                 FileSystemId=data["FileSystemId"]
             )
 
-            nametag = get_name_tag(data)
-            filesystem_name = data["FileSystemId"] if nametag is None else nametag
-
             # iterate filesystems to get mount targets
             for datafilesystem in filesystem["MountTargets"]:
 
                 # Using subnet to check VPC
-                subnets = _describe_subnet(
-                    vpc_options=self.vpc_options, subnets_id=datafilesystem["SubnetId"]
+                subnets = describe_subnet(
+                    vpc_options=self.vpc_options, subnet_ids=datafilesystem["SubnetId"]
                 )
 
                 if subnets is not None:
@@ -69,7 +65,6 @@ class EFS(ResourceProvider):
                                 details="",
                                 group="storage",
                             )
-
                         )
                         self.relations_found.append(
                             ResourceEdge(

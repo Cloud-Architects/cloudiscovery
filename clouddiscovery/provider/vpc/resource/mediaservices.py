@@ -10,7 +10,7 @@ from shared.common import (
     ResourceEdge,
     datetime_to_string,
 )
-from shared.common_aws import _describe_subnet
+from shared.common_aws import describe_subnet
 from shared.error_handler import exception
 
 
@@ -44,9 +44,9 @@ class MEDIACONNECT(ResourceProvider):
                 for data_interfaces in data_flow["Flow"]["VpcInterfaces"]:
 
                     # Using subnet to check VPC
-                    subnets = _describe_subnet(
+                    subnets = describe_subnet(
                         vpc_options=self.vpc_options,
-                        subnets_id=data_interfaces["SubnetId"],
+                        subnet_ids=data_interfaces["SubnetId"],
                     )
 
                     if subnets is not None:

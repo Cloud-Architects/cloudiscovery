@@ -8,7 +8,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
 )
-from shared.common_aws import _describe_subnet
+from shared.common_aws import describe_subnet
 from shared.error_handler import exception
 
 
@@ -59,9 +59,9 @@ class ECS(ResourceProvider):
                                 ]["awsvpcConfiguration"]["subnets"]
 
                                 # Using subnet to check VPC
-                                subnets = _describe_subnet(
+                                subnets = describe_subnet(
                                     vpc_options=self.vpc_options,
-                                    subnets_id=service_subnets,
+                                    subnet_ids=service_subnets,
                                 )
 
                                 if subnets is not None:

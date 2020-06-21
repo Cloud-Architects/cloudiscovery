@@ -8,7 +8,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
 )
-from shared.common_aws import _describe_subnet
+from shared.common_aws import describe_subnet
 from shared.error_handler import exception
 
 
@@ -42,8 +42,8 @@ class SAGEMAKERNOTEBOOK(ResourceProvider):
             )
 
             # Using subnet to check VPC
-            subnets = _describe_subnet(
-                vpc_options=self.vpc_options, subnets_id=notebook_instance["SubnetId"]
+            subnets = describe_subnet(
+                vpc_options=self.vpc_options, subnet_ids=notebook_instance["SubnetId"]
             )
 
             if subnets is not None:
@@ -105,8 +105,8 @@ class SAGEMAKERTRAININGOB(ResourceProvider):
                 for subnets in training_job["VpcConfig"]["Subnets"]:
 
                     # Using subnet to check VPC
-                    subnet = _describe_subnet(
-                        vpc_options=self.vpc_options, subnets_id=subnets
+                    subnet = describe_subnet(
+                        vpc_options=self.vpc_options, subnet_ids=subnets
                     )
 
                     if subnet is not None:
