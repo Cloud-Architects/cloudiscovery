@@ -8,6 +8,10 @@ VPCE_REGEX = re.compile(r'(?<=sourcevpce")(\s*:\s*")(vpce-[a-zA-Z0-9]+)', re.DOT
 SOURCE_IP_ADDRESS_REGEX = re.compile(
     r'(?<=sourceip")(\s*:\s*")([a-fA-F0-9.:/%]+)', re.DOTALL
 )
+FILTER_NAME_PREFIX = "Name="
+FILTER_TAG_NAME_PREFIX = "tags."
+FILTER_TYPE_NAME = "type"
+FILTER_VALUE_PREFIX = "Value="
 
 
 class bcolors:
@@ -50,9 +54,17 @@ class ResourceEdge(NamedTuple):
     label: str = None
 
 
-class ResourceTag(NamedTuple):
+class Filterable:
+    pass
+
+
+class ResourceTag(NamedTuple, Filterable):
     key: str
     value: str
+
+
+class ResourceType(NamedTuple, Filterable):
+    type: str
 
 
 class Resource(NamedTuple):
@@ -183,3 +195,54 @@ def message_handler(message, position):
 def datetime_to_string(o):
     if isinstance(o, datetime.datetime):
         return o.__str__()
+
+
+def _add_filter(filters: List[Filterable], is_tag: bool, full_name: str, value: str):
+    if is_tag:
+        name = full_name[len(FILTER_TAG_NAME_PREFIX) :]
+        filters.append(ResourceTag(key=name, value=value))
+    else:
+        filters.append(ResourceType(type=value))
+
+
+def parse_filters(arg_filters) -> List[Filterable]:
+    filters: List[Filterable] = []
+    for arg_filter in arg_filters:
+        filter_parts = arg_filter.split(";")
+        if len(filter_parts) != 2:
+            continue
+        if not filter_parts[0].startswith(FILTER_NAME_PREFIX):
+            continue
+        if not filter_parts[1].startswith(FILTER_VALUE_PREFIX):
+            continue
+        full_name = filter_parts[0][len(FILTER_NAME_PREFIX) :]
+        is_tag = False
+        if full_name.startswith(FILTER_TAG_NAME_PREFIX):
+            is_tag = True
+        elif full_name != FILTER_TYPE_NAME:
+            continue
+        values = filter_parts[1][len(FILTER_VALUE_PREFIX) :]
+
+        val_buffered = True
+        wrapped = False
+        val_buffer = []
+        for character in values:
+            # pylint: disable=no-else-continue
+            if character == "'":
+                wrapped = not wrapped
+                continue
+            # pylint: disable=no-else-continue
+            elif character == ":":
+                if len(val_buffer) == 0:
+                    continue
+                elif val_buffered and not wrapped:
+                    _add_filter(filters, is_tag, full_name, "".join(val_buffer))
+                    val_buffered = False
+                    val_buffer = []
+                    continue
+            val_buffered = True
+            val_buffer.append(character)
+        if len(val_buffer) > 0:
+            _add_filter(filters, is_tag, full_name, "".join(val_buffer))
+
+    return filters

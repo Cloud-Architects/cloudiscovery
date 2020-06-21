@@ -19,6 +19,7 @@ import gettext
 import sys
 from os.path import dirname
 import os
+from typing import List
 
 import pkg_resources
 
@@ -32,7 +33,13 @@ from provider.vpc.command import Vpc
 from provider.iot.command import Iot
 
 # Check version
-from shared.common import exit_critical, generate_session, message_handler
+from shared.common import (
+    exit_critical,
+    generate_session,
+    message_handler,
+    Filterable,
+    parse_filters,
+)
 
 # pylint: enable=wrong-import-position
 
@@ -100,6 +107,15 @@ def add_default_arguments(parser, is_global=False):
         "-l", "--language", required=False, help="available languages: pt_BR, en_US"
     )
     parser.add_argument(
+        "-f",
+        "--filters",
+        action="append",
+        required=False,
+        help="filter resources (tags only for now, you must specify name and values); multiple filters are possible "
+        "to pass with -f <filter_1> -f <filter_2> approach, values can be separated by : sign; "
+        "example: Name=tags.costCenter;Value=20000:'20001:1'",
+    )
+    parser.add_argument(
         "-d",
         "--diagram",
         required=False,
@@ -148,6 +164,11 @@ def main():
                 )
             )
 
+    # filters check
+    filters: List[Filterable] = []
+    if args.filters is not None:
+        filters = parse_filters(args.filters)
+
     # aws profile check
     session = generate_session(args.profile_name)
     session.get_credentials()
@@ -174,15 +195,19 @@ def main():
             region_names=region_names,
             session=session,
             diagram=diagram,
+            filters=filters,
         )
     elif args.command == "aws-policy":
-        command = Policy(region_names=region_names, session=session, diagram=diagram)
+        command = Policy(
+            region_names=region_names, session=session, diagram=diagram, filters=filters
+        )
     elif args.command == "aws-iot":
         command = Iot(
             thing_name=args.thing_name,
             region_names=region_names,
             session=session,
             diagram=diagram,
+            filters=filters,
         )
     else:
         raise NotImplementedError("Unknown command")

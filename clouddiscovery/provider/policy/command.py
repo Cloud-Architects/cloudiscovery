@@ -9,7 +9,7 @@ class Policy(BaseCommand):
         for region in self.region_names:
             options = BaseAwsOptions(session=self.session, region_name=region)
 
-            command_runner = CommandRunner()
+            command_runner = CommandRunner(self.filters)
             if self.diagram:
                 diagram = PolicyDiagram()
             else:
