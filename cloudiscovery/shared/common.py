@@ -159,7 +159,7 @@ def get_name_tag(d) -> Optional[str]:
 
 def get_tag(d, tag_name) -> Optional[str]:
     for k, v in d.items():
-        if k == "Tags":
+        if k in ("Tags", "TagList"):
             for value in v:
                 if value["Key"] == tag_name:
                     return value["Value"]
