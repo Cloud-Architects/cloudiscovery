@@ -147,3 +147,71 @@ class MSK(ResourceProvider):
 
                         break
         return resources_found
+
+
+class QUICKSIGHT(ResourceProvider):
+    def __init__(self, vpc_options: VpcOptions):
+        """
+        Quicksight
+
+        :param vpc_options:
+        """
+        super().__init__()
+        self.vpc_options = vpc_options
+
+    @exception
+    def get_resources(self) -> List[Resource]:
+
+        client = self.vpc_options.client("quicksight")
+
+        resources_found = []
+
+        # Get accountid
+        account_id = self.vpc_options.account_number()
+
+        response = client.list_data_sources(AwsAccountId=account_id)
+
+        message_handler("Collecting data from Quicksight...", "HEADER")
+
+        if len(response["DataSources"]) > 0:
+
+            for data in response["DataSources"]:
+
+                # Twitter and S3 data source is not supported
+                if data["Type"] not in ("TWITTER", "S3"):
+
+                    data_source = client.describe_data_source(
+                        AwsAccountId=account_id, DataSourceId=data["DataSourceId"]
+                    )
+
+                    if "VpcConnectionProperties" in data_source:
+
+                        if (
+                            self.vpc_options.vpc_id
+                            in data_source["VpcConnectionProperties"][
+                                "VpcConnectionArn"
+                            ]
+                        ):
+                            quicksight_digest = ResourceDigest(
+                                id=data["DataSourceId"], type="aws_quicksight"
+                            )
+                            resources_found.append(
+                                Resource(
+                                    digest=quicksight_digest,
+                                    name=data["DataSourceId"],
+                                    details="",
+                                    group="analytics",
+                                    tags=resource_tags(data),
+                                )
+                            )
+
+                            self.relations_found.append(
+                                ResourceEdge(
+                                    from_node=quicksight_digest,
+                                    to_node=ResourceDigest(
+                                        id=self.vpc_options.vpc_id, type="aws_vpc"
+                                    ),
+                                )
+                            )
+
+        return resources_found
