@@ -53,7 +53,4 @@ workflows:
             - build-and-test
           filters:
             tags:
-              only: /^\d+\.\d+\.\d+$/
-            branches:
-              only:
-                - release
+              only: /[0-9]+(\.[0-9]+)*/
