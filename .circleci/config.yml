@@ -44,6 +44,7 @@ jobs:
           command: twine upload dist/*
 
 workflows:
+  version: 2
   main:
     jobs:
       - build-and-test
