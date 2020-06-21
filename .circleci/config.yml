@@ -4,7 +4,7 @@ orbs:
   python: circleci/python@0.3.0
 
 jobs:
-  build-and-test:
+  build:
     executor: python/default
     steps:
       - checkout
@@ -45,7 +45,7 @@ jobs:
 
 workflows:
   version: 2
-  build-andn-deploy:
+  build-and-deploy:
     jobs:
       - build:
           filters:  # required since `deploy` has tag filters AND requires `build`
