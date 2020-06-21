@@ -17,7 +17,7 @@ Cloudiscovery helps you to analyze resources in your cloud (AWS/GCP/Azure/Alibab
 
 Example of a diagram:
 
-![diagrams logo](cloudiscovery/docs/assets/aws-vpc.png)
+![diagrams logo](docs/assets/aws-vpc.png)
 
 Following resources are checked in VPC command:
 
@@ -66,7 +66,7 @@ If EC2 instances and ECS instances are part of an autoscaling group, those insta
 
 Example of a diagram:
 
-![diagrams logo](cloudiscovery/docs/assets/aws-policy.png)
+![diagrams logo](docs/assets/aws-policy.png)
 
 Following resources are checked in Policy command:
 
@@ -86,7 +86,7 @@ Some roles can be aggregated to simplify the diagram. If a role is associated wi
 
 Example of a diagram:
 
-![diagrams logo](cloudiscovery/docs/assets/aws-iot.png)
+![diagrams logo](docs/assets/aws-iot.png)
 
 Following resources are checked in IoT command:
 
