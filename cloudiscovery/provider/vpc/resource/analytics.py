@@ -194,7 +194,7 @@ class QUICKSIGHT(ResourceProvider):
                         resources_found.append(
                             Resource(
                                 digest=quicksight_digest,
-                                name=data["DataSourceId"],
+                                name=data["Name"],
                                 details="",
                                 group="analytics",
                                 tags=resource_tags(data),
