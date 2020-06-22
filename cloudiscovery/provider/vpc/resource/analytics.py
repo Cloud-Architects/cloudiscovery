@@ -186,7 +186,7 @@ class QUICKSIGHT(ResourceProvider):
                     ]["InstanceId"]
                     rds = RDS(self.vpc_options).get_resources(instance_id=instance_id)
 
-                    if len(rds) > 0:
+                    if rds:
 
                         quicksight_digest = ResourceDigest(
                             id=data["DataSourceId"], type="aws_quicksight"

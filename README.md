@@ -27,6 +27,7 @@ Following resources are checked in VPC command:
 *   Client VPN Endpoints
 *   CloudHSM
 *   DocumentDB
+*   Directory Service
 *   EC2 Instance
 *   ECS
 *   EFS
@@ -44,6 +45,7 @@ Following resources are checked in VPC command:
 *   NACL
 *   NAT Gateway
 *   Neptune
+*   QuickSight
 *   RDS
 *   REST Api Policy
 *   Route Table
@@ -60,6 +62,7 @@ Following resources are checked in VPC command:
 *   VPC Endpoint
 *   VPN Customer Gateways
 *   Virtual Private Gateways
+*   Workspace
 
 The subnets are aggregated to simplify the diagram and hide infrastructure redundancies. There can be two types of subnet aggregates:
 1.  Private*   ones with a route `0.0.0.0/0` to Internet Gateway
