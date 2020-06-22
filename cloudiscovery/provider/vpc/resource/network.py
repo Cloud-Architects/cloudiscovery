@@ -327,7 +327,6 @@ class SUBNET(ResourceProvider):
 
     @exception
     def get_resources(self) -> List[Resource]:
-
         client = self.vpc_options.client("ec2")
 
         resources_found = []
@@ -432,7 +431,6 @@ class SECURITYGROUP(ResourceProvider):
 
     @exception
     def get_resources(self) -> List[Resource]:
-
         client = self.vpc_options.client("ec2")
 
         resources_found = []
@@ -678,3 +676,161 @@ class RESTAPIPOLICY(ResourceProvider):
                 ),
             )
         return False, None
+
+
+class VpnConnection(ResourceProvider):
+    def __init__(self, vpc_options: VpcOptions):
+        """
+        Vpn Connections
+
+        :param vpc_options:
+        """
+        super().__init__()
+        self.vpc_options = vpc_options
+
+    @exception
+    def get_resources(self) -> List[Resource]:
+        client = self.vpc_options.client("ec2")
+        vpn_response = client.describe_vpn_connections()
+        resources: List[Resource] = []
+
+        for vpn_connection in vpn_response["VpnConnections"]:
+            if (
+                "VpnGatewayId" in vpn_connection
+                and vpn_connection["VpnGatewayId"] != ""
+            ):
+                vpn_gateway_id = vpn_connection["VpnGatewayId"]
+                vpn_gateway_response = client.describe_vpn_gateways(
+                    Filters=[
+                        {
+                            "Name": "attachment.vpc-id",
+                            "Values": [self.vpc_options.vpc_id,],
+                        }
+                    ],
+                    VpnGatewayIds=[vpn_gateway_id],
+                )
+                if len(vpn_gateway_response["VpnGateways"]) > 0:
+                    connection_digest = ResourceDigest(
+                        id=vpn_connection["VpnConnectionId"], type="aws_vpn_connection"
+                    )
+                    vpn_nametag = get_name_tag(vpn_connection)
+                    vpn_name = (
+                        vpn_connection["VpnConnectionId"]
+                        if vpn_nametag is None
+                        else vpn_nametag
+                    )
+                    resources.append(
+                        Resource(
+                            digest=connection_digest,
+                            name=vpn_name,
+                            group="network",
+                            tags=resource_tags(vpn_connection),
+                        )
+                    )
+
+                    self.relations_found.append(
+                        ResourceEdge(
+                            from_node=connection_digest,
+                            to_node=self.vpc_options.vpc_digest(),
+                        )
+                    )
+
+                    vpn_gateway_digest = ResourceDigest(
+                        id=vpn_gateway_id, type="aws_vpn_gateway"
+                    )
+                    vgw_nametag = get_name_tag(vpn_gateway_response["VpnGateways"][0])
+                    vgw_name = vpn_gateway_id if vgw_nametag is None else vgw_nametag
+                    resources.append(
+                        Resource(
+                            digest=vpn_gateway_digest,
+                            name=vgw_name,
+                            group="network",
+                            tags=resource_tags(vpn_gateway_response["VpnGateways"][0]),
+                        )
+                    )
+
+                    self.relations_found.append(
+                        ResourceEdge(
+                            from_node=connection_digest, to_node=vpn_gateway_digest
+                        )
+                    )
+
+                    if (
+                        "CustomerGatewayId" in vpn_connection
+                        and vpn_connection["CustomerGatewayId"] != ""
+                    ):
+                        self.add_customer_gateway(
+                            client, connection_digest, resources, vpn_connection
+                        )
+
+        return resources
+
+    def add_customer_gateway(
+        self, client, connection_digest, resources, vpn_connection
+    ):
+        customer_gateway_id = vpn_connection["CustomerGatewayId"]
+        vcw_gateway_response = client.describe_customer_gateways(
+            CustomerGatewayIds=[customer_gateway_id]
+        )
+        vcw_gateway_digest = ResourceDigest(
+            id=customer_gateway_id, type="aws_customer_gateway"
+        )
+        vcw_nametag = get_name_tag(vcw_gateway_response["CustomerGateways"][0])
+        vcw_name = customer_gateway_id if vcw_nametag is None else vcw_nametag
+        resources.append(
+            Resource(
+                digest=vcw_gateway_digest,
+                name=vcw_name,
+                group="network",
+                tags=resource_tags(vcw_gateway_response["CustomerGateways"][0]),
+            )
+        )
+        self.relations_found.append(
+            ResourceEdge(from_node=connection_digest, to_node=vcw_gateway_digest)
+        )
+
+
+class VpnClientEndpoint(ResourceProvider):
+    def __init__(self, vpc_options: VpcOptions):
+        """
+        Vpn Client Endpoints
+
+        :param vpc_options:
+        """
+        super().__init__()
+        self.vpc_options = vpc_options
+
+    @exception
+    def get_resources(self) -> List[Resource]:
+        client = self.vpc_options.client("ec2")
+        client_vpn_endpoints = client.describe_client_vpn_endpoints()
+        resources: List[Resource] = []
+
+        for client_vpn_endpoint in client_vpn_endpoints["ClientVpnEndpoints"]:
+            if client_vpn_endpoint["VpcId"] == self.vpc_options.vpc_id:
+                digest = ResourceDigest(
+                    id=client_vpn_endpoint["ClientVpnEndpointId"],
+                    type="aws_vpn_client_endpoint",
+                )
+                nametag = get_name_tag(client_vpn_endpoint)
+                name = (
+                    client_vpn_endpoint["ClientVpnEndpointId"]
+                    if nametag is None
+                    else nametag
+                )
+                resources.append(
+                    Resource(
+                        digest=digest,
+                        name=name,
+                        group="network",
+                        tags=resource_tags(client_vpn_endpoint),
+                    )
+                )
+
+                self.relations_found.append(
+                    ResourceEdge(
+                        from_node=digest, to_node=self.vpc_options.vpc_digest()
+                    )
+                )
+
+        return resources
