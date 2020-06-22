@@ -23,37 +23,39 @@ class RDS(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
-    def get_resources(self) -> List[Resource]:
+    def get_resources(self, instance_id=None) -> List[Resource]:
 
         client = self.vpc_options.client("rds")
 
+        params = {
+            "Name": "engine",
+            "Values": [
+                "aurora",
+                "aurora-mysql",
+                "aurora-postgresql",
+                "mariadb",
+                "mysql",
+                "oracle-ee",
+                "oracle-se2",
+                "oracle-se1",
+                "oracle-se",
+                "postgres",
+                "sqlserver-ee",
+                "sqlserver-se",
+                "sqlserver-ex",
+                "sqlserver-web",
+            ],
+        }
+
+        if instance_id is not None:
+            params.update({"Name": "db-instance-id", "Values": [instance_id]})
+
         resources_found = []
 
-        response = client.describe_db_instances(
-            Filters=[
-                {
-                    "Name": "engine",
-                    "Values": [
-                        "aurora",
-                        "aurora-mysql",
-                        "aurora-postgresql",
-                        "mariadb",
-                        "mysql",
-                        "oracle-ee",
-                        "oracle-se2",
-                        "oracle-se1",
-                        "oracle-se",
-                        "postgres",
-                        "sqlserver-ee",
-                        "sqlserver-se",
-                        "sqlserver-ex",
-                        "sqlserver-web",
-                    ],
-                }
-            ]
-        )
+        response = client.describe_db_instances(Filters=[params])
 
-        message_handler("Collecting data from RDS Instances...", "HEADER")
+        if instance_id is None:
+            message_handler("Collecting data from RDS Instances...", "HEADER")
 
         for data in response["DBInstances"]:
             if data["DBSubnetGroup"]["VpcId"] == self.vpc_options.vpc_id:
