@@ -2,6 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/cloudiscovery.svg)](https://badge.fury.io/py/cloudiscovery)
 [![Downloads](https://pepy.tech/badge/cloudiscovery)](https://pepy.tech/project/cloudiscovery)
+[![codecov](https://codecov.io/gh/Cloud-Architects/cloudiscovery/branch/develop/graph/badge.svg)](https://codecov.io/gh/Cloud-Architects/cloudiscovery)
 ![python version](https://img.shields.io/badge/python-3.6%2C3.7%2C3.8-blue?logo=python)
 [![CircleCI](https://circleci.com/gh/Cloud-Architects/cloudiscovery.svg?style=svg)](https://circleci.com/gh/Cloud-Architects/cloudiscovery)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c0a7a5bc51044c7ca8bd9115965e4467)](https://www.codacy.com/gh/Cloud-Architects/cloudiscovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Cloud-Architects/cloudiscovery&amp;utm_campaign=Badge_Grade)
