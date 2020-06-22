@@ -2,6 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/cloudiscovery.svg)](https://badge.fury.io/py/cloudiscovery)
 [![Downloads](https://pepy.tech/badge/cloudiscovery)](https://pepy.tech/project/cloudiscovery)
+[![codecov](https://codecov.io/gh/Cloud-Architects/cloudiscovery/branch/develop/graph/badge.svg)](https://codecov.io/gh/Cloud-Architects/cloudiscovery)
 ![python version](https://img.shields.io/badge/python-3.6%2C3.7%2C3.8-blue?logo=python)
 [![CircleCI](https://circleci.com/gh/Cloud-Architects/cloudiscovery.svg?style=svg)](https://circleci.com/gh/Cloud-Architects/cloudiscovery)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c0a7a5bc51044c7ca8bd9115965e4467)](https://www.codacy.com/gh/Cloud-Architects/cloudiscovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Cloud-Architects/cloudiscovery&amp;utm_campaign=Badge_Grade)
@@ -21,40 +22,44 @@ Example of a diagram:
 
 Following resources are checked in VPC command:
 
-*   EC2 Instance
-*   IAM Policy
-*   Lambda
-*   RDS
-*   EFS 
-*   ElastiCache
-*   S3 Policy
-*   Elasticsearch
-*   DocumentDB
-*   SQS Queue Policy
-*   MSK
-*   NAT Gateway
-*   Internet Gateway (IGW)
-*   Classic/Network/Application Load Balancer
-*   Route Table
-*   Subnet
-*   NACL
-*   Security Group
-*   VPC Peering
-*   VPC Endpoint
-*   EKS
-*   Synthetic Canary
-*   EMR 
-*   ECS
 *   Autoscaling Group
+*   Classic/Network/Application Load Balancer
+*   Client VPN Endpoints
+*   CloudHSM
+*   DocumentDB
+*   EC2 Instance
+*   ECS
+*   EFS
+*   ElastiCache
+*   Elasticsearch
+*   EKS
+*   EMR 
+*   IAM Policy
+*   Internet Gateway (IGW)
+*   Lambda
 *   Media Connect
 *   Media Live
 *   Media Store Policy
-*   REST Api Policy
+*   MSK
+*   NACL
+*   NAT Gateway
 *   Neptune
-*   CloudHSM
+*   RDS
+*   REST Api Policy
+*   Route Table
+*   S3 Policy
 *   Sagemaker Notebook
 *   Sagemaker Training Job
 *   Sagemaker Model
+*   Security Group
+*   SQS Queue Policy
+*   Site-to-Site VPN Connections
+*   Subnet
+*   Synthetic Canary
+*   VPC Peering
+*   VPC Endpoint
+*   VPN Customer Gateways
+*   Virtual Private Gateways
 
 The subnets are aggregated to simplify the diagram and hide infrastructure redundancies. There can be two types of subnet aggregates:
 1.  Private*   ones with a route `0.0.0.0/0` to Internet Gateway
@@ -70,15 +75,15 @@ Example of a diagram:
 
 Following resources are checked in Policy command:
 
-*   IAM User
+*   [AWS Principal](https://gist.github.com/shortjared/4c1e3fe52bdfa47522cfe5b41e5d6f22) that are able to assume roles
 *   IAM Group
+*   IAM Group to policy relationship
 *   IAM Policy
-*   IAM Roles
+*   IAM Role
+*   IAM Role to policy relationship
+*   IAM User
 *   IAM User to group relationship
 *   IAM User to policy relationship
-*   IAM Group to policy relationship
-*   IAM Role to policy relationship
-*   [AWS Principals](https://gist.github.com/shortjared/4c1e3fe52bdfa47522cfe5b41e5d6f22) that are able to assume roles
 
 Some roles can be aggregated to simplify the diagram. If a role is associated with a principal and is not attached to any named policy, will be aggregated.
 
@@ -90,12 +95,12 @@ Example of a diagram:
 
 Following resources are checked in IoT command:
 
+*   IoT Billing Group
+*   IoT Certificates
+*   IoT Jobs
+*   IoT Policies
 *   IoT Thing
 *   IoT Thing Type
-*   IoT Billing Group
-*   IoT Policies
-*   IoT Jobs
-*   IoT Certificates
 
 ## Requirements and Installation
 

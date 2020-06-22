@@ -214,6 +214,10 @@ class Mapsources:
         "aws_iotsitewise": "IotSitewise",
         "aws_neptune_cluster": "Neptune",
         "aws_alexa_for_business": "AlexaForBusiness",
+        "aws_customer_gateway": "SiteToSiteVpn",
+        "aws_vpn_connection": "SiteToSiteVpn",
+        "aws_vpn_gateway": "SiteToSiteVpn",
+        "aws_vpn_client_endpoint": "ClientVpn",
     }
 
 
