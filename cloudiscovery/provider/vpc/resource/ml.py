@@ -8,6 +8,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     resource_tags,
+    ResourceAvailable,
 )
 from shared.common_aws import describe_subnet
 from shared.error_handler import exception
@@ -24,6 +25,7 @@ class SAGEMAKERNOTEBOOK(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="sagemaker")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("sagemaker")
@@ -87,6 +89,7 @@ class SAGEMAKERTRAININGOB(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="sagemaker")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("sagemaker")
@@ -153,6 +156,7 @@ class SAGEMAKERMODEL(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="sagemaker")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("sagemaker")

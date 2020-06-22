@@ -11,6 +11,7 @@ from shared.common import (
     ResourceEdge,
     datetime_to_string,
     resource_tags,
+    ResourceAvailable,
 )
 from shared.error_handler import exception
 
@@ -26,6 +27,7 @@ class IAMPOLICY(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="iam")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("iam")
@@ -88,6 +90,7 @@ class CLOUDHSM(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="cloudhsmv2")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("cloudhsmv2")

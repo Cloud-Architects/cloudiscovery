@@ -159,7 +159,8 @@ aws configure
                   "kafka:ListClusters",
                   "synthetics:DescribeCanaries",
                   "medialive:ListInputs",
-                  "cloudhsm:DescribeClusters"
+                  "cloudhsm:DescribeClusters",
+                  "ssm:GetParametersByPath"
                 ],
                 "Resource": [ "*" ]
               }

@@ -9,6 +9,7 @@ from shared.common import (
     ResourceEdge,
     resource_tags,
     get_name_tag,
+    ResourceAvailable,
 )
 from shared.error_handler import exception
 
@@ -24,6 +25,7 @@ class WORKSPACES(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="workspaces")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("workspaces")

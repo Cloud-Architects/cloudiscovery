@@ -10,6 +10,7 @@ from shared.common import (
     get_name_tag,
     get_tag,
     resource_tags,
+    ResourceAvailable,
 )
 from shared.common_aws import describe_subnet
 from shared.error_handler import exception
@@ -26,6 +27,7 @@ class LAMBDA(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="lambda")
     def get_resources(self) -> List[Resource]:
         client = self.vpc_options.client("lambda")
 
@@ -77,6 +79,7 @@ class EC2(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="ec2")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("ec2")
@@ -143,6 +146,7 @@ class EKS(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="eks")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("eks")
@@ -195,6 +199,7 @@ class EMR(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="emr")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("emr")
@@ -254,6 +259,7 @@ class AUTOSCALING(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="autoscaling")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("autoscaling")

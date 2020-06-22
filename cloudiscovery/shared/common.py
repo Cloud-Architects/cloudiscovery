@@ -1,6 +1,11 @@
+import os
+import os.path
 import datetime
 import re
+import functools
 from typing import NamedTuple, List, Optional, Dict
+
+from diskcache import Cache
 
 import boto3
 
@@ -73,6 +78,52 @@ class Resource(NamedTuple):
     details: str = ""
     group: str = ""
     tags: List[ResourceTag] = []
+
+
+class ResourceCache:
+    def __init__(self):
+        self.cache = Cache(
+            directory=os.path.dirname(os.path.abspath(__file__))
+            + "/../../assets/.cache/"
+        )
+
+    def set_key(self, key: str, value: int, expire: int):
+        self.cache.set(key=key, value=value, expire=expire)
+
+    def get_key(self, key: str):
+        if key in self.cache:
+            return self.cache[key]
+
+        return None
+
+
+# Decorator to check services.
+class ResourceAvailable(object):
+    def __init__(self, services):
+        self.services = services
+        self.cache = ResourceCache()
+
+    def __call__(self, func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+
+            region_name = args[0].vpc_options.region_name
+            cache_key = "aws_paths_" + region_name
+            cache = self.cache.get_key(cache_key)
+
+            if self.services in cache:
+                return func(*args, **kwargs)
+
+            message_handler(
+                "Check "
+                + func.__qualname__
+                + " not available in this region... Skipping",
+                "WARNING",
+            )
+
+            return None
+
+        return wrapper
 
 
 def resource_tags(resource_data: dict) -> List[ResourceTag]:

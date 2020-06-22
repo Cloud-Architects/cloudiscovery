@@ -8,6 +8,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     resource_tags,
+    ResourceAvailable,
 )
 from shared.error_handler import exception
 
@@ -23,6 +24,7 @@ class SYNTHETICSCANARIES(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="synthetics")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("synthetics")

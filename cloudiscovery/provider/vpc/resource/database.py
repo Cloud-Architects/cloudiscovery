@@ -8,6 +8,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     resource_tags,
+    ResourceAvailable,
 )
 from shared.error_handler import exception
 
@@ -23,6 +24,7 @@ class RDS(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="rds")
     def get_resources(self, instance_id=None) -> List[Resource]:
 
         client = self.vpc_options.client("rds")
@@ -104,6 +106,7 @@ class ELASTICACHE(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="elasticache")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("elasticache")
@@ -163,6 +166,7 @@ class DOCUMENTDB(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="docdb")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("docdb")
@@ -222,6 +226,7 @@ class NEPTUNE(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="neptune")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("neptune")

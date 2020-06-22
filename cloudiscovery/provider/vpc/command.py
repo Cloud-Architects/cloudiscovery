@@ -8,6 +8,7 @@ from shared.common import (
     VPCE_REGEX,
     SOURCE_IP_ADDRESS_REGEX,
 )
+from shared.common_aws import GlobalParameters
 from shared.diagram import NoDiagram, BaseDiagram
 
 
@@ -65,9 +66,14 @@ class Vpc(BaseCommand):
         print(message)
 
     def run(self):
+        # pylint: disable=too-many-branches
         command_runner = CommandRunner(self.filters)
 
         for region in self.region_names:
+
+            # Get and cache SSM services available in specific region
+            path = "/aws/service/global-infrastructure/regions/" + region + "/services/"
+            GlobalParameters(session=self.session, region=region, path=path).paths()
 
             # if vpc is none, get all vpcs and check
             if self.vpc_id is None:
