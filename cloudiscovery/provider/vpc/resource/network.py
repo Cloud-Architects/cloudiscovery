@@ -678,3 +678,26 @@ class RESTAPIPOLICY(ResourceProvider):
                 ),
             )
         return False, None
+
+
+class VpnConnection(ResourceProvider):
+    def __init__(self, vpc_options: VpcOptions):
+        """
+        Vpn Connections
+
+        :param vpc_options:
+        """
+        super().__init__()
+        self.vpc_options = vpc_options
+
+    @exception
+    def get_resources(self) -> List[Resource]:
+        client = self.vpc_options.client("vpc")
+        vpc_response = client.describe_vpcs(VpcIds=[self.vpc_options.vpc_id])
+        return [
+            Resource(
+                digest=self.vpc_options.vpc_digest(),
+                name=self.vpc_options.vpc_id,
+                tags=resource_tags(vpc_response["Vpcs"][0]),
+            )
+        ]
