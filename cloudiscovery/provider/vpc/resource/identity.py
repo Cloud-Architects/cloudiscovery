@@ -33,34 +33,30 @@ class DIRECTORYSERVICE(ResourceProvider):
 
         message_handler("Collecting data from Directory Services...", "HEADER")
 
-        if len(response["DirectoryDescriptions"]) > 0:
+        for data in response["DirectoryDescriptions"]:
 
-            for data in response["DirectoryDescriptions"]:
+            if "VpcSettings" in data:
 
-                if "VpcSettings" in data:
-
-                    if data["VpcSettings"]["VpcId"] == self.vpc_options.vpc_id:
-                        directory_service_digest = ResourceDigest(
-                            id=data["DirectoryId"], type="aws_ds"
+                if data["VpcSettings"]["VpcId"] == self.vpc_options.vpc_id:
+                    directory_service_digest = ResourceDigest(
+                        id=data["DirectoryId"], type="aws_ds"
+                    )
+                    resources_found.append(
+                        Resource(
+                            digest=directory_service_digest,
+                            name=data["Name"],
+                            details="",
+                            group="identity",
+                            tags=resource_tags(data),
                         )
-                        resources_found.append(
-                            Resource(
-                                digest=directory_service_digest,
-                                name=data["Name"],
-                                details="",
-                                group="identity",
-                                tags=resource_tags(data),
+                    )
+
+                    for subnet in data["VpcSettings"]["SubnetIds"]:
+                        self.relations_found.append(
+                            ResourceEdge(
+                                from_node=directory_service_digest,
+                                to_node=ResourceDigest(id=subnet, type="aws_subnet"),
                             )
                         )
-
-                        for subnet in data["VpcSettings"]["SubnetIds"]:
-                            self.relations_found.append(
-                                ResourceEdge(
-                                    from_node=directory_service_digest,
-                                    to_node=ResourceDigest(
-                                        id=subnet, type="aws_subnet"
-                                    ),
-                                )
-                            )
 
         return resources_found

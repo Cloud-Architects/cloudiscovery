@@ -34,49 +34,44 @@ class WORKSPACES(ResourceProvider):
 
         message_handler("Collecting data from Workspaces...", "HEADER")
 
-        if len(response["Workspaces"]) > 0:
+        for data in response["Workspaces"]:
 
-            for data in response["Workspaces"]:
+            # Get tag name
+            tags = client.describe_tags(ResourceId=data["WorkspaceId"])
+            nametag = get_name_tag(tags)
 
-                # Get tag name
-                tags = client.describe_tags(ResourceId=data["WorkspaceId"])
-                nametag = get_name_tag(tags)
+            workspace_name = data["WorkspaceId"] if nametag is None else nametag
 
-                workspace_name = data["WorkspaceId"] if nametag is None else nametag
+            directory_service = self.vpc_options.client("ds")
+            directories = directory_service.describe_directories(
+                DirectoryIds=[data["DirectoryId"]]
+            )
 
-                directory_service = self.vpc_options.client("ds")
-                directories = directory_service.describe_directories(
-                    DirectoryIds=[data["DirectoryId"]]
-                )
+            for directorie in directories["DirectoryDescriptions"]:
 
-                for directorie in directories["DirectoryDescriptions"]:
+                if "VpcSettings" in directorie:
 
-                    if "VpcSettings" in directorie:
-
-                        if (
-                            directorie["VpcSettings"]["VpcId"]
-                            == self.vpc_options.vpc_id
-                        ):
-                            workspace_digest = ResourceDigest(
-                                id=data["WorkspaceId"], type="aws_workspaces"
+                    if directorie["VpcSettings"]["VpcId"] == self.vpc_options.vpc_id:
+                        workspace_digest = ResourceDigest(
+                            id=data["WorkspaceId"], type="aws_workspaces"
+                        )
+                        resources_found.append(
+                            Resource(
+                                digest=workspace_digest,
+                                name=workspace_name,
+                                details="",
+                                group="enduser",
+                                tags=resource_tags(tags),
                             )
-                            resources_found.append(
-                                Resource(
-                                    digest=workspace_digest,
-                                    name=workspace_name,
-                                    details="",
-                                    group="enduser",
-                                    tags=resource_tags(tags),
-                                )
-                            )
+                        )
 
-                            self.relations_found.append(
-                                ResourceEdge(
-                                    from_node=workspace_digest,
-                                    to_node=ResourceDigest(
-                                        id=directorie["DirectoryId"], type="aws_ds"
-                                    ),
-                                )
+                        self.relations_found.append(
+                            ResourceEdge(
+                                from_node=workspace_digest,
+                                to_node=ResourceDigest(
+                                    id=directorie["DirectoryId"], type="aws_ds"
+                                ),
                             )
+                        )
 
         return resources_found
