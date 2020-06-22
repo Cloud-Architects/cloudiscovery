@@ -709,7 +709,7 @@ class VpnConnection(ResourceProvider):
                     ],
                     VpnGatewayIds=[vpn_gateway_id],
                 )
-                if len(vpn_gateway_response["VpnGateways"]) > 0:
+                if vpn_gateway_response["VpnGateways"]:
                     connection_digest = ResourceDigest(
                         id=vpn_connection["VpnConnectionId"], type="aws_vpn_connection"
                     )
