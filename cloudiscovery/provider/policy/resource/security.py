@@ -292,7 +292,7 @@ class Principals:
             "name": "ECS Application Autoscaling",
             "group": "network",
         },
-        "edgelambda.lambda.amazonaws.com": {
+        "edgelambda.amazonaws.com": {
             "type": "aws_lambda_function",
             "name": "Lambda@Edge",
             "group": "compute",
