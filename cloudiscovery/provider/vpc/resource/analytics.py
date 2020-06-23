@@ -177,7 +177,7 @@ class QUICKSIGHT(ResourceProvider):
         for data in response["DataSources"]:
 
             # Twitter and S3 data source is not supported
-            if data["Type"] not in ("TWITTER", "S3"):
+            if data["Type"] not in ("TWITTER", "S3", "ATHENA"):
 
                 data_source = client.describe_data_source(
                     AwsAccountId=account_id, DataSourceId=data["DataSourceId"]
