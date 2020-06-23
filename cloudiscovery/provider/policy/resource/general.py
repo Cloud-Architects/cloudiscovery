@@ -7,11 +7,13 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
+    ResourceAvailable,
 )
 from shared.error_handler import exception
 
 
 class IamUser(ResourceProvider):
+    @ResourceAvailable(services="iam")
     def __init__(self, options: BaseAwsOptions):
         """
         Iam user

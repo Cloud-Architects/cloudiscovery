@@ -214,7 +214,8 @@ def check_region(region_parameter, region_name, session):
     client = session.client("ec2", region_name=DEFAULT_REGION)
 
     valid_region_names = [
-        region["RegionName"] for region in client.describe_regions()["Regions"]
+        region["RegionName"]
+        for region in client.describe_regions(AllRegions=True)["Regions"]
     ]
 
     if region_parameter != "all":

@@ -42,6 +42,7 @@ class Iot(BaseCommand):
         command_runner = CommandRunner(self.filters)
 
         for region_name in self.region_names:
+            self.init_region_cache(region_name)
 
             # if thing_name is none, get all things and check
             if self.thing_name is None:

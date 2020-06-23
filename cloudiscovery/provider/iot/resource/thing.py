@@ -8,6 +8,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     resource_tags,
+    ResourceAvailable,
 )
 from shared.error_handler import exception
 
@@ -23,6 +24,7 @@ class THINGS(ResourceProvider):
         self.iot_options = iot_options
 
     @exception
+    @ResourceAvailable(services="iot")
     def get_resources(self) -> List[Resource]:
         client = self.iot_options.client("iot")
 
@@ -58,6 +60,7 @@ class TYPE(ResourceProvider):
         self.iot_options = iot_options
 
     @exception
+    @ResourceAvailable(services="iot")
     def get_resources(self) -> List[Resource]:
 
         client = self.iot_options.client("iot")
@@ -116,6 +119,7 @@ class JOB(ResourceProvider):
         self.iot_options = iot_options
 
     @exception
+    @ResourceAvailable(services="iot")
     def get_resources(self) -> List[Resource]:
 
         client = self.iot_options.client("iot")
@@ -177,6 +181,7 @@ class BILLINGGROUP(ResourceProvider):
         self.iot_options = iot_options
 
     @exception
+    @ResourceAvailable(services="iot")
     def get_resources(self) -> List[Resource]:
 
         client = self.iot_options.client("iot")

@@ -65,9 +65,11 @@ class Vpc(BaseCommand):
         print(message)
 
     def run(self):
+        # pylint: disable=too-many-branches
         command_runner = CommandRunner(self.filters)
 
         for region in self.region_names:
+            self.init_region_cache(region)
 
             # if vpc is none, get all vpcs and check
             if self.vpc_id is None:

@@ -10,6 +10,7 @@ from shared.common import (
     ResourceEdge,
     datetime_to_string,
     resource_tags,
+    ResourceAvailable,
 )
 from shared.common_aws import describe_subnet
 from shared.error_handler import exception
@@ -26,6 +27,7 @@ class MEDIACONNECT(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="mediaconnect")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("mediaconnect")
@@ -91,6 +93,7 @@ class MEDIALIVE(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="medialive")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("medialive")
@@ -142,6 +145,7 @@ class MEDIASTORE(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="mediastore")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("mediastore")

@@ -1,6 +1,11 @@
+import os.path
 import datetime
 import re
+import functools
+import threading
 from typing import NamedTuple, List, Optional, Dict
+
+from diskcache import Cache
 
 import boto3
 
@@ -12,6 +17,8 @@ FILTER_NAME_PREFIX = "Name="
 FILTER_TAG_NAME_PREFIX = "tags."
 FILTER_TYPE_NAME = "type"
 FILTER_VALUE_PREFIX = "Value="
+
+_LOG_SEMAPHORE = threading.Semaphore()
 
 
 class bcolors:
@@ -73,6 +80,58 @@ class Resource(NamedTuple):
     details: str = ""
     group: str = ""
     tags: List[ResourceTag] = []
+
+
+class ResourceCache:
+    def __init__(self):
+        self.cache = Cache(
+            directory=os.path.dirname(os.path.abspath(__file__))
+            + "/../../assets/.cache/"
+        )
+
+    def set_key(self, key: str, value: int, expire: int):
+        self.cache.set(key=key, value=value, expire=expire)
+
+    def get_key(self, key: str):
+        if key in self.cache:
+            return self.cache[key]
+
+        return None
+
+
+# Decorator to check services.
+class ResourceAvailable(object):
+    def __init__(self, services):
+        self.services = services
+        self.cache = ResourceCache()
+
+    def __call__(self, func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+
+            if "vpc_options" in dir(args[0]):
+                region_name = args[0].vpc_options.region_name
+            elif "iot_options" in dir(args[0]):
+                region_name = args[0].iot_options.region_name
+            else:
+                region_name = "us-east-1"
+
+            cache_key = "aws_paths_" + region_name
+            cache = self.cache.get_key(cache_key)
+
+            if self.services in cache:
+                return func(*args, **kwargs)
+
+            message_handler(
+                "Check "
+                + func.__qualname__
+                + " not available in this region... Skipping",
+                "WARNING",
+            )
+
+            return None
+
+        return wrapper
 
 
 def resource_tags(resource_data: dict) -> List[ResourceTag]:
@@ -184,11 +243,13 @@ def exit_critical(message):
 
 
 def log_critical(message):
-    print(bcolors.colors.get("FAIL"), message, bcolors.colors.get("ENDC"), sep="")
+    message_handler(message, "FAIL")
 
 
 def message_handler(message, position):
+    _LOG_SEMAPHORE.acquire()
     print(bcolors.colors.get(position), message, bcolors.colors.get("ENDC"), sep="")
+    _LOG_SEMAPHORE.release()
 
 
 # pylint: disable=inconsistent-return-statements

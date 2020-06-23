@@ -11,6 +11,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     resource_tags,
+    ResourceAvailable,
 )
 from shared.error_handler import exception
 
@@ -26,6 +27,7 @@ class ELASTICSEARCH(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="es")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("es")
@@ -96,6 +98,7 @@ class MSK(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="kafka")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("kafka")
@@ -157,6 +160,7 @@ class QUICKSIGHT(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="quicksight")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("quicksight")
@@ -173,7 +177,7 @@ class QUICKSIGHT(ResourceProvider):
         for data in response["DataSources"]:
 
             # Twitter and S3 data source is not supported
-            if data["Type"] not in ("TWITTER", "S3"):
+            if data["Type"] not in ("TWITTER", "S3", "ATHENA"):
 
                 data_source = client.describe_data_source(
                     AwsAccountId=account_id, DataSourceId=data["DataSourceId"]
