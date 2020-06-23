@@ -42,7 +42,7 @@ class GlobalParameters:
         while True:
             response = self.get_parameters_by_path(next_token)
             parameters = response["Parameters"]
-            if len(parameters) == 0:
+            if not parameters:
                 break
             for parameter in parameters:
                 yield parameter
