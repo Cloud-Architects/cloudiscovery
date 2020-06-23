@@ -8,6 +8,7 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
+    ResourceAvailable,
 )
 from shared.error_handler import exception
 
@@ -821,6 +822,7 @@ class IamPolicy(ResourceProvider):
         self.options = options
 
     @exception
+    @ResourceAvailable(services="iam")
     def get_resources(self) -> List[Resource]:
         client = self.options.client("iam")
         message_handler("Collecting data from IAM Policies...", "HEADER")
@@ -852,6 +854,7 @@ class IamPolicy(ResourceProvider):
 
 
 class IamGroup(ResourceProvider):
+    @ResourceAvailable(services="iam")
     def __init__(self, options: BaseAwsOptions):
         """
         Iam group
@@ -913,6 +916,7 @@ class IamGroup(ResourceProvider):
 
 
 class IamRole(ResourceProvider):
+    @ResourceAvailable(services="iam")
     def __init__(self, options: BaseAwsOptions):
         """
         Iam role

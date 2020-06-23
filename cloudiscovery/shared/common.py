@@ -107,7 +107,13 @@ class ResourceAvailable(object):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
 
-            region_name = args[0].vpc_options.region_name
+            if "vpc_options" in dir(args[0]):
+                region_name = args[0].vpc_options.region_name
+            elif "iot_options" in dir(args[0]):
+                region_name = args[0].iot_options.region_name
+            else:
+                region_name = "us-east-1"
+
             cache_key = "aws_paths_" + region_name
             cache = self.cache.get_key(cache_key)
 

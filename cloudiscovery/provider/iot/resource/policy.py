@@ -8,6 +8,7 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     resource_tags,
+    ResourceAvailable,
 )
 from shared.error_handler import exception
 
@@ -23,6 +24,7 @@ class POLICY(ResourceProvider):
         self.iot_options = iot_options
 
     @exception
+    @ResourceAvailable(services="iot")
     def get_resources(self) -> List[Resource]:
 
         client = self.iot_options.client("iot")
