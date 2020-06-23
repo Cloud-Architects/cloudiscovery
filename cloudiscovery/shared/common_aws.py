@@ -1,7 +1,7 @@
 import botocore.exceptions
 from cachetools import TTLCache
 
-from shared.common import ResourceCache
+from shared.common import ResourceCache, message_handler
 
 SUBNET_CACHE = TTLCache(maxsize=1024, ttl=60)
 
@@ -58,6 +58,10 @@ class GlobalParameters:
         if cache is not None:
             return cache
 
+        message_handler(
+            "Fetching available resources in region {} to cache...".format(self.region),
+            "HEADER",
+        )
         paths_found = []
         paths = self.parameters()
         for path in paths:

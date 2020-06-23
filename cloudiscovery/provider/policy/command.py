@@ -7,6 +7,7 @@ from shared.diagram import NoDiagram
 class Policy(BaseCommand):
     def run(self):
         for region in self.region_names:
+            self.init_region_cache(region)
             options = BaseAwsOptions(session=self.session, region_name=region)
 
             command_runner = CommandRunner(self.filters)

@@ -2,6 +2,7 @@ import os.path
 import datetime
 import re
 import functools
+import threading
 from typing import NamedTuple, List, Optional, Dict
 
 from diskcache import Cache
@@ -16,6 +17,8 @@ FILTER_NAME_PREFIX = "Name="
 FILTER_TAG_NAME_PREFIX = "tags."
 FILTER_TYPE_NAME = "type"
 FILTER_VALUE_PREFIX = "Value="
+
+_LOG_SEMAPHORE = threading.Semaphore()
 
 
 class bcolors:
@@ -240,11 +243,13 @@ def exit_critical(message):
 
 
 def log_critical(message):
-    print(bcolors.colors.get("FAIL"), message, bcolors.colors.get("ENDC"), sep="")
+    message_handler(message, "FAIL")
 
 
 def message_handler(message, position):
+    _LOG_SEMAPHORE.acquire()
     print(bcolors.colors.get(position), message, bcolors.colors.get("ENDC"), sep="")
+    _LOG_SEMAPHORE.release()
 
 
 # pylint: disable=inconsistent-return-statements

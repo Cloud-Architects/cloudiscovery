@@ -1,6 +1,7 @@
 import importlib
 import inspect
 import os
+from concurrent.futures.thread import ThreadPoolExecutor
 from os.path import dirname
 from typing import Dict, List
 
@@ -17,6 +18,7 @@ from shared.common import (
     ResourceTag,
     ResourceType,
 )
+from shared.common_aws import GlobalParameters
 from shared.diagram import BaseDiagram
 from shared.report import Report
 
@@ -35,6 +37,11 @@ class BaseCommand:
         self.session: Session = session
         self.diagram: bool = diagram
         self.filters: List[Filterable] = filters
+
+    def init_region_cache(self, region):
+        # Get and cache SSM services available in specific region
+        path = "/aws/service/global-infrastructure/regions/" + region + "/services/"
+        GlobalParameters(session=self.session, region=region, path=path).paths()
 
 
 def filter_resources(
@@ -78,6 +85,13 @@ def filter_relations(
         if is_from_present and is_to_present:
             filtered_relations.append(resource_relation)
     return filtered_relations
+
+
+def execute_provider(options, data) -> (List[Resource], List[ResourceEdge]):
+    provider_instance = data[1](options)
+    provider_resources = provider_instance.get_resources()
+    provider_resource_relations = provider_instance.get_relations()
+    return provider_resources, provider_resource_relations
 
 
 class CommandRunner(object):
@@ -132,16 +146,16 @@ class CommandRunner(object):
         all_resources: List[Resource] = []
         resource_relations: List[ResourceEdge] = []
 
-        for providerTuple in providers:
-            provider_instance = providerTuple[1](options)
+        with ThreadPoolExecutor(15) as executor:
+            provider_results = executor.map(
+                lambda data: execute_provider(options, data), providers
+            )
 
-            provider_resources = provider_instance.get_resources()
-            if provider_resources is not None:
-                all_resources.extend(provider_resources)
-
-            provider_resource_relations = provider_instance.get_relations()
-            if provider_resource_relations is not None:
-                resource_relations.extend(provider_resource_relations)
+        for provider_results in provider_results:
+            if provider_results[0] is not None:
+                all_resources.extend(provider_results[0])
+            if provider_results[1] is not None:
+                resource_relations.extend(provider_results[1])
 
         unique_resources_dict: Dict[ResourceDigest, Resource] = dict()
         for resource in all_resources:

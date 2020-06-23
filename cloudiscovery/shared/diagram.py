@@ -290,6 +290,7 @@ class BaseDiagram(object):
             name=title,
             filename=PATH_DIAGRAM_OUTPUT + filename,
             direction="TB",
+            show=False,
             graph_attr={"nodesep": "2.0", "ranksep": "1.0", "splines": "curved"},
         ) as d:
             d.dot.engine = self.engine
