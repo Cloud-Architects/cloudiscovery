@@ -105,6 +105,11 @@ class ResourceAvailable(object):
         self.services = services
         self.cache = ResourceCache()
 
+    def is_service_available(self, region_name, service_name) -> bool:
+        cache_key = "aws_paths_" + region_name
+        cache = self.cache.get_key(cache_key)
+        return service_name in cache
+
     def __call__(self, func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -116,10 +121,7 @@ class ResourceAvailable(object):
             else:
                 region_name = "us-east-1"
 
-            cache_key = "aws_paths_" + region_name
-            cache = self.cache.get_key(cache_key)
-
-            if self.services in cache:
+            if self.is_service_available(region_name, self.services):
                 return func(*args, **kwargs)
 
             message_handler(
