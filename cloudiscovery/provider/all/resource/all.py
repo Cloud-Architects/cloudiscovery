@@ -146,7 +146,7 @@ class AllResources(ResourceProvider):
             ):
                 has_paginator = name in paginators_model["pagination"]
                 input_model = service_model["shapes"][operation["input"]["shape"]]
-                if "required" in input_model and len(input_model["required"]) > 0:
+                if "required" in input_model and input_model["required"]:
                     continue
                 resource_type = (
                     "aws_"
