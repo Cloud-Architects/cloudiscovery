@@ -25,5 +25,6 @@ class All(BaseCommand):
                 options=options,
                 diagram_builder=NoDiagram(),
                 title="AWS Resources - Region {}".format(region),
+                # pylint: disable=no-member
                 filename=options.resulting_file_name("all"),
             )
