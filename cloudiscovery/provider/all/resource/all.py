@@ -15,19 +15,32 @@ from shared.common import (
 from shared.error_handler import exception
 
 OMITTED_RESOURCES = [
+    "aws_dax_default_parameter",
+    "aws_dax_parameter_group",
     "aws_ec2_reserved_instances_offering",
     "aws_ec2_snapshot",
     "aws_ec2_spot_price_history",
     "aws_ssm_available_patche",
+    "aws_ssm_document",
     "aws_polly_voice",
     "aws_lightsail_blueprint",
+    "aws_lightsail_bundle",
     "aws_elastictranscoder_preset",
     "aws_ec2_vpc_endpoint_service",
     "aws_dms_endpoint_type",
     "aws_elasticache_service_update",
+    "aws_elasticache_cache_parameter_group",
     "aws_rds_source_region",
     "aws_ssm_association",
     "aws_ssm_patch_baseline",
+]
+
+ON_TOP_POLICIES = [
+    "kafka:ListClusters",
+    "synthetics:DescribeCanaries",
+    "medialive:ListInputs",
+    "cloudhsm:DescribeClusters",
+    "ssm:GetParametersByPath",
 ]
 
 
@@ -94,6 +107,29 @@ def retrieve_resource_id(resource, operation_name, resource_name):
     return resource_id
 
 
+def operation_allowed(
+    allowed_actions: List[str], aws_service: str, operation_name: str
+):
+    evaluation_result = False
+    for action in allowed_actions:
+        if action == "*":
+            evaluation_result = True
+            break
+        action_service = action.split(":", 1)[0]
+        if not action_service == aws_service:
+            continue
+        action_operation = action.split(":", 1)[1]
+        if action_operation.endswith("*") and operation_name.startswith(
+            action_operation[:-1]
+        ):
+            evaluation_result = True
+            break
+        if operation_name == action_operation:
+            evaluation_result = True
+            break
+    return evaluation_result
+
+
 class AllResources(ResourceProvider):
     def __init__(self, options: BaseAwsOptions):
         """
@@ -110,16 +146,19 @@ class AllResources(ResourceProvider):
         boto_loader = Loader()
         aws_services = boto_loader.list_available_services(type_name="service-2")
         resources = []
+        allowed_actions = self.get_policies_allowed_actions()
 
         for aws_service in aws_services:
-            service_resources = self.analyze_service(aws_service, boto_loader)
+            service_resources = self.analyze_service(
+                aws_service, boto_loader, allowed_actions
+            )
             if service_resources is not None:
                 resources.extend(service_resources)
 
         return resources
 
     @exception
-    def analyze_service(self, aws_service, boto_loader):
+    def analyze_service(self, aws_service, boto_loader, allowed_actions):
         resources = []
         client = self.options.client(aws_service)
         service_model = boto_loader.load_service_model(aws_service, "service-2")
@@ -148,19 +187,19 @@ class AllResources(ResourceProvider):
                 input_model = service_model["shapes"][operation["input"]["shape"]]
                 if "required" in input_model and input_model["required"]:
                     continue
-                resource_type = (
-                    "aws_"
-                    + aws_service
-                    + "_"
-                    + _to_snake_case(
+                resource_type = "aws_{}_{}".format(
+                    aws_service,
+                    _to_snake_case(
                         name.replace("List", "")
                         .replace("Get", "")
                         .replace("Describe", "")
-                    )
+                    ),
                 )
                 if resource_type.endswith("s"):
                     resource_type = resource_type[:-1]
                 if resource_type in OMITTED_RESOURCES:
+                    continue
+                if not operation_allowed(allowed_actions, aws_service, name):
                     continue
                 analyze_operation = self.analyze_operation(
                     resource_type, name, has_paginator, client
@@ -198,3 +237,36 @@ class AllResources(ResourceProvider):
                         )
                     )
         return resources
+
+    def get_policies_allowed_actions(self):
+        message_handler("Fetching allowed actions...", "HEADER")
+        iam_client = self.options.client("iam")
+        view_only_document = self.get_policy_allowed_calls(
+            iam_client, "arn:aws:iam::aws:policy/job-function/ViewOnlyAccess"
+        )
+        sec_audit_document = self.get_policy_allowed_calls(
+            iam_client, "arn:aws:iam::aws:policy/SecurityAudit"
+        )
+
+        allowed_actions = {}
+        for action in view_only_document["Statement"][0]["Action"]:
+            allowed_actions[action] = True
+        for action in sec_audit_document["Statement"][0]["Action"]:
+            allowed_actions[action] = True
+        for action in ON_TOP_POLICIES:
+            allowed_actions[action] = True
+        message_handler(
+            "Found {} allowed actions".format(len(allowed_actions)), "HEADER"
+        )
+
+        return allowed_actions.keys()
+
+    def get_policy_allowed_calls(self, iam_client, policy_arn):
+        policy_version_id = iam_client.get_policy(PolicyArn=policy_arn)["Policy"][
+            "DefaultVersionId"
+        ]
+        policy_document = iam_client.get_policy_version(
+            PolicyArn=policy_arn, VersionId=policy_version_id
+        )["PolicyVersion"]["Document"]
+
+        return policy_document
