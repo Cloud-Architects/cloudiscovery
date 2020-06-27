@@ -37,6 +37,7 @@ class bcolors:
 class BaseAwsOptions(NamedTuple):
     session: boto3.Session
     region_name: str
+    services: str
 
     def client(self, service_name: str):
         return self.session.client(service_name, region_name=self.region_name)
