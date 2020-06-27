@@ -14,6 +14,14 @@ Cloudiscovery helps you to analyze resources in your cloud (AWS/GCP/Azure/Alibab
 
 ## Features
 
+### Diagrams
+
+Commands can generate diagrams. When modelling them, we try to follow the following principle:
+
+> Graphical excellence is that which gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space.
+
+Edward Tufte
+
 ### AWS VPC
 
 Example of a diagram:
@@ -104,6 +112,12 @@ Following resources are checked in IoT command:
 *   IoT Policies
 *   IoT Thing
 *   IoT Thing Type
+
+### AWS All
+
+List all AWS resources (preview)
+
+The command tries to call all AWS services (200+) and methods with name `Describe`, `Get...` and `List...`.
 
 ## Requirements and Installation
 
@@ -205,10 +219,16 @@ cloudiscovery aws-policy [--profile-name profile] [--diagram True/False] [--filt
 cloudiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx]
 ```
 
+1.3 To detect all AWS resources:
+
+```sh
+cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--filter xxx]
+```
+
 2.  For help use:
 
 ```sh
-cloudiscovery [aws-vpc|aws-policy|aws-iot] -h
+cloudiscovery [aws-vpc|aws-policy|aws-iot|aws-all] -h
 ```
 
 ### Filtering

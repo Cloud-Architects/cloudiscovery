@@ -22,6 +22,8 @@ from typing import List
 
 import pkg_resources
 
+from provider.all.command import All
+
 """path to pip package"""
 sys.path.append(dirname(__file__))
 
@@ -76,13 +78,15 @@ def generate_parser():
     )
 
     policy_parser = subparsers.add_parser("aws-policy", help="Analyze policies")
-
     add_default_arguments(policy_parser, is_global=True)
+
+    all_parser = subparsers.add_parser("aws-all", help="Analyze all resources")
+    add_default_arguments(all_parser, diagram_enabled=False)
 
     return parser
 
 
-def add_default_arguments(parser, is_global=False):
+def add_default_arguments(parser, is_global=False, diagram_enabled=True):
     if not is_global:
         parser.add_argument(
             "-r",
@@ -106,13 +110,14 @@ def add_default_arguments(parser, is_global=False):
         "to pass with -f <filter_1> -f <filter_2> approach, values can be separated by : sign; "
         "example: Name=tags.costCenter;Value=20000:'20001:1'",
     )
-    parser.add_argument(
-        "-d",
-        "--diagram",
-        required=False,
-        help='print diagram with resources (need Graphviz installed). Use options "True" to '
-        'view image or "False" to save image to disk. Default True',
-    )
+    if diagram_enabled:
+        parser.add_argument(
+            "-d",
+            "--diagram",
+            required=False,
+            help='print diagram with resources (need Graphviz installed). Use options "True" to '
+            'view image or "False" to save image to disk. Default True',
+        )
 
 
 # pylint: disable=too-many-branches
@@ -132,7 +137,9 @@ def main():
         language = args.language
 
     # Diagram check
-    if args.diagram is not None and args.diagram not in DIAGRAMS_OPTIONS:
+    if "diagram" not in args:
+        diagram = "False"
+    elif args.diagram is not None and args.diagram not in DIAGRAMS_OPTIONS:
         diagram = "True"
     else:
         diagram = args.diagram
@@ -200,6 +207,8 @@ def main():
             diagram=diagram,
             filters=filters,
         )
+    elif args.command == "aws-all":
+        command = All(region_names=region_names, session=session, filters=filters,)
     else:
         raise NotImplementedError("Unknown command")
     command.run()
