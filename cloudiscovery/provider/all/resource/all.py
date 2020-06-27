@@ -1,8 +1,9 @@
 import re
 from concurrent.futures.thread import ThreadPoolExecutor
 from functools import reduce
-from typing import List
+from typing import List, Optional
 
+from botocore.exceptions import UnknownServiceError
 from botocore.loaders import Loader
 
 from shared.common import (
@@ -35,6 +36,12 @@ OMITTED_RESOURCES = [
     "aws_ssm_association",
     "aws_ssm_patch_baseline",
     "aws_ec2_prefix",
+    "aws_ec2_image",
+    "aws_ec2_region",
+    "aws_opsworks_operating_system",
+    "aws_rds_account_attribute",
+    "aws_route53_geo_location",
+    "aws_redshift_cluster_track",
 ]
 
 ON_TOP_POLICIES = [
@@ -132,6 +139,17 @@ def operation_allowed(
     return evaluation_result
 
 
+def build_resource(base_resource, operation_name, resource_type) -> Optional[Resource]:
+    resource_name = retrieve_resource_name(base_resource, operation_name)
+    resource_id = retrieve_resource_id(base_resource, operation_name, resource_name)
+
+    if resource_id is None or resource_name is None:
+        return None
+    return Resource(
+        digest=ResourceDigest(id=resource_id, type=resource_type), name=resource_name,
+    )
+
+
 class AllResources(ResourceProvider):
     def __init__(self, options: BaseAwsOptions):
         """
@@ -168,7 +186,12 @@ class AllResources(ResourceProvider):
         resources = []
         client = self.options.client(aws_service)
         service_model = boto_loader.load_service_model(aws_service, "service-2")
-        paginators_model = boto_loader.load_service_model(aws_service, "paginators-1")
+        try:
+            paginators_model = boto_loader.load_service_model(
+                aws_service, "paginators-1"
+            )
+        except UnknownServiceError:
+            paginators_model = {"pagination": {}}
         service_full_name = service_model["metadata"]["serviceFullName"]
         message_handler(
             "Collecting data from {}...".format(service_full_name), "HEADER"
@@ -244,28 +267,29 @@ class AllResources(ResourceProvider):
             for page in pages:
                 if result_key is not None:
                     page_resources = page[result_key]
-                else:
+                elif result_child in page[result_parent]:
                     page_resources = page[result_parent][result_child]
+                else:
+                    page_resources = []
                 for page_resource in page_resources:
                     if isinstance(page_resource, str):
                         continue
 
-                    resource_name = retrieve_resource_name(
-                        page_resource, operation_name
+                    resource = build_resource(
+                        page_resource, operation_name, resource_type
                     )
-                    resource_id = retrieve_resource_id(
-                        page_resource, operation_name, resource_name
-                    )
-
-                    if resource_id is None or resource_name is None:
-                        continue
-
-                    resources.append(
-                        Resource(
-                            digest=ResourceDigest(id=resource_id, type=resource_type),
-                            name=resource_name,
+                    if resource is not None:
+                        resources.append(resource)
+        else:
+            response = getattr(client, _to_snake_case(operation_name))()
+            for response_elem in response.values():
+                if isinstance(response_elem, list):
+                    for response_resource in response_elem:
+                        resource = build_resource(
+                            response_resource, operation_name, resource_type
                         )
-                    )
+                        if resource is not None:
+                            resources.append(resource)
         return resources
 
     def get_policies_allowed_actions(self):
