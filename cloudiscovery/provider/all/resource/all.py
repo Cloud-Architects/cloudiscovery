@@ -27,6 +27,7 @@ OMITTED_RESOURCES = [
     "aws_polly_voice",
     "aws_lightsail_blueprint",
     "aws_lightsail_bundle",
+    "aws_lightsail_region",
     "aws_elastictranscoder_preset",
     "aws_ec2_vpc_endpoint_service",
     "aws_dms_endpoint_type",
@@ -42,6 +43,11 @@ OMITTED_RESOURCES = [
     "aws_rds_account_attribute",
     "aws_route53_geo_location",
     "aws_redshift_cluster_track",
+    "aws_directconnect_location",
+    "aws_dms_account_attribute",
+    "aws_securityhub_standard",
+    "aws_ram_resource_type",
+    "aws_ram_permission",
 ]
 
 ON_TOP_POLICIES = [

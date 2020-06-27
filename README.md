@@ -117,7 +117,10 @@ Following resources are checked in IoT command:
 
 List all AWS resources (preview)
 
-The command tries to call all AWS services (200+) and methods with name `Describe`, `Get...` and `List...`.
+The command tries to call all AWS services (200+) and operations with name `Describe`, `Get...` and `List...` (500+).
+
+The operations must be allowed to be called by permissions described in [AWS Permissions](#aws-permissions).
+
 
 ## Requirements and Installation
 
@@ -137,7 +140,7 @@ pip install -U cloudiscovery
 aws configure
 ```
 
-### AWS Permissions 
+### AWS Permissions
 
 *   The configured credentials must be associated to a user or role with proper permissions to do all checks. If you want to use a role with narrowed set of permissions just to perform cloud discovery, use a role from the following CF template shown below. To further increase security, you can add a block to check `aws:MultiFactorAuthPresent` condition in `AssumeRolePolicyDocument`. More on using IAM roles in the [configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html).
 
