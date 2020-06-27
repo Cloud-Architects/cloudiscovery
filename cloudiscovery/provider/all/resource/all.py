@@ -34,6 +34,7 @@ OMITTED_RESOURCES = [
     "aws_rds_source_region",
     "aws_ssm_association",
     "aws_ssm_patch_baseline",
+    "aws_ec2_prefix",
 ]
 
 ON_TOP_POLICIES = [
