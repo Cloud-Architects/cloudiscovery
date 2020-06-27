@@ -190,9 +190,10 @@ class AllResources(ResourceProvider):
                 or name.startswith("Describe")
             ):
                 has_paginator = name in paginators_model["pagination"]
-                input_model = service_model["shapes"][operation["input"]["shape"]]
-                if "required" in input_model and input_model["required"]:
-                    continue
+                if "input" in operation:
+                    input_model = service_model["shapes"][operation["input"]["shape"]]
+                    if "required" in input_model and input_model["required"]:
+                        continue
                 resource_type = "aws_{}_{}".format(
                     aws_service,
                     _to_snake_case(
@@ -215,6 +216,7 @@ class AllResources(ResourceProvider):
         return resources
 
     @exception
+    # pylint: disable=too-many-locals
     def analyze_operation(
         self, resource_type, operation_name, has_paginator, client
     ) -> List[Resource]:
@@ -222,15 +224,37 @@ class AllResources(ResourceProvider):
         if has_paginator:
             paginator = client.get_paginator(_to_snake_case(operation_name))
             pages = paginator.paginate()
-            result_key = pages.result_keys[0].parsed["value"]
+            list_metadata = pages.result_keys[0].parsed
+            result_key = None
+            result_parent = None
+            result_child = None
+            if "value" in list_metadata:
+                result_key = list_metadata["value"]
+            elif "type" in list_metadata and list_metadata["type"] == "subexpression":
+                result_parent = list_metadata["children"][0]["value"]
+                result_child = list_metadata["children"][1]["value"]
+            else:
+                message_handler(
+                    "Operation {} has unsupported pagination definition... Skipping".format(
+                        operation_name
+                    ),
+                    "WARNING",
+                )
+                return []
             for page in pages:
-                for resource in page[result_key]:
-                    if isinstance(resource, str):
+                if result_key is not None:
+                    page_resources = page[result_key]
+                else:
+                    page_resources = page[result_parent][result_child]
+                for page_resource in page_resources:
+                    if isinstance(page_resource, str):
                         continue
 
-                    resource_name = retrieve_resource_name(resource, operation_name)
+                    resource_name = retrieve_resource_name(
+                        page_resource, operation_name
+                    )
                     resource_id = retrieve_resource_id(
-                        resource, operation_name, resource_name
+                        page_resource, operation_name, resource_name
                     )
 
                     if resource_id is None or resource_name is None:
