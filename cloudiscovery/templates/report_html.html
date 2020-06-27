@@ -27,25 +27,27 @@
 {%- endfor %}
 </tbody>
 </table>
-<p><span style="font-size: 12pt;">Found relations</span></p>
-<table style="border-collapse: collapse; width: 100%; height: 92px;" border="1">
-<tbody>
-<tr style="height: 46px;">
-<td style="width: 25%; text-align: center; background-color: #bfedd2; height: 46px;">From type</td>
-<td style="width: 25%; text-align: center; background-color: #bfedd2; height: 46px;">From id</td>
-<td style="width: 25%; text-align: center; background-color: #c2e0f4; height: 46px;">To type</td>
-<td style="width: 25%; text-align: center; background-color: #c2e0f4; height: 46px;">To id</td>
-</tr>
-{% for resource_relations in resources_relations %}
-<tr style="height: 46px;">
-<td style="width: 25%; height: 46px;">{{ resource_relations.from_node.type}}</td>
-<td style="width: 25%; height: 46px;">{{ resource_relations.from_node.id}}</td>
-<td style="width: 25%; height: 46px;">{{ resource_relations.to_node.type}}</td>
-<td style="width: 25%; height: 46px;">{{ resource_relations.to_node.id}}</td>
-</tr>
-{%- endfor %}
-</tbody>
-</table>
+{% if resources_relations|length > 0 %} 
+    <p><span style="font-size: 12pt;">Found relations</span></p>
+    <table style="border-collapse: collapse; width: 100%; height: 92px;" border="1">
+    <tbody>
+    <tr style="height: 46px;">
+    <td style="width: 25%; text-align: center; background-color: #bfedd2; height: 46px;">From type</td>
+    <td style="width: 25%; text-align: center; background-color: #bfedd2; height: 46px;">From id</td>
+    <td style="width: 25%; text-align: center; background-color: #c2e0f4; height: 46px;">To type</td>
+    <td style="width: 25%; text-align: center; background-color: #c2e0f4; height: 46px;">To id</td>
+    </tr>
+    {% for resource_relations in resources_relations %}
+    <tr style="height: 46px;">
+    <td style="width: 25%; height: 46px;">{{ resource_relations.from_node.type}}</td>
+    <td style="width: 25%; height: 46px;">{{ resource_relations.from_node.id}}</td>
+    <td style="width: 25%; height: 46px;">{{ resource_relations.to_node.type}}</td>
+    <td style="width: 25%; height: 46px;">{{ resource_relations.to_node.id}}</td>
+    </tr>
+    {%- endfor %}
+    </tbody>
+    </table>
+{%endif %}
 {% if diagram_image is not none %}   
     <p>Diagram</p>
     {% set base64img = "data:image/png;base64," + diagram_image %}
