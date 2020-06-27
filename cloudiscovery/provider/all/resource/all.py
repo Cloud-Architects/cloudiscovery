@@ -1,4 +1,5 @@
 import re
+from concurrent.futures.thread import ThreadPoolExecutor
 from functools import reduce
 from typing import List
 
@@ -148,10 +149,14 @@ class AllResources(ResourceProvider):
         resources = []
         allowed_actions = self.get_policies_allowed_actions()
 
-        for aws_service in aws_services:
-            service_resources = self.analyze_service(
-                aws_service, boto_loader, allowed_actions
+        with ThreadPoolExecutor(80) as executor:
+            results = executor.map(
+                lambda aws_service: self.analyze_service(
+                    aws_service, boto_loader, allowed_actions
+                ),
+                aws_services,
             )
+        for service_resources in results:
             if service_resources is not None:
                 resources.extend(service_resources)
 
