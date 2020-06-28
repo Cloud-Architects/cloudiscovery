@@ -6,6 +6,7 @@ from provider.all.resource.all import (
     retrieve_resource_name,
     retrieve_resource_id,
     last_singular_name_element,
+    operation_allowed,
 )
 
 
@@ -53,3 +54,11 @@ class TestAllDiagram(TestCase):
         assert_that(
             retrieve_resource_id({"someArn": "123"}, "ListValues", "value")
         ).is_equal_to("123")
+
+    def test_operation_allowed(self):
+        assert_that(operation_allowed(["iam:List*"], "iam", "ListRoles")).is_equal_to(
+            True
+        )
+        assert_that(operation_allowed(["ecs:List*"], "iam", "ListRoles")).is_equal_to(
+            False
+        )
