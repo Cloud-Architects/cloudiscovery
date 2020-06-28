@@ -1,6 +1,6 @@
+import functools
 import re
 from concurrent.futures.thread import ThreadPoolExecutor
-from functools import reduce
 from typing import List, Optional
 
 from botocore.exceptions import UnknownServiceError
@@ -13,10 +13,14 @@ from shared.common import (
     ResourceDigest,
     message_handler,
     ResourceAvailable,
+    log_critical,
 )
-from shared.error_handler import exception
 
 OMITTED_RESOURCES = [
+    "aws_cloudhsm_available_zone",
+    "aws_cloudhsm_hapg",
+    "aws_cloudhsm_hsm",
+    "aws_cloudhsm_luna_client",
     "aws_dax_default_parameter",
     "aws_dax_parameter_group",
     "aws_ec2_reserved_instances_offering",
@@ -48,7 +52,37 @@ OMITTED_RESOURCES = [
     "aws_securityhub_standard",
     "aws_ram_resource_type",
     "aws_ram_permission",
+    "aws_ec2_account_attribute",
+    "aws_elasticbeanstalk_available_solution_stack",
+    "aws_redshift_account_attribute",
+    "aws_opsworks_user_profile",
+    "aws_directconnect_direct_connect_gateway_association",  # DirectConnect resources endpoint are complicated
+    "aws_directconnect_direct_connect_gateway_attachment",
+    "aws_directconnect_interconnect",
+    "aws_dms_replication_task_assessment_result",
+    "aws_ec2_fpga_image",
+    "aws_ec2_launch_template_version",
+    "aws_ec2_reserved_instancesing",
+    "aws_ec2_spot_datafeed_subscription",
+    "aws_ec2_transit_gateway_multicast_domain",
+    "aws_elasticbeanstalk_configuration_option",
 ]
+
+# Trying to fix documentation errors or its lack made by "happy pirates" at AWS
+REQUIRED_PARAMS_OVERRIDE = {
+    "batch": {"ListJobs": ["jobQueue"]},
+    "cloudformation": {
+        "DescribeStackEvents": ["stackName"],
+        "DescribeStackResources": ["stackName"],
+        "GetTemplate": ["stackName"],
+        "ListTypeVersions": ["arn"],
+    },
+    "codecommit": {"GetBranch": ["repositoryName"],},
+    "codedeploy": {
+        "GetDeploymentTarget": ["deploymentId"],
+        "ListDeploymentTargets": ["deploymentId"],
+    },
+}
 
 ON_TOP_POLICIES = [
     "kafka:ListClusters",
@@ -58,9 +92,11 @@ ON_TOP_POLICIES = [
     "ssm:GetParametersByPath",
 ]
 
+PARALLEL_SERVICE_CALLS = 80
 
-def _to_snake_case(function):
-    return reduce(lambda x, y: x + ("_" if y.isupper() else "") + y, function).lower()
+
+def _to_snake_case(camel_case):
+    return re.sub("(?!^)([A-Z]+)", r"_\1", camel_case).lower()
 
 
 def last_singular_name_element(operation_name):
@@ -146,6 +182,8 @@ def operation_allowed(
 
 
 def build_resource(base_resource, operation_name, resource_type) -> Optional[Resource]:
+    if isinstance(base_resource, str):
+        return None
     resource_name = retrieve_resource_name(base_resource, operation_name)
     resource_id = retrieve_resource_id(base_resource, operation_name, resource_name)
 
@@ -154,6 +192,26 @@ def build_resource(base_resource, operation_name, resource_type) -> Optional[Res
     return Resource(
         digest=ResourceDigest(id=resource_id, type=resource_type), name=resource_name,
     )
+
+
+def all_exception(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        # pylint: disable=broad-except
+        except Exception as e:
+            if func.__qualname__ == "AllResources.analyze_operation":
+                message = "\nError running operation {}, type {}. Error message {}".format(
+                    args[2], args[1], str(e)
+                )
+            else:
+                message = "\nError running method {}. Error message {}".format(
+                    func.__qualname__, str(e)
+                )
+            log_critical(message)
+
+    return wrapper
 
 
 class AllResources(ResourceProvider):
@@ -167,14 +225,14 @@ class AllResources(ResourceProvider):
         self.options = options
         self.availabilityCheck = ResourceAvailable("")
 
-    @exception
+    @all_exception
     def get_resources(self) -> List[Resource]:
         boto_loader = Loader()
         aws_services = boto_loader.list_available_services(type_name="service-2")
         resources = []
         allowed_actions = self.get_policies_allowed_actions()
 
-        with ThreadPoolExecutor(80) as executor:
+        with ThreadPoolExecutor(PARALLEL_SERVICE_CALLS) as executor:
             results = executor.map(
                 lambda aws_service: self.analyze_service(
                     aws_service, boto_loader, allowed_actions
@@ -187,7 +245,7 @@ class AllResources(ResourceProvider):
 
         return resources
 
-    @exception
+    @all_exception
     def analyze_service(self, aws_service, boto_loader, allowed_actions):
         resources = []
         client = self.options.client(aws_service)
@@ -199,6 +257,8 @@ class AllResources(ResourceProvider):
         except UnknownServiceError:
             paginators_model = {"pagination": {}}
         service_full_name = service_model["metadata"]["serviceFullName"]
+        # if service_full_name != 'AWS CloudFormation':
+        #     return []
         message_handler(
             "Collecting data from {}...".format(service_full_name), "HEADER"
         )
@@ -223,6 +283,11 @@ class AllResources(ResourceProvider):
                     input_model = service_model["shapes"][operation["input"]["shape"]]
                     if "required" in input_model and input_model["required"]:
                         continue
+                    if (
+                        aws_service in REQUIRED_PARAMS_OVERRIDE
+                        and operation["name"] in REQUIRED_PARAMS_OVERRIDE[aws_service]
+                    ):
+                        continue
                 resource_type = "aws_{}_{}".format(
                     aws_service,
                     _to_snake_case(
@@ -244,7 +309,7 @@ class AllResources(ResourceProvider):
                     resources.extend(analyze_operation)
         return resources
 
-    @exception
+    @all_exception
     # pylint: disable=too-many-locals
     def analyze_operation(
         self, resource_type, operation_name, has_paginator, client
@@ -278,9 +343,6 @@ class AllResources(ResourceProvider):
                 else:
                     page_resources = []
                 for page_resource in page_resources:
-                    if isinstance(page_resource, str):
-                        continue
-
                     resource = build_resource(
                         page_resource, operation_name, resource_type
                     )
