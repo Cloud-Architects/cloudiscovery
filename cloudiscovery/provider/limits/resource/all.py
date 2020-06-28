@@ -8,6 +8,7 @@ from shared.common import (
     ResourceDigest,
     message_handler,
     ResourceCache,
+    LimitsValues,
 )
 from shared.error_handler import exception
 
@@ -30,7 +31,8 @@ class LimitResources(ResourceProvider):
 
         resources_found = []
 
-        services = self.options.services.split(",")
+        services = self.options.services
+
         for service in services:
             cache_key = "aws_limits_" + service + "_" + self.options.region_name
             cache = self.cache.get_key(cache_key)
@@ -40,39 +42,59 @@ class LimitResources(ResourceProvider):
                     data_quota_code["quota_code"]
                 ]
 
+                value_aws = data_quota_code["value"]
+
                 # Quota is adjustable by ticket request, then must override this values
                 if bool(data_quota_code["adjustable"]) is True:
-                    response_quota = client_quota.get_service_quota(
-                        ServiceCode=service, QuotaCode=data_quota_code["quota_code"]
-                    )
-                    if "Value" in response_quota["Quota"]:
-                        value = response_quota["Quota"]["Value"]
-                    else:
+                    try:
+                        response_quota = client_quota.get_service_quota(
+                            ServiceCode=service, QuotaCode=data_quota_code["quota_code"]
+                        )
+                        if "Value" in response_quota["Quota"]:
+                            value = response_quota["Quota"]["Value"]
+                        else:
+                            value = data_quota_code["value"]
+                    except client_quota.exceptions.NoSuchResourceException:
                         value = data_quota_code["value"]
 
                 message_handler(
                     "Collecting data from Quota: "
+                    + service
+                    + " - "
                     + data_quota_code["quota_name"]
                     + "...",
                     "HEADER",
                 )
-                client = self.options.session.client(service)
+
+                """
+                TODO: Add this as alias to convert service name
+                """
+                if service == "elasticloadbalancing":
+                    service = "elbv2"
+
+                client = self.options.session.client(
+                    service, region_name=self.options.region_name
+                )
 
                 response = getattr(client, quota_data["method"])()
 
-                total = str(len(response[quota_data["key"]]))
+                usage = len(response[quota_data["key"]])
 
                 resources_found.append(
                     Resource(
                         digest=ResourceDigest(
                             id=data_quota_code["quota_code"], type="aws_limit"
                         ),
-                        name=data_quota_code["quota_name"],
-                        group=service,
-                        details="Limit: "
-                        + str(int(value))
-                        + "... Current usage: "
-                        + total,
+                        name="",
+                        group="",
+                        limits=LimitsValues(
+                            quota_name=data_quota_code["quota_name"],
+                            quota_code=data_quota_code["quota_code"],
+                            aws_limit=int(value_aws),
+                            local_limit=int(value),
+                            usage=int(usage),
+                            service=service,
+                        ),
                     )
                 )
 

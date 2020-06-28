@@ -5,15 +5,75 @@ from shared.common import ResourceCache, message_handler
 
 SUBNET_CACHE = TTLCache(maxsize=1024, ttl=60)
 ALLOWED_SERVICES_CODES = {
+    "acm": {
+        "L-F141DD1D": {
+            "method": "list_certificates",
+            "key": "CertificateSummaryList",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "codebuild": {
+        "L-ACCF6C0D": {"method": "list_projects", "key": "projects", "fields": [],},
+        "global": False,
+    },
+    "codecommit": {
+        "L-81790602": {
+            "method": "list_repositories",
+            "key": "repositories",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "cloudformation": {
+        "L-0485CB21": {"method": "list_stacks", "key": "StackSummaries", "fields": []},
+        "global": False,
+    },
     "ec2": {
         "L-0263D0A3": {
             "method": "describe_addresses",
             "key": "Addresses",
-            "fields": ["PublicIp"],
-        }
+            "fields": [],
+        },
+        "global": False,
     },
-    "cloudformation": {
-        "L-0485CB21": {"method": "list_stacks", "key": "StackSummaries", "fields": []}
+    "elasticbeanstalk": {
+        "L-8EFC1C51": {
+            "method": "describe_environments",
+            "key": "Environments",
+            "fields": [],
+        },
+        "L-1CEABD17": {
+            "method": "describe_applications",
+            "key": "Applications",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "elasticloadbalancing": {
+        "L-53DA6B97": {
+            "method": "describe_load_balancers",
+            "key": "LoadBalancers",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "route53": {
+        "L-4EA4796A": {
+            "method": "list_hosted_zones",
+            "key": "HostedZones",
+            "fields": [],
+        },
+        "L-ACB674F3": {
+            "method": "list_health_checks",
+            "key": "HealthChecks",
+            "fields": [],
+        },
+        "global": True,
+    },
+    "s3": {
+        "L-DC2B2D3D": {"method": "list_buckets", "key": "Buckets", "fields": [],},
+        "global": False,
     },
 }
 
@@ -37,9 +97,14 @@ def describe_subnet(vpc_options, subnet_ids):
 class LimitParameters:
     def __init__(self, session, region: str, services):
         self.region = region
-        self.session = session.client("service-quotas", region_name=region)
         self.cache = ResourceCache()
-        self.services = services.split(",")
+        self.session = session
+        self.services = []
+        if services is None:
+            for service in ALLOWED_SERVICES_CODES:
+                self.services.append(service)
+        else:
+            self.services = services
 
     def init_globalaws_limits_cache(self):
         """
@@ -64,21 +129,36 @@ class LimitParameters:
 
                 cache_codes = dict()
                 for quota_code in ALLOWED_SERVICES_CODES[service_code]:
-                    response = self.session.get_aws_default_service_quota(
-                        ServiceCode=service_code, QuotaCode=quota_code
-                    )
 
-                    item_to_add = {
-                        "valye": response["Quota"]["Value"],
-                        "adjustable": response["Quota"]["Adjustable"],
-                        "quota_code": quota_code,
-                        "quota_name": response["Quota"]["QuotaName"],
-                    }
+                    if quota_code != "global":
+                        """
+                        Impossible to instance once at __init__ method.
+                        Global services such route53 MUST USE us-east-1 region
+                        """
+                        if ALLOWED_SERVICES_CODES[service_code]["global"]:
+                            service_quota = self.session.client(
+                                "service-quotas", region_name="us-east-1"
+                            )
+                        else:
+                            service_quota = self.session.client(
+                                "service-quotas", region_name=self.region
+                            )
 
-                    if service_code in cache_codes:
-                        cache_codes[service_code].append(item_to_add)
-                    else:
-                        cache_codes[service_code] = [item_to_add]
+                        response = service_quota.get_aws_default_service_quota(
+                            ServiceCode=service_code, QuotaCode=quota_code
+                        )
+
+                        item_to_add = {
+                            "value": response["Quota"]["Value"],
+                            "adjustable": response["Quota"]["Adjustable"],
+                            "quota_code": quota_code,
+                            "quota_name": response["Quota"]["QuotaName"],
+                        }
+
+                        if service_code in cache_codes:
+                            cache_codes[service_code].append(item_to_add)
+                        else:
+                            cache_codes[service_code] = [item_to_add]
 
                 self.cache.set_key(key=cache_key, value=cache_codes, expire=1296000)
 

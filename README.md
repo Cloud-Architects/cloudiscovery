@@ -219,16 +219,22 @@ cloudiscovery aws-policy [--profile-name profile] [--diagram True/False] [--filt
 cloudiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx]
 ```
 
-1.3 To detect all AWS resources:
+1.4 To detect all AWS resources:
 
 ```sh
 cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--filter xxx]
 ```
 
+1.5 To check AWS limits per resource:
+
+```sh
+cloudiscovery aws-limits --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx]
+```
+
 2.  For help use:
 
 ```sh
-cloudiscovery [aws-vpc|aws-policy|aws-iot|aws-all] -h
+cloudiscovery [aws-vpc|aws-policy|aws-iot|aws-all|aws-limits] -h
 ```
 
 ### Filtering
@@ -246,6 +252,11 @@ Useful [CF tags](https://aws.amazon.com/blogs/devops/tracking-the-cost-of-your-a
 1.  `aws:cloudformation:stack-name` - Stack name
 2.  `aws:cloudformation:stack-id` - Stack id
 3.  `aws:cloudformation:logical-id` - Logical id defined in CF template
+
+### Limits usage
+
+AWS has a default quota to all services. At the first time that you create an account, AWS apply this default quota to all services.  
+You can ask to increase the quota value of a certain service via ticket and this script will detect this.
 
 ### Using a Docker container
 

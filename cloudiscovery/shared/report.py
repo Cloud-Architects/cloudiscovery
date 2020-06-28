@@ -26,25 +26,40 @@ class Report(object):
         message_handler("\n\nFound resources", "HEADER")
 
         for resource in resources:
-            message = "resource type: {} - resource id: {} - resource name: {} - resource details: {}".format(
-                resource.digest.type,
-                resource.digest.id,
-                resource.name,
-                resource.details,
-            )
+            # Report to limits
+            if resource.limits:
+                percent = (resource.limits.usage / resource.limits.local_limit) * 100
+                usage = str(resource.limits.usage) + " - " + str(percent) + "%"
+                message = "service: {} - quota code: {} - quota name: {} - aws default quota: {} \
+                - applied quota: {} - usage: {}".format(
+                    resource.limits.service,
+                    resource.limits.quota_code,
+                    resource.limits.quota_name,
+                    resource.limits.aws_limit,
+                    resource.limits.local_limit,
+                    usage,
+                )
+            else:
+                message = "resource type: {} - resource id: {} - resource name: {} - resource details: {}".format(
+                    resource.digest.type,
+                    resource.digest.id,
+                    resource.name,
+                    resource.details,
+                )
 
             message_handler(message, "OKBLUE")
 
-        message_handler("\n\nFound relations", "HEADER")
-        for resource_relation in resource_relations:
-            message = "resource type: {} - resource id: {} -> resource type: {} - resource id: {}".format(
-                resource_relation.from_node.type,
-                resource_relation.from_node.id,
-                resource_relation.to_node.type,
-                resource_relation.to_node.id,
-            )
+        if resource_relations:
+            message_handler("\n\nFound relations", "HEADER")
+            for resource_relation in resource_relations:
+                message = "resource type: {} - resource id: {} -> resource type: {} - resource id: {}".format(
+                    resource_relation.from_node.type,
+                    resource_relation.from_node.id,
+                    resource_relation.to_node.type,
+                    resource_relation.to_node.id,
+                )
 
-            message_handler(message, "OKBLUE")
+                message_handler(message, "OKBLUE")
 
     @exception
     def html_report(
@@ -69,12 +84,18 @@ class Report(object):
                 with open(image_name, "rb") as image_file:
                     diagram_image = base64.b64encode(image_file.read()).decode("utf-8")
 
-        html_output = dir_template.get_template("report_html.html").render(
-            default_name=title,
-            resources_found=resources,
-            resources_relations=resource_relations,
-            diagram_image=diagram_image,
-        )
+        if resources:
+            if resources[0].limits:
+                html_output = dir_template.get_template("report_limits.html").render(
+                    default_name=title, resources_found=resources
+                )
+            else:
+                html_output = dir_template.get_template("report_html.html").render(
+                    default_name=title,
+                    resources_found=resources,
+                    resources_relations=resource_relations,
+                    diagram_image=diagram_image,
+                )
 
         self.make_directories()
 

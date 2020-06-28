@@ -1,6 +1,7 @@
 from shared.command import BaseCommand, CommandRunner
 from shared.common import BaseAwsOptions
 from shared.diagram import NoDiagram
+from shared.common_aws import ALLOWED_SERVICES_CODES
 
 
 class Limits(BaseCommand):
@@ -13,7 +14,12 @@ class Limits(BaseCommand):
         :param services:
         """
         super().__init__(region_names, session, False, False)
-        self.services = services
+        self.services = []
+        if services is None:
+            for service in ALLOWED_SERVICES_CODES:
+                self.services.append(service)
+        else:
+            self.services = services.split(",")
 
     def run(self):
 

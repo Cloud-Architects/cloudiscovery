@@ -1,0 +1,46 @@
+<p><strong><span style="font-size: 15pt;">cloudiscovery </span>- <span style="font-size: 12pt;">A tool to help you discover resources in the cloud environment.</span></strong></p>
+<p><span style="font-size: 14pt;"><strong>{{ default_name }}</strong></span></p>
+<p><span style="font-size: 12pt;">Limits</span></p>
+<table style="border-collapse: collapse; width: 100%;" border="1">
+<tbody>
+<tr>
+<td style="width: 10%; text-align: center;"><strong>Service</strong></td>
+<td style="width: 10%; text-align: center;"><strong>Quota code</strong></td>
+<td style="width: 20%; text-align: center;"><strong>Quota name</strong></td>
+<td style="width: 15%; text-align: center;"><strong>AWS default quota</strong></td>
+<td style="width: 15%; text-align: center;"><strong>Applied quota</strong></td>
+<td style="width: 15%; text-align: center;"><strong>Usage</strong></td>
+<td style="width: 15%; text-align: center;"><strong>Usage percent</strong></td>
+</tr>
+{% for resource_found in resources_found %}
+    {% set percent = (resource_found.limits.usage / resource_found.limits.local_limit) * 100 %}
+
+    {% if percent <= 70 %}
+        {% set color = "rgb(0,128,0)" %}
+        {% set message = "OK" %}
+    {% elif percent > 70 and percent <= 90 %}
+        {% set color = "rgb(0,0,139)" %}
+        {% set message = "Attention" %}
+    {% elif percent > 90 %}
+        {% set color = "rgb(255,0,0)" %}
+        {% set message = "Risk" %}
+    {% endif %}
+    <tr>
+        <td style="width: 10%;">{{ resource_found.limits.service}}</td>
+        <td style="width: 10%;">{{ resource_found.limits.quota_code}}</td>
+        <td style="width: 20%;">{{ resource_found.limits.quota_name}}</td>
+        <td style="width: 15%;" align="center">{{ resource_found.limits.aws_limit}}</td>
+        <td style="width: 15%;" align="center">{{ resource_found.limits.local_limit}}</td>
+        <td style="width: 15%;" align="center">{{ resource_found.limits.usage}}</td>
+        <td style="width: 15%;" align="center">{{ percent }}% - {{ message }}
+        <svg width="20" height="20">
+            <rect width="20" height="20" style="fill: {{ color }}" />
+            Sorry, your browser does not support inline SVG.  
+            </svg>
+        </td>
+    </tr>
+{%- endfor %}
+</tbody>
+</table>
+
+<p>&nbsp;</p>

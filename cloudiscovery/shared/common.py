@@ -66,6 +66,15 @@ class Filterable:
     pass
 
 
+class LimitsValues(NamedTuple):
+    service: str
+    quota_name: str
+    quota_code: str
+    aws_limit: int
+    local_limit: int
+    usage: int
+
+
 class ResourceTag(NamedTuple, Filterable):
     key: str
     value: str
@@ -77,10 +86,11 @@ class ResourceType(NamedTuple, Filterable):
 
 class Resource(NamedTuple):
     digest: ResourceDigest
-    name: str
+    name: str = ""
     details: str = ""
     group: str = ""
     tags: List[ResourceTag] = []
+    limits: List[LimitsValues] = []
 
 
 class ResourceCache:
