@@ -13,6 +13,10 @@ ALLOWED_SERVICES_CODES = {
         },
         "global": False,
     },
+    "amplify": {
+        "L-1BED97F3": {"method": "list_apps", "key": "apps", "fields": [],},
+        "global": False,
+    },
     "codebuild": {
         "L-ACCF6C0D": {"method": "list_projects", "key": "projects", "fields": [],},
         "global": False,
