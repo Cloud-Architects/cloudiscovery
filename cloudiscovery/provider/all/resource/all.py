@@ -76,6 +76,11 @@ OMITTED_RESOURCES = [
     "aws_rds_export_task",
     "aws_rds_custom_availability_zone",
     "aws_rds_installation_media",
+    "aws_rds_d_bsecurity_group",
+    "aws_translate_text_translation_job",
+    "aws_rekognition_project",
+    "aws_rekognition_stream_processor",
+    "aws_sdb_domain",
 ]
 
 # Trying to fix documentation errors or its lack made by "happy pirates" at AWS
@@ -106,6 +111,31 @@ REQUIRED_PARAMS_OVERRIDE = {
         "ListSigningCertificates": ["userName"],
     },
     "iot": {"ListAuditFindings": ["taskId"]},
+    "opsworks": {
+        "ListAuditFindings": ["taskId"],
+        "DescribeAgentVersions": ["stackId"],
+        "DescribeApps": ["stackId"],
+        "DescribeCommands": ["deploymentId"],
+        "DescribeDeployments": ["appId"],
+        "DescribeEcsClusters": ["ecsClusterArns"],
+        "DescribeElasticIps": ["stackId"],
+        "DescribeElasticLoadBalancers": ["stackId"],
+        "DescribeInstances": ["stackId"],
+        "DescribeLayers": ["stackId"],
+        "DescribePermissions": ["stackId"],
+        "DescribeRaidArrays": ["stackId"],
+        "DescribeVolumes": ["stackId"],
+    },
+    "ssm": {"DescribeMaintenanceWindowSchedule": ["windowId"],},
+    "waf": {
+        "ListActivatedRulesInRuleGroup": ["ruleGroupId"],
+        "ListLoggingConfigurations": ["limit"],
+    },
+    "waf-regional": {
+        "ListActivatedRulesInRuleGroup": ["ruleGroupId"],
+        "ListLoggingConfigurations": ["limit"],
+    },
+    "wafv2": {"ListLoggingConfigurations": ["limit"],},
 }
 
 ON_TOP_POLICIES = [
@@ -116,7 +146,7 @@ ON_TOP_POLICIES = [
     "ssm:GetParametersByPath",
 ]
 
-PARALLEL_SERVICE_CALLS = 80
+PARALLEL_SERVICE_CALLS = 1
 
 
 def _to_snake_case(camel_case):
@@ -247,14 +277,40 @@ def all_exception(func):
         # pylint: disable=broad-except
         except Exception as e:
             if func.__qualname__ == "AllResources.analyze_operation":
-                message = "\nError running operation {}, type {}. Error message {}".format(
-                    args[2], args[1], str(e)
-                )
+                exception_str = str(e)
+                if (
+                    "is not subscribed to AWS Security Hub" in exception_str
+                    or "not enabled for securityhub" in exception_str
+                ):
+                    message_handler(
+                        "Operation {} not accessible, AWS Security Hub is not configured... Skipping".format(
+                            args[2]
+                        ),
+                        "WARNING",
+                    )
+                elif (
+                    "not connect to the endpoint URL" in exception_str
+                    or "not available in this region" in exception_str
+                    or "API is not available" in exception_str
+                ):
+                    message_handler(
+                        "Service {} not available in the selected region... Skipping".format(
+                            args[5]
+                        ),
+                        "WARNING",
+                    )
+                else:
+                    log_critical(
+                        "\nError running operation {}, type {}. Error message {}".format(
+                            args[2], args[1], exception_str
+                        )
+                    )
             else:
-                message = "\nError running method {}. Error message {}".format(
-                    func.__qualname__, str(e)
+                log_critical(
+                    "\nError running method {}. Error message {}".format(
+                        func.__qualname__, str(e)
+                    )
                 )
-            log_critical(message)
 
     return wrapper
 
@@ -277,6 +333,12 @@ class AllResources(ResourceProvider):
         resources = []
         allowed_actions = self.get_policies_allowed_actions()
 
+        message_handler(
+            "Analyzing listing operations across {} service...".format(
+                len(aws_services)
+            ),
+            "HEADER",
+        )
         with ThreadPoolExecutor(PARALLEL_SERVICE_CALLS) as executor:
             results = executor.map(
                 lambda aws_service: self.analyze_service(
@@ -346,16 +408,16 @@ class AllResources(ResourceProvider):
                 if not operation_allowed(allowed_actions, aws_service, name):
                     continue
                 analyze_operation = self.analyze_operation(
-                    resource_type, name, has_paginator, client
+                    resource_type, name, has_paginator, client, service_full_name
                 )
                 if analyze_operation is not None:
                     resources.extend(analyze_operation)
         return resources
 
     @all_exception
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-arguments
     def analyze_operation(
-        self, resource_type, operation_name, has_paginator, client
+        self, resource_type, operation_name, has_paginator, client, service_full_name
     ) -> List[Resource]:
         resources = []
         if has_paginator:
