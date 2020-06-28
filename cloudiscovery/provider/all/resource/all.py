@@ -66,6 +66,16 @@ OMITTED_RESOURCES = [
     "aws_ec2_spot_datafeed_subscription",
     "aws_ec2_transit_gateway_multicast_domain",
     "aws_elasticbeanstalk_configuration_option",
+    "aws_elasticbeanstalk_platform_version",
+    "aws_iam_credential_report",
+    "aws_importexport_job",
+    "aws_iot_o_taupdate",
+    "aws_iot_default_authorizer",
+    "aws_workspaces_account",
+    "aws_workspaces_account_modification",
+    "aws_rds_export_task",
+    "aws_rds_custom_availability_zone",
+    "aws_rds_installation_media",
 ]
 
 # Trying to fix documentation errors or its lack made by "happy pirates" at AWS
@@ -77,11 +87,25 @@ REQUIRED_PARAMS_OVERRIDE = {
         "GetTemplate": ["stackName"],
         "ListTypeVersions": ["arn"],
     },
-    "codecommit": {"GetBranch": ["repositoryName"],},
+    "codecommit": {"GetBranch": ["repositoryName"]},
     "codedeploy": {
         "GetDeploymentTarget": ["deploymentId"],
         "ListDeploymentTargets": ["deploymentId"],
     },
+    "elasticbeanstalk": {
+        "DescribeEnvironmentHealth": ["environmentName"],
+        "DescribeEnvironmentManagedActionHistory": ["environmentName"],
+        "DescribeEnvironmentManagedActions": ["environmentName"],
+        "DescribeEnvironmentResources": ["environmentName"],
+        "DescribeInstancesHealth": ["environmentName"],
+    },
+    "iam": {
+        "GetUser": ["userName"],
+        "ListAccessKeys": ["userName"],
+        "ListServiceSpecificCredentials": ["userName"],
+        "ListSigningCertificates": ["userName"],
+    },
+    "iot": {"ListAuditFindings": ["taskId"]},
 }
 
 ON_TOP_POLICIES = [
@@ -96,7 +120,28 @@ PARALLEL_SERVICE_CALLS = 80
 
 
 def _to_snake_case(camel_case):
-    return re.sub("(?!^)([A-Z]+)", r"_\1", camel_case).lower()
+    return (
+        re.sub("(?!^)([A-Z]+)", r"_\1", camel_case)
+        .lower()
+        .replace("open_idconnect", "open_id_connect")
+        .replace("samlproviders", "saml_providers")
+        .replace("sshpublic_keys", "ssh_public_keys")
+        .replace("mfadevices", "mfa_devices")
+        .replace("cacertificates", "ca_certificates")
+        .replace("awsservice", "aws_service")
+        .replace("dbinstances", "db_instances")
+        .replace("drtaccess", "drt_access")
+        .replace("ipsets", "ip_sets")
+        .replace("mljobs", "ml_jobs")
+        .replace("dbcluster", "db_cluster")
+        .replace("dbengine", "db_engine")
+        .replace("dbsecurity", "db_security")
+        .replace("dbsubnet", "db_subnet")
+        .replace("dbsnapshot", "db_snapshot")
+        .replace("dbproxies", "db_proxies")
+        .replace("dbparameter", "db_parameter")
+        .replace("dbinstance", "db_instance")
+    )
 
 
 def last_singular_name_element(operation_name):
@@ -257,8 +302,6 @@ class AllResources(ResourceProvider):
         except UnknownServiceError:
             paginators_model = {"pagination": {}}
         service_full_name = service_model["metadata"]["serviceFullName"]
-        # if service_full_name != 'AWS CloudFormation':
-        #     return []
         message_handler(
             "Collecting data from {}...".format(service_full_name), "HEADER"
         )
