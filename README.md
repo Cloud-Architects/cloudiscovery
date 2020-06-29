@@ -177,7 +177,9 @@ aws configure
                   "synthetics:DescribeCanaries",
                   "medialive:ListInputs",
                   "cloudhsm:DescribeClusters",
-                  "ssm:GetParametersByPath"
+                  "ssm:GetParametersByPath",
+                  "servicequotas:Get*",
+                  "amplify:ListApps"
                 ],
                 "Resource": [ "*" ]
               }
@@ -260,7 +262,7 @@ Useful [CF tags](https://aws.amazon.com/blogs/devops/tracking-the-cost-of-your-a
 
 ### Limits usage
 
-It's possible to check resources limits in an account. This script allows check all services availables or check only a specific resource. Using `--services value,value,value` filter, you can inform all services that want to check.
+It's possible to check resources limits in an account. This script allows check all available services or check only a specific resource. With `--services value,value,value` selection, you can narrow down checks to services that you want to check.
 
 *   Services available
     *   acm

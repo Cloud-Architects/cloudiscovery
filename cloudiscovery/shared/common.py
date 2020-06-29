@@ -101,7 +101,7 @@ class ResourceCache:
             + "/../../assets/.cache/"
         )
 
-    def set_key(self, key: str, value: int, expire: int):
+    def set_key(self, key: str, value: object, expire: int):
         self.cache.set(key=key, value=value, expire=expire)
 
     def get_key(self, key: str):
