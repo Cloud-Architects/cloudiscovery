@@ -32,41 +32,55 @@ The commands generate reports that can be used to analyze command reports.
 
 1.  Run the cloudiscovery command with following options (if a region not informed, this script will try to get from ~/.aws/credentials):
 
-1.1 To detect AWS VPC resources:
+1.1 To detect AWS VPC resources (more on [AWS VPC](#aws-vpc)):
 
 ```sh
 cloudiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx]
 ```
-1.2 To detect AWS policy resources:
+1.2 To detect AWS policy resources (more on [AWS Policy](#aws-policy)):
 
 ```sh
 cloudiscovery aws-policy [--profile-name profile] [--diagram True/False] [--filter xxx]
 ```
-1.3 To detect AWS IoT resources:
+1.3 To detect AWS IoT resources (more on [AWS IoT](#aws-iot)):
 
 ```sh
 cloudiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx]
 ```
 
-1.4 To detect all AWS resources:
+1.4 To detect all AWS resources (more on [AWS All](#aws-all)):
 
 ```sh
 cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--filter xxx]
 ```
 
-1.5 To check AWS limits per resource:
+1.5 To check AWS limits per resource (more on [AWS Limit](#aws-limit)):
 
 ```sh
 cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx]
 ```
-
-Check [limits usage](#limits-usage) section.
 
 2.  For help use:
 
 ```sh
 cloudiscovery [aws-vpc|aws-policy|aws-iot|aws-all|aws-limit] -h
 ```
+
+### Filtering
+
+It's possible to filter resources by tags and resource type. To filter, add an option `--filter <VALUE>`, where `<VALUE>` can be:
+
+1.  `Name=tags.costCenter;Value=20000` - to filter resources by a tag name `costCenter` and with value `20000`.
+2.  `Name=type;Value=aws_lambda_function` to only list lambda functions.
+
+It's possible to pass multiple values, to be able to select a value from a set. Values are split by `:` sign. If a desired value has a `:` sign, wrap it in `'` signs e.g. `--filter="Name=tags.costCenter;Value=20000:'20001:1'`.
+
+It is possible to pass multiple filter options, just pass `-f filter_1 -f filter_2`. In that case, the tool will return resources that match either of the filters
+
+Useful [CF tags](https://aws.amazon.com/blogs/devops/tracking-the-cost-of-your-aws-cloudformation-stack/):
+1.  `aws:cloudformation:stack-name` - Stack name
+2.  `aws:cloudformation:stack-id` - Stack id
+3.  `aws:cloudformation:logical-id` - Logical id defined in CF template
 
 ## Requirements and Installation
 
@@ -150,21 +164,7 @@ aws configure
 
 *   (Optional) If you want to be able to switch between multiple AWS credentials and settings, you can configure [named profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) and later pass profile name when running the tool.
 
-### Filtering
-
-It's possible to filter resources by tags and resource type. To filter, add an option `--filter <VALUE>`, where `<VALUE>` can be:
-
-1.  `Name=tags.costCenter;Value=20000` - to filter resources by a tag name `costCenter` and with value `20000`.
-2.  `Name=type;Value=aws_lambda_function` to only list lambda functions.
-
-It's possible to pass multiple values, to be able to select a value from a set. Values are split by `:` sign. If a desired value has a `:` sign, wrap it in `'` signs e.g. `--filter="Name=tags.costCenter;Value=20000:'20001:1'`.
-
-It is possible to pass multiple filter options, just pass `-f filter_1 -f filter_2`. In that case, the tool will return resources that match either of the filters
-
-Useful [CF tags](https://aws.amazon.com/blogs/devops/tracking-the-cost-of-your-aws-cloudformation-stack/):
-1.  `aws:cloudformation:stack-name` - Stack name
-2.  `aws:cloudformation:stack-id` - Stack id
-3.  `aws:cloudformation:logical-id` - Logical id defined in CF template
+## Commands
 
 ### AWS VPC
 
@@ -267,7 +267,7 @@ The operations must be allowed to be called by permissions described in [AWS Per
 
 Types of resources will mostly cover Terraform types.
 
-### Limits usage
+### AWS Limit
 
 It's possible to check resources limits in an account. This script allows check all available services or check only a specific resource. With `--services value,value,value` selection, you can narrow down checks to services that you want to check.
 
