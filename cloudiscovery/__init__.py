@@ -22,8 +22,6 @@ from typing import List
 
 import pkg_resources
 
-from provider.all.command import All
-
 """path to pip package"""
 sys.path.append(dirname(__file__))
 
@@ -32,6 +30,8 @@ sys.path.append(dirname(__file__))
 from provider.policy.command import Policy
 from provider.vpc.command import Vpc
 from provider.iot.command import Iot
+from provider.all.command import All
+from provider.limits.command import Limits
 
 # Check version
 from shared.common import (
@@ -83,10 +83,24 @@ def generate_parser():
     all_parser = subparsers.add_parser("aws-all", help="Analyze all resources")
     add_default_arguments(all_parser, diagram_enabled=False)
 
+    limit_parser = subparsers.add_parser(
+        "aws-limits", help="Analyze aws limit resources."
+    )
+    add_default_arguments(limit_parser, diagram_enabled=False, filters_enabled=False)
+    limit_parser.add_argument(
+        "-s",
+        "--services",
+        required=False,
+        help='Inform services that you want to check, use "," (comma) to split them.  \
+              If not informed, script will check all services.',
+    )
+
     return parser
 
 
-def add_default_arguments(parser, is_global=False, diagram_enabled=True):
+def add_default_arguments(
+    parser, is_global=False, diagram_enabled=True, filters_enabled=True
+):
     if not is_global:
         parser.add_argument(
             "-r",
@@ -101,15 +115,16 @@ def add_default_arguments(parser, is_global=False, diagram_enabled=True):
     parser.add_argument(
         "-l", "--language", required=False, help="available languages: pt_BR, en_US"
     )
-    parser.add_argument(
-        "-f",
-        "--filters",
-        action="append",
-        required=False,
-        help="filter resources (tags only for now, you must specify name and values); multiple filters are possible "
-        "to pass with -f <filter_1> -f <filter_2> approach, values can be separated by : sign; "
-        "example: Name=tags.costCenter;Value=20000:'20001:1'",
-    )
+    if filters_enabled:
+        parser.add_argument(
+            "-f",
+            "--filters",
+            action="append",
+            required=False,
+            help="filter resources (tags only for now, you must specify name and values); multiple filters "
+            "are possible to pass with -f <filter_1> -f <filter_2> approach, values can be separated by : sign; "
+            "example: Name=tags.costCenter;Value=20000:'20001:1'",
+        )
     if diagram_enabled:
         parser.add_argument(
             "-d",
@@ -163,9 +178,10 @@ def main():
             )
 
     # filters check
-    filters: List[Filterable] = []
-    if args.filters is not None:
-        filters = parse_filters(args.filters)
+    if "filters" in args:
+        filters: List[Filterable] = []
+        if args.filters is not None:
+            filters = parse_filters(args.filters)
 
     # aws profile check
     session = generate_session(args.profile_name)
@@ -184,7 +200,7 @@ def main():
 
         # get regions
         region_names = check_region(
-            region_parameter=args.region_name, region_name=region_name, session=session
+            region_parameter=args.region_name, region_name=region_name, session=session,
         )
 
     if args.command == "aws-vpc":
@@ -197,7 +213,10 @@ def main():
         )
     elif args.command == "aws-policy":
         command = Policy(
-            region_names=region_names, session=session, diagram=diagram, filters=filters
+            region_names=region_names,
+            session=session,
+            diagram=diagram,
+            filters=filters,
         )
     elif args.command == "aws-iot":
         command = Iot(
@@ -209,6 +228,10 @@ def main():
         )
     elif args.command == "aws-all":
         command = All(region_names=region_names, session=session, filters=filters,)
+    elif args.command == "aws-limits":
+        command = Limits(
+            region_names=region_names, session=session, services=args.services,
+        )
     else:
         raise NotImplementedError("Unknown command")
     command.run()
