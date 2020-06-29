@@ -103,6 +103,11 @@ ALLOWED_SERVICES_CODES = {
             "paginate": False,
         },
         "L-FE177D64": {"method": "list_roles", "key": "Roles", "fields": [],},
+        "L-DB618D39": {
+            "method": "list_saml_providers",
+            "key": "SAMLProviderList",
+            "fields": [],
+        },
         "global": True,
     },
     "kms": {
@@ -118,6 +123,19 @@ ALLOWED_SERVICES_CODES = {
         "L-ACB674F3": {
             "method": "list_health_checks",
             "key": "HealthChecks",
+            "fields": [],
+        },
+        "global": True,
+    },
+    "route53resolver": {
+        "L-4A669CC0": {
+            "method": "list_resolver_endpoints",
+            "key": "ResolverEndpoints",
+            "fields": [],
+        },
+        "L-51D8A1FB": {
+            "method": "list_resolver_rules",
+            "key": "ResolverRules",
             "fields": [],
         },
         "global": True,
