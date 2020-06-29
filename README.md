@@ -166,7 +166,6 @@ Useful [CF tags](https://aws.amazon.com/blogs/devops/tracking-the-cost-of-your-a
 2.  `aws:cloudformation:stack-id` - Stack id
 3.  `aws:cloudformation:logical-id` - Logical id defined in CF template
 
-
 ### AWS VPC
 
 Example of a diagram:
