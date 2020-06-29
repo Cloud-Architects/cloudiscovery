@@ -38,6 +38,7 @@ ALLOWED_SERVICES_CODES = {
     },
     "cloudformation": {
         "L-0485CB21": {"method": "list_stacks", "key": "StackSummaries", "fields": []},
+        "L-9DE8E4FB": {"method": "list_types", "key": "TypeSummaries", "fields": []},
         "global": False,
     },
     "dynamodb": {

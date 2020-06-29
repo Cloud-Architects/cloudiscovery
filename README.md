@@ -234,6 +234,8 @@ cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--filt
 cloudiscovery aws-limits --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx]
 ```
 
+Check [limits usage](#limits-usage) section.
+
 2.  For help use:
 
 ```sh
@@ -258,8 +260,28 @@ Useful [CF tags](https://aws.amazon.com/blogs/devops/tracking-the-cost-of-your-a
 
 ### Limits usage
 
-AWS has a default quota to all services. At the first time that you create an account, AWS apply this default quota to all services.  
-You can ask to increase the quota value of a certain service via ticket and this script will detect this.
+It's possible to check resources limits in an account. This script allows check all services availables or check only a specific resource. Using `--services value,value,value` filter, you can inform all services that want to check.
+
+-   Services available
+    -   acm
+    -   amplify
+    -   codebuild
+    -   codecommit
+    -   cloudformation
+    -   dynamodb
+    -   ec2
+    -   ecs
+    -   elasticbeanstalk
+    -   elasticloadbalancing
+    -   iam
+    -   route53
+    -   rds
+    -   s3
+    -   sns
+
+
+AWS has a default quota to all services. At the first time that an account is created, AWS apply this default quota to all services.  
+An administrator can ask to increase the quota value of a certain service via ticket and this script will detect this.
 
 ### Using a Docker container
 
