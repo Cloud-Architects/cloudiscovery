@@ -114,6 +114,28 @@ ALLOWED_SERVICES_CODES = {
         "L-C2F1777E": {"method": "list_keys", "key": "Keys", "fields": [],},
         "global": False,
     },
+    "mediaconnect": {
+        "L-A99016A8": {"method": "list_flows", "key": "Flows", "fields": [],},
+        "L-F1F62F5D": {
+            "method": "list_entitlements",
+            "key": "Entitlements",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "medialive": {
+        "L-D1AFAF75": {"method": "list_channels", "key": "Channels", "fields": [],},
+        "L-BDF24E14": {
+            "method": "list_input_devices",
+            "key": "InputDevices",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "mediapackage": {
+        "L-352B8598": {"method": "list_channels", "key": "Channels", "fields": [],},
+        "global": False,
+    },
     "route53": {
         "L-4EA4796A": {
             "method": "list_hosted_zones",
