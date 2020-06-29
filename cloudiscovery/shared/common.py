@@ -73,6 +73,7 @@ class LimitsValues(NamedTuple):
     aws_limit: int
     local_limit: int
     usage: int
+    percent: float
 
 
 class ResourceTag(NamedTuple, Filterable):

@@ -13,7 +13,7 @@
 <td style="width: 15%; text-align: center;"><strong>Usage percent</strong></td>
 </tr>
 {% for resource_found in resources_found %}
-    {% set percent = (resource_found.limits.usage / resource_found.limits.local_limit) * 100 %}
+    {% set percent = resource_found.limits.percent %}
 
     {% if percent <= 70 %}
         {% set color = "rgb(0,128,0)" %}

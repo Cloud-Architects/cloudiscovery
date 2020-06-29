@@ -28,8 +28,12 @@ class Report(object):
         for resource in resources:
             # Report to limits
             if resource.limits:
-                percent = (resource.limits.usage / resource.limits.local_limit) * 100
-                usage = str(resource.limits.usage) + " - " + str(percent) + "%"
+                usage = (
+                    str(resource.limits.usage)
+                    + " - "
+                    + str(resource.limits.percent)
+                    + "%"
+                )
                 # pylint: disable=line-too-long
                 message = "service: {} - quota code: {} - quota name: {} - aws default quota: {} - applied quota: {} - usage: {}".format(  # noqa: E501
                     resource.limits.service,

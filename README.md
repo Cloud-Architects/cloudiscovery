@@ -338,6 +338,8 @@ To run pre-commit hooks, you can issue the following command:
 pre-commit run --all-files
 ```
 
+To add new resources to check limit, please remove "assets/.cache/cache.db"
+
 ## Making a release
 
 1.  Update the version in cloudiscovery/__init\__.py and create a new git tag with `git tag $VERSION`.

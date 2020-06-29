@@ -2,84 +2,9 @@ import botocore.exceptions
 from cachetools import TTLCache
 
 from shared.common import ResourceCache, message_handler
+from provider.limits.resource.all import ALLOWED_SERVICES_CODES
 
 SUBNET_CACHE = TTLCache(maxsize=1024, ttl=60)
-ALLOWED_SERVICES_CODES = {
-    "acm": {
-        "L-F141DD1D": {
-            "method": "list_certificates",
-            "key": "CertificateSummaryList",
-            "fields": [],
-        },
-        "global": False,
-    },
-    "amplify": {
-        "L-1BED97F3": {"method": "list_apps", "key": "apps", "fields": [],},
-        "global": False,
-    },
-    "codebuild": {
-        "L-ACCF6C0D": {"method": "list_projects", "key": "projects", "fields": [],},
-        "global": False,
-    },
-    "codecommit": {
-        "L-81790602": {
-            "method": "list_repositories",
-            "key": "repositories",
-            "fields": [],
-        },
-        "global": False,
-    },
-    "cloudformation": {
-        "L-0485CB21": {"method": "list_stacks", "key": "StackSummaries", "fields": []},
-        "global": False,
-    },
-    "ec2": {
-        "L-0263D0A3": {
-            "method": "describe_addresses",
-            "key": "Addresses",
-            "fields": [],
-        },
-        "global": False,
-    },
-    "elasticbeanstalk": {
-        "L-8EFC1C51": {
-            "method": "describe_environments",
-            "key": "Environments",
-            "fields": [],
-        },
-        "L-1CEABD17": {
-            "method": "describe_applications",
-            "key": "Applications",
-            "fields": [],
-        },
-        "global": False,
-    },
-    "elasticloadbalancing": {
-        "L-53DA6B97": {
-            "method": "describe_load_balancers",
-            "key": "LoadBalancers",
-            "fields": [],
-        },
-        "global": False,
-    },
-    "route53": {
-        "L-4EA4796A": {
-            "method": "list_hosted_zones",
-            "key": "HostedZones",
-            "fields": [],
-        },
-        "L-ACB674F3": {
-            "method": "list_health_checks",
-            "key": "HealthChecks",
-            "fields": [],
-        },
-        "global": True,
-    },
-    "s3": {
-        "L-DC2B2D3D": {"method": "list_buckets", "key": "Buckets", "fields": [],},
-        "global": False,
-    },
-}
 
 
 def describe_subnet(vpc_options, subnet_ids):

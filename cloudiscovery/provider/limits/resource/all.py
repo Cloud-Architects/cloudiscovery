@@ -1,6 +1,5 @@
 from typing import List
 
-from shared.common_aws import ALLOWED_SERVICES_CODES
 from shared.common import (
     ResourceProvider,
     Resource,
@@ -11,6 +10,98 @@ from shared.common import (
     LimitsValues,
 )
 from shared.error_handler import exception
+
+ALLOWED_SERVICES_CODES = {
+    "acm": {
+        "L-F141DD1D": {
+            "method": "list_certificates",
+            "key": "CertificateSummaryList",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "amplify": {
+        "L-1BED97F3": {"method": "list_apps", "key": "apps", "fields": [],},
+        "global": False,
+    },
+    "codebuild": {
+        "L-ACCF6C0D": {"method": "list_projects", "key": "projects", "fields": [],},
+        "global": False,
+    },
+    "codecommit": {
+        "L-81790602": {
+            "method": "list_repositories",
+            "key": "repositories",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "cloudformation": {
+        "L-0485CB21": {"method": "list_stacks", "key": "StackSummaries", "fields": []},
+        "global": False,
+    },
+    "ec2": {
+        "L-0263D0A3": {
+            "method": "describe_addresses",
+            "key": "Addresses",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "elasticbeanstalk": {
+        "L-8EFC1C51": {
+            "method": "describe_environments",
+            "key": "Environments",
+            "fields": [],
+        },
+        "L-1CEABD17": {
+            "method": "describe_applications",
+            "key": "Applications",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "elasticloadbalancing": {
+        "L-53DA6B97": {
+            "method": "describe_load_balancers",
+            "key": "LoadBalancers",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "iam": {
+        "L-F4A5425F": {"method": "list_groups", "key": "Groups", "fields": [],},
+        "L-F55AF5E4": {"method": "list_users", "key": "Users", "fields": [],},
+        "L-BF35879D": {
+            "method": "list_server_certificates",
+            "key": "ServerCertificateMetadataList",
+            "fields": [],
+        },
+        "L-6E65F664": {
+            "method": "list_instance_profiles",
+            "key": "InstanceProfiles",
+            "fields": [],
+        },
+        "global": True,
+    },
+    "route53": {
+        "L-4EA4796A": {
+            "method": "list_hosted_zones",
+            "key": "HostedZones",
+            "fields": [],
+        },
+        "L-ACB674F3": {
+            "method": "list_health_checks",
+            "key": "HealthChecks",
+            "fields": [],
+        },
+        "global": True,
+    },
+    "s3": {
+        "L-DC2B2D3D": {"method": "list_buckets", "key": "Buckets", "fields": [],},
+        "global": False,
+    },
+}
 
 
 class LimitResources(ResourceProvider):
@@ -25,6 +116,7 @@ class LimitResources(ResourceProvider):
         self.cache = ResourceCache()
 
     @exception
+    # pylint: disable=too-many-locals
     def get_resources(self) -> List[Resource]:
 
         client_quota = self.options.session.client("service-quotas")
@@ -80,6 +172,8 @@ class LimitResources(ResourceProvider):
 
                 usage = len(response[quota_data["key"]])
 
+                percent = round((usage / value) * 100, 2)
+
                 resources_found.append(
                     Resource(
                         digest=ResourceDigest(
@@ -94,6 +188,7 @@ class LimitResources(ResourceProvider):
                             local_limit=int(value),
                             usage=int(usage),
                             service=service,
+                            percent=percent,
                         ),
                     )
                 )
