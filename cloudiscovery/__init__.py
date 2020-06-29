@@ -31,7 +31,7 @@ from provider.policy.command import Policy
 from provider.vpc.command import Vpc
 from provider.iot.command import Iot
 from provider.all.command import All
-from provider.limits.command import Limits
+from provider.limit.command import Limit
 
 # Check version
 from shared.common import (
@@ -84,7 +84,7 @@ def generate_parser():
     add_default_arguments(all_parser, diagram_enabled=False)
 
     limit_parser = subparsers.add_parser(
-        "aws-limits", help="Analyze aws limit resources."
+        "aws-limit", help="Analyze aws limit resources."
     )
     add_default_arguments(limit_parser, diagram_enabled=False, filters_enabled=False)
     limit_parser.add_argument(
@@ -228,8 +228,8 @@ def main():
         )
     elif args.command == "aws-all":
         command = All(region_names=region_names, session=session, filters=filters,)
-    elif args.command == "aws-limits":
-        command = Limits(
+    elif args.command == "aws-limit":
+        command = Limit(
             region_names=region_names, session=session, services=args.services,
         )
     else:

@@ -26,7 +26,7 @@ OMITTED_RESOURCES = [
     "aws_ec2_reserved_instances_offering",
     "aws_ec2_snapshot",
     "aws_ec2_spot_price_history",
-    "aws_ssm_available_patche",
+    "aws_ssm_available_patch",
     "aws_ssm_document",
     "aws_polly_voice",
     "aws_lightsail_blueprint",
@@ -81,6 +81,11 @@ OMITTED_RESOURCES = [
     "aws_rekognition_project",
     "aws_rekognition_stream_processor",
     "aws_sdb_domain",
+    "aws_redshift_table_restore_status",
+    "aws_iot_v2_logging_level",
+    "aws_license_manager_resource_inventory",
+    "aws_license_manager_license_configuration",
+    "aws_logs_query_definition",
 ]
 
 # Trying to fix documentation errors or its lack made by "happy pirates" at AWS
@@ -97,6 +102,11 @@ REQUIRED_PARAMS_OVERRIDE = {
         "GetDeploymentTarget": ["deploymentId"],
         "ListDeploymentTargets": ["deploymentId"],
     },
+    "ecs": {
+        "ListTasks": ["cluster"],
+        "ListServices": ["cluster"],
+        "ListContainerInstances": ["cluster"],
+    },
     "elasticbeanstalk": {
         "DescribeEnvironmentHealth": ["environmentName"],
         "DescribeEnvironmentManagedActionHistory": ["environmentName"],
@@ -109,6 +119,8 @@ REQUIRED_PARAMS_OVERRIDE = {
         "ListAccessKeys": ["userName"],
         "ListServiceSpecificCredentials": ["userName"],
         "ListSigningCertificates": ["userName"],
+        "ListMFADevices": ["userName"],
+        "ListSSHPublicKeys": ["userName"],
     },
     "iot": {"ListAuditFindings": ["taskId"]},
     "opsworks": {
@@ -127,6 +139,7 @@ REQUIRED_PARAMS_OVERRIDE = {
         "DescribeVolumes": ["stackId"],
     },
     "ssm": {"DescribeMaintenanceWindowSchedule": ["windowId"],},
+    "shield": {"DescribeProtection": ["protectionId"],},
     "waf": {
         "ListActivatedRulesInRuleGroup": ["ruleGroupId"],
         "ListLoggingConfigurations": ["limit"],
@@ -146,7 +159,11 @@ ON_TOP_POLICIES = [
     "ssm:GetParametersByPath",
 ]
 
-PARALLEL_SERVICE_CALLS = 1
+SKIPPED_SERVICES = [
+    "sagemaker"
+]  # those services have too unreliable API to make use of it
+
+PARALLEL_SERVICE_CALLS = 80
 
 
 def _to_snake_case(camel_case):
@@ -174,11 +191,27 @@ def _to_snake_case(camel_case):
     )
 
 
+PLURAL_TO_SINGULAR = {
+    "ies": "y",
+    "status": "status",
+    "ches": "ch",
+    "ses": "s",
+}
+
+
+def singular_from_plural(name: str) -> str:
+    if name.endswith("s"):
+        for plural_suffix, singular_suffix in PLURAL_TO_SINGULAR.items():
+            if name.endswith(plural_suffix):
+                name = name[: -len(plural_suffix)] + singular_suffix
+                return name
+        name = name[:-1]
+    return name
+
+
 def last_singular_name_element(operation_name):
     last_name = re.findall("[A-Z][^A-Z]*", operation_name)[-1]
-    if last_name.endswith("s"):
-        last_name = last_name[:-1]
-    return last_name
+    return singular_from_plural(last_name)
 
 
 def retrieve_resource_name(resource, operation_name):
@@ -226,9 +259,6 @@ def retrieve_resource_id(resource, operation_name, resource_name):
         resource_id = resource[last_name + "Arn"]
     elif only_one_suffix(resource, "arn"):
         resource_id = only_one_suffix(resource, "arn")
-    # type 'aws_ec2_dhcp_option'
-    # 'DhcpOptionsId' -> 'dopt-042d18a4769f7b35b'
-    # also got 'OwnerId'
 
     return resource_id
 
@@ -281,6 +311,8 @@ def all_exception(func):
                 if (
                     "is not subscribed to AWS Security Hub" in exception_str
                     or "not enabled for securityhub" in exception_str
+                    or "The subscription does not exist" in exception_str
+                    or "not currently delegated by AWS FM" in exception_str
                 ):
                     message_handler(
                         "Operation {} not accessible, AWS Security Hub is not configured... Skipping".format(
@@ -367,8 +399,11 @@ class AllResources(ResourceProvider):
         message_handler(
             "Collecting data from {}...".format(service_full_name), "HEADER"
         )
-        if not self.availabilityCheck.is_service_available(
-            self.options.region_name, aws_service
+        if (
+            not self.availabilityCheck.is_service_available(
+                self.options.region_name, aws_service
+            )
+            or aws_service in SKIPPED_SERVICES
         ):
             message_handler(
                 "Service {} not available in this region... Skipping".format(
@@ -394,15 +429,14 @@ class AllResources(ResourceProvider):
                     ):
                         continue
                 resource_type = "aws_{}_{}".format(
-                    aws_service,
+                    aws_service.replace("-", "_"),
                     _to_snake_case(
                         name.replace("List", "")
                         .replace("Get", "")
                         .replace("Describe", "")
                     ),
                 )
-                if resource_type.endswith("s"):
-                    resource_type = resource_type[:-1]
+                resource_type = singular_from_plural(resource_type)
                 if resource_type in OMITTED_RESOURCES:
                     continue
                 if not operation_allowed(allowed_actions, aws_service, name):
@@ -420,9 +454,15 @@ class AllResources(ResourceProvider):
         self, resource_type, operation_name, has_paginator, client, service_full_name
     ) -> List[Resource]:
         resources = []
+        snake_operation_name = _to_snake_case(operation_name)
         if has_paginator:
-            paginator = client.get_paginator(_to_snake_case(operation_name))
-            pages = paginator.paginate()
+            paginator = client.get_paginator(snake_operation_name)
+            if resource_type == "aws_iam_policy":
+                pages = paginator.paginate(
+                    Scope="Local"
+                )  # hack to list only local IAM policies
+            else:
+                pages = paginator.paginate()
             list_metadata = pages.result_keys[0].parsed
             result_key = None
             result_parent = None
@@ -435,7 +475,7 @@ class AllResources(ResourceProvider):
             else:
                 message_handler(
                     "Operation {} has unsupported pagination definition... Skipping".format(
-                        operation_name
+                        snake_operation_name
                     ),
                     "WARNING",
                 )
@@ -454,7 +494,8 @@ class AllResources(ResourceProvider):
                     if resource is not None:
                         resources.append(resource)
         else:
-            response = getattr(client, _to_snake_case(operation_name))()
+
+            response = getattr(client, snake_operation_name)()
             for response_elem in response.values():
                 if isinstance(response_elem, list):
                     for response_resource in response_elem:

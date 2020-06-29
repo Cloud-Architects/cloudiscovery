@@ -2,7 +2,7 @@ import botocore.exceptions
 from cachetools import TTLCache
 
 from shared.common import ResourceCache, message_handler
-from provider.limits.resource.all import ALLOWED_SERVICES_CODES
+from provider.limit.resource.all import ALLOWED_SERVICES_CODES
 
 SUBNET_CACHE = TTLCache(maxsize=1024, ttl=60)
 
@@ -37,9 +37,9 @@ class LimitParameters:
 
     def init_globalaws_limits_cache(self):
         """
-        AWS has global limits that can be adjustable and others that can't be adjustable
-        This method make cache for 15 days for aws cache global parameters. AWS don't update limits every time.
-        Services has differents limits, depending on region.
+        AWS has global limit that can be adjustable and others that can't be adjustable
+        This method make cache for 15 days for aws cache global parameters. AWS don't update limit every time.
+        Services has differents limit, depending on region.
         """
         for service_code in self.services:
             if service_code in ALLOWED_SERVICES_CODES:
@@ -50,7 +50,7 @@ class LimitParameters:
                     continue
 
                 message_handler(
-                    "Fetching aws global limits to service {} in region {} to cache...".format(
+                    "Fetching aws global limit to service {} in region {} to cache...".format(
                         service_code, self.region
                     ),
                     "HEADER",

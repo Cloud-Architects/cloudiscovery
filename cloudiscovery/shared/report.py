@@ -26,7 +26,7 @@ class Report(object):
         message_handler("\n\nFound resources", "HEADER")
 
         for resource in resources:
-            # Report to limits
+            # Report to limit
             if resource.limits:
                 usage = (
                     str(resource.limits.usage)
