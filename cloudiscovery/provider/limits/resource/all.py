@@ -106,6 +106,24 @@ ALLOWED_SERVICES_CODES = {
         },
         "global": True,
     },
+    "rds": {
+        "L-7B6409FD": {
+            "method": "describe_db_instances",
+            "key": "DBInstances",
+            "fields": [],
+        },
+        "L-952B80B8": {
+            "method": "describe_db_clusters",
+            "key": "DBClusters",
+            "fields": [],
+        },
+        "L-DE55804A": {
+            "method": "describe_db_parameter_groups",
+            "key": "DBParameterGroups",
+            "fields": [],
+        },
+        "global": False,
+    },
     "s3": {
         "L-DC2B2D3D": {"method": "list_buckets", "key": "Buckets", "fields": [],},
         "global": False,
