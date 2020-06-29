@@ -262,7 +262,7 @@ Useful [CF tags](https://aws.amazon.com/blogs/devops/tracking-the-cost-of-your-a
 
 It's possible to check resources limits in an account. This script allows check all services availables or check only a specific resource. Using `--services value,value,value` filter, you can inform all services that want to check.
 
--   Services available
+*   Services available
     *   acm
     *   amplify
     *   codebuild
