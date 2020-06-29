@@ -48,6 +48,10 @@ ALLOWED_SERVICES_CODES = {
         },
         "global": False,
     },
+    "ecs": {
+        "L-21C621EB": {"method": "list_clusters", "key": "clusterArns", "fields": [],},
+        "global": False,
+    },
     "elasticbeanstalk": {
         "L-8EFC1C51": {
             "method": "describe_environments",
@@ -82,7 +86,12 @@ ALLOWED_SERVICES_CODES = {
             "key": "InstanceProfiles",
             "fields": [],
         },
+        "L-FE177D64": {"method": "list_roles", "key": "Roles", "fields": [],},
         "global": True,
+    },
+    "kms": {
+        "L-C2F1777E": {"method": "list_keys", "key": "Keys", "fields": [],},
+        "global": False,
     },
     "route53": {
         "L-4EA4796A": {
@@ -99,6 +108,10 @@ ALLOWED_SERVICES_CODES = {
     },
     "s3": {
         "L-DC2B2D3D": {"method": "list_buckets", "key": "Buckets", "fields": [],},
+        "global": False,
+    },
+    "sns": {
+        "L-61103206": {"method": "list_topics", "key": "Topics", "fields": [],},
         "global": False,
     },
 }
