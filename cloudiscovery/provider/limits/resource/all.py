@@ -172,7 +172,7 @@ class LimitResources(ResourceProvider):
                 )
 
                 """
-                TODO: Add this as alias to convert service name
+                TODO: Add this as alias to convert service name.
                 """
                 if service == "elasticloadbalancing":
                     service = "elbv2"
