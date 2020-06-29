@@ -10,7 +10,9 @@
 
 ![aws provider](https://img.shields.io/badge/provider-AWS-orange?logo=amazon-aws&color=ff9900)
 
-Cloudiscovery helps you to analyze resources in your cloud (AWS/GCP/Azure/Alibaba/IBM) account. Now this tool only can check resources in AWS, but we are working to expand to other providers. 
+Cloudiscovery helps you to analyze resources in your cloud (AWS/GCP/Azure/Alibaba/IBM) account. Now this tool only can check resources in AWS, but we are working to expand to other providers.
+
+The tool consists of various commands to help you understand the cloud infrastructure.
 
 ## Features
 
@@ -21,6 +23,148 @@ Commands can generate diagrams. When modelling them, we try to follow the follow
 > Graphical excellence is that which gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space.
 
 Edward Tufte
+
+## Report
+
+The commands generate reports that can be used to analyze command reports.
+
+### CLI
+
+1.  Run the cloudiscovery command with following options (if a region not informed, this script will try to get from ~/.aws/credentials):
+
+1.1 To detect AWS VPC resources (more on [AWS VPC](#aws-vpc)):
+
+```sh
+cloudiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx]
+```
+1.2 To detect AWS policy resources (more on [AWS Policy](#aws-policy)):
+
+```sh
+cloudiscovery aws-policy [--profile-name profile] [--diagram True/False] [--filter xxx]
+```
+1.3 To detect AWS IoT resources (more on [AWS IoT](#aws-iot)):
+
+```sh
+cloudiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx]
+```
+
+1.4 To detect all AWS resources (more on [AWS All](#aws-all)):
+
+```sh
+cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--filter xxx]
+```
+
+1.5 To check AWS limits per resource (more on [AWS Limit](#aws-limit)):
+
+```sh
+cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx]
+```
+
+2.  For help use:
+
+```sh
+cloudiscovery [aws-vpc|aws-policy|aws-iot|aws-all|aws-limit] -h
+```
+
+### Filtering
+
+It's possible to filter resources by tags and resource type. To filter, add an option `--filter <VALUE>`, where `<VALUE>` can be:
+
+1.  `Name=tags.costCenter;Value=20000` - to filter resources by a tag name `costCenter` and with value `20000`.
+2.  `Name=type;Value=aws_lambda_function` to only list lambda functions.
+
+It's possible to pass multiple values, to be able to select a value from a set. Values are split by `:` sign. If a desired value has a `:` sign, wrap it in `'` signs e.g. `--filter="Name=tags.costCenter;Value=20000:'20001:1'`.
+
+It is possible to pass multiple filter options, just pass `-f filter_1 -f filter_2`. In that case, the tool will return resources that match either of the filters
+
+Useful [CF tags](https://aws.amazon.com/blogs/devops/tracking-the-cost-of-your-aws-cloudformation-stack/):
+1.  `aws:cloudformation:stack-name` - Stack name
+2.  `aws:cloudformation:stack-id` - Stack id
+3.  `aws:cloudformation:logical-id` - Logical id defined in CF template
+
+## Requirements and Installation
+
+### AWS Resources
+
+This script has been written in python3+ and AWS-CLI and it works in Linux, Windows and OSX.
+
+*   Make sure the latest version of AWS-CLI is installed on your workstation, and other components needed, with Python pip already installed:
+
+```sh
+pip install -U cloudiscovery
+```
+
+*   Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
+
+```sh
+aws configure
+```
+
+### AWS Permissions
+
+*   The configured credentials must be associated to a user or role with proper permissions to do all checks. If you want to use a role with narrowed set of permissions just to perform cloud discovery, use a role from the following CF template shown below. To further increase security, you can add a block to check `aws:MultiFactorAuthPresent` condition in `AssumeRolePolicyDocument`. More on using IAM roles in the [configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html).
+
+```json
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Setups a role for diagram builder for all resources within an account",
+  "Resources": {
+    "cloudiscoveryRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument" : {
+          "Statement" : [
+            {
+              "Effect" : "Allow",
+              "Principal" : {
+                "AWS": { "Fn::Join" : [ "", [
+                  "arn:aws:iam::", { "Ref" : "AWS::AccountId" }, ":root"
+                ]]}
+              },
+              "Action" : [ "sts:AssumeRole" ]
+            }
+          ]
+        },
+        "Policies": [{
+          "PolicyName": "additional-permissions",
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement" : [
+              {
+                "Effect" : "Allow",
+                "Action" : [
+                  "kafka:ListClusters",
+                  "synthetics:DescribeCanaries",
+                  "medialive:ListInputs",
+                  "cloudhsm:DescribeClusters",
+                  "ssm:GetParametersByPath",
+                  "servicequotas:Get*",
+                  "amplify:ListApps"
+                ],
+                "Resource": [ "*" ]
+              }
+            ]
+          }
+        }],
+        "Path" : "/",
+        "ManagedPolicyArns" : [
+          "arn:aws:iam::aws:policy/job-function/ViewOnlyAccess",
+          "arn:aws:iam::aws:policy/SecurityAudit"
+        ]
+      }
+    }
+  },
+  "Outputs" : {
+    "cloudiscoveryRoleArn" : {
+      "Value" : { "Fn::GetAtt": [ "cloudiscoveryRole", "Arn" ]}
+    }
+  }
+}
+```
+
+*   (Optional) If you want to be able to switch between multiple AWS credentials and settings, you can configure [named profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) and later pass profile name when running the tool.
+
+## Commands
 
 ### AWS VPC
 
@@ -121,146 +265,9 @@ The command tries to call all AWS services (200+) and operations with name `Desc
 
 The operations must be allowed to be called by permissions described in [AWS Permissions](#aws-permissions).
 
+Types of resources will mostly cover Terraform types.
 
-## Requirements and Installation
-
-### AWS Resources
-
-This script has been written in python3+ and AWS-CLI and it works in Linux, Windows and OSX.
-
-*   Make sure the latest version of AWS-CLI is installed on your workstation, and other components needed, with Python pip already installed:
-
-```sh
-pip install -U cloudiscovery
-```
-
-*   Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
-
-```sh
-aws configure
-```
-
-### AWS Permissions
-
-*   The configured credentials must be associated to a user or role with proper permissions to do all checks. If you want to use a role with narrowed set of permissions just to perform cloud discovery, use a role from the following CF template shown below. To further increase security, you can add a block to check `aws:MultiFactorAuthPresent` condition in `AssumeRolePolicyDocument`. More on using IAM roles in the [configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html).
-
-```json
-{
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Setups a role for diagram builder for all resources within an account",
-  "Resources": {
-    "cloudiscoveryRole": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "AssumeRolePolicyDocument" : {
-          "Statement" : [
-            {
-              "Effect" : "Allow",
-              "Principal" : {
-                "AWS": { "Fn::Join" : [ "", [
-                  "arn:aws:iam::", { "Ref" : "AWS::AccountId" }, ":root"
-                ]]}
-              },
-              "Action" : [ "sts:AssumeRole" ]
-            }
-          ]
-        },
-        "Policies": [{
-          "PolicyName": "additional-permissions",
-          "PolicyDocument": {
-            "Version": "2012-10-17",
-            "Statement" : [
-              {
-                "Effect" : "Allow",
-                "Action" : [
-                  "kafka:ListClusters",
-                  "synthetics:DescribeCanaries",
-                  "medialive:ListInputs",
-                  "cloudhsm:DescribeClusters",
-                  "ssm:GetParametersByPath",
-                  "servicequotas:Get*",
-                  "amplify:ListApps"
-                ],
-                "Resource": [ "*" ]
-              }
-            ]
-          }
-        }],
-        "Path" : "/",
-        "ManagedPolicyArns" : [
-          "arn:aws:iam::aws:policy/job-function/ViewOnlyAccess",
-          "arn:aws:iam::aws:policy/SecurityAudit"
-        ]
-      }
-    }
-  },
-  "Outputs" : {
-    "cloudiscoveryRoleArn" : {
-      "Value" : { "Fn::GetAtt": [ "cloudiscoveryRole", "Arn" ]}
-    }
-  }
-}
-```
-
-*   (Optional) If you want to be able to switch between multiple AWS credentials and settings, you can configure [named profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) and later pass profile name when running the tool.
-
-### Usage
-
-1.  Run the cloudiscovery command with following options (if a region not informed, this script will try to get from ~/.aws/credentials):
-
-1.1 To detect AWS VPC resources:
-
-```sh
-cloudiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx]
-```
-1.2 To detect AWS policy resources:
-
-```sh
-cloudiscovery aws-policy [--profile-name profile] [--diagram True/False] [--filter xxx]
-```
-1.3 To detect AWS IoT resources:
-
-```sh
-cloudiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx]
-```
-
-1.4 To detect all AWS resources:
-
-```sh
-cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--filter xxx]
-```
-
-1.5 To check AWS limits per resource:
-
-```sh
-cloudiscovery aws-limits --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx]
-```
-
-Check [limits usage](#limits-usage) section.
-
-2.  For help use:
-
-```sh
-cloudiscovery [aws-vpc|aws-policy|aws-iot|aws-all|aws-limits] -h
-```
-
-### Filtering
-
-It's possible to filter resources by tags and resource type. To filter, add an option `--filter <VALUE>`, where `<VALUE>` can be:
-
-1.  `Name=tags.costCenter;Value=20000` - to filter resources by a tag name `costCenter` and with value `20000`.
-2.  `Name=type;Value=aws_lambda_function` to only list lambda functions.
-
-It's possible to pass multiple values, to be able to select a value from a set. Values are split by `:` sign. If a desired value has a `:` sign, wrap it in `'` signs e.g. `--filter="Name=tags.costCenter;Value=20000:'20001:1'`.
-
-It is possible to pass multiple filter options, just pass `-f filter_1 -f filter_2`. In that case, the tool will return resources that match either of the filters
-
-Useful [CF tags](https://aws.amazon.com/blogs/devops/tracking-the-cost-of-your-aws-cloudformation-stack/):
-1.  `aws:cloudformation:stack-name` - Stack name
-2.  `aws:cloudformation:stack-id` - Stack id
-3.  `aws:cloudformation:logical-id` - Logical id defined in CF template
-
-### Limits usage
+### AWS Limit
 
 It's possible to check resources limits in an account. This script allows check all available services or check only a specific resource. With `--services value,value,value` selection, you can narrow down checks to services that you want to check.
 
