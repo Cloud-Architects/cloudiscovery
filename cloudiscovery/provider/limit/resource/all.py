@@ -1,5 +1,7 @@
 from typing import List
 
+from shared.common import get_paginator
+
 from shared.common import (
     ResourceProvider,
     Resource,
@@ -37,12 +39,12 @@ ALLOWED_SERVICES_CODES = {
         "global": False,
     },
     "cloudformation": {
-        "L-0485CB21": {"method": "list_stacks", "key": "StackSummaries", "fields": []},
-        "L-9DE8E4FB": {"method": "list_types", "key": "TypeSummaries", "fields": []},
+        "L-0485CB21": {"method": "list_stacks", "key": "StackSummaries", "fields": [],},
+        "L-9DE8E4FB": {"method": "list_types", "key": "TypeSummaries", "fields": [],},
         "global": False,
     },
     "dynamodb": {
-        "L-F98FE922": {"method": "list_tables", "key": "TableNames", "fields": []},
+        "L-F98FE922": {"method": "list_tables", "key": "TableNames", "fields": [],},
         "global": False,
     },
     "ec2": {
@@ -98,6 +100,7 @@ ALLOWED_SERVICES_CODES = {
             "method": "list_instance_profiles",
             "key": "InstanceProfiles",
             "fields": [],
+            "paginate": False,
         },
         "L-FE177D64": {"method": "list_roles", "key": "Roles", "fields": [],},
         "global": True,
@@ -220,9 +223,19 @@ class LimitResources(ResourceProvider):
                     service, region_name=self.options.region_name
                 )
 
-                response = getattr(client, quota_data["method"])()
+                usage = 0
 
-                usage = len(response[quota_data["key"]])
+                pages = get_paginator(
+                    client=client,
+                    operation_name=quota_data["method"],
+                    resource_type="aws_limit",
+                )
+                if not pages:
+                    response = getattr(client, quota_data["method"])()
+                    usage = len(response[quota_data["key"]])
+                else:
+                    for page in pages:
+                        usage = usage + len(page[quota_data["key"]])
 
                 percent = round((usage / value) * 100, 2)
 
