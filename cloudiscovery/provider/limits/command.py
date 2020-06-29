@@ -25,16 +25,16 @@ class Limits(BaseCommand):
 
         for region in self.region_names:
             self.init_globalaws_limits_cache(region=region, services=self.services)
-            options = BaseAwsOptions(
+            limit_options = BaseAwsOptions(
                 session=self.session, region_name=region, services=self.services
             )
 
             command_runner = CommandRunner(services=self.services)
             command_runner.run(
                 provider="limits",
-                options=options,
+                options=limit_options,
                 diagram_builder=NoDiagram(),
                 title="AWS Limits - Region {}".format(region),
                 # pylint: disable=no-member
-                filename="AWS Limits - Region {}".format(region),
+                filename=limit_options.resulting_file_name("limits"),
             )

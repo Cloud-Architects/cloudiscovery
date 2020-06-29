@@ -40,6 +40,10 @@ ALLOWED_SERVICES_CODES = {
         "L-0485CB21": {"method": "list_stacks", "key": "StackSummaries", "fields": []},
         "global": False,
     },
+    "dynamodb": {
+        "L-F98FE922": {"method": "list_tables", "key": "TableNames", "fields": []},
+        "global": False,
+    },
     "ec2": {
         "L-0263D0A3": {
             "method": "describe_addresses",
@@ -120,6 +124,11 @@ ALLOWED_SERVICES_CODES = {
         "L-DE55804A": {
             "method": "describe_db_parameter_groups",
             "key": "DBParameterGroups",
+            "fields": [],
+        },
+        "L-9FA33840": {
+            "method": "describe_option_groups",
+            "key": "OptionGroupsList",
             "fields": [],
         },
         "global": False,
