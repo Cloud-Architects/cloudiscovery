@@ -280,10 +280,18 @@ It's possible to check resources limits in an account. This script allows check 
     *   dynamodb
     *   ec2
     *   ecs
+    *   elasticfilesystem
     *   elasticbeanstalk
     *   elasticloadbalancing
     *   iam
+    *   kms
+    *   mediaconnect
+    *   medialive
+    *   mediapackage
+    *   qldb
+    *   robomaker
     *   route53
+    *   route53resolver
     *   rds
     *   s3
     *   sns

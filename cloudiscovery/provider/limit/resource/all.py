@@ -136,6 +136,19 @@ ALLOWED_SERVICES_CODES = {
         "L-352B8598": {"method": "list_channels", "key": "Channels", "fields": [],},
         "global": False,
     },
+    "qldb": {
+        "L-CD70CADB": {"method": "list_ledgers", "key": "Ledgers", "fields": [],},
+        "global": False,
+    },
+    "robomaker": {
+        "L-40FACCBF": {"method": "list_robots", "key": "robots", "fields": [],},
+        "L-D6554FB1": {
+            "method": "list_simulation_applications",
+            "key": "simulationApplicationSummaries",
+            "fields": [],
+        },
+        "global": False,
+    },
     "route53": {
         "L-4EA4796A": {
             "method": "list_hosted_zones",
