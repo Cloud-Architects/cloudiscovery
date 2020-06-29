@@ -331,6 +331,26 @@ def all_exception(func):
                         ),
                         "WARNING",
                     )
+                elif (
+                    "Your account is not a member of an organization" in exception_str
+                    or "This action can only be made by accounts in an AWS Organization"
+                    in exception_str
+                    or "The request failed because organization is not in use"
+                    in exception_str
+                ):
+                    message_handler(
+                        "Service {} only available to account in an AWS Organization... Skipping".format(
+                            args[5]
+                        ),
+                        "WARNING",
+                    )
+                elif "is no longer available to new customers" in exception_str:
+                    message_handler(
+                        "Service {} is no longer available to new customers... Skipping".format(
+                            args[5]
+                        ),
+                        "WARNING",
+                    )
                 else:
                     log_critical(
                         "\nError running operation {}, type {}. Error message {}".format(
