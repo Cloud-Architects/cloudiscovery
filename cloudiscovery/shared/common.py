@@ -326,7 +326,7 @@ def get_paginator(client, operation_name, resource_type):
     """
     TODO: Possible circular reference using in common_aws, move to there in future.
     """
-    # Checking if can page
+    # Checking if can paginate
     if client.can_paginate(operation_name):
         paginator = client.get_paginator(operation_name)
         if resource_type == "aws_iam_policy":
