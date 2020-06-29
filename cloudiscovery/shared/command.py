@@ -18,7 +18,7 @@ from shared.common import (
     ResourceTag,
     ResourceType,
 )
-from shared.common_aws import GlobalParameters
+from shared.common_aws import GlobalParameters, LimitParameters
 from shared.diagram import BaseDiagram
 from shared.report import Report
 
@@ -43,11 +43,17 @@ class BaseCommand:
         path = "/aws/service/global-infrastructure/regions/" + region + "/services/"
         GlobalParameters(session=self.session, region=region, path=path).paths()
 
+    def init_globalaws_limits_cache(self, region, services):
+        # Cache services global and local services
+        LimitParameters(
+            session=self.session, region=region, services=services
+        ).init_globalaws_limits_cache()
+
 
 def filter_resources(
     resources: List[Resource], filters: List[Filterable]
 ) -> List[Resource]:
-    if len(filters) == 0:
+    if not filters:
         return resources
 
     filtered_resources = []
@@ -95,13 +101,14 @@ def execute_provider(options, data) -> (List[Resource], List[ResourceEdge]):
 
 
 class CommandRunner(object):
-    def __init__(self, filters):
+    def __init__(self, filters=None, services=None):
         """
         Base class command execution
 
         :param filters:
         """
         self.filters: List[Filterable] = filters
+        self.services = services
 
     # pylint: disable=too-many-locals,too-many-arguments
     def run(

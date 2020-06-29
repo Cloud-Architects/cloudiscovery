@@ -37,6 +37,7 @@ class bcolors:
 class BaseAwsOptions(NamedTuple):
     session: boto3.Session
     region_name: str
+    services: str
 
     def client(self, service_name: str):
         return self.session.client(service_name, region_name=self.region_name)
@@ -65,6 +66,16 @@ class Filterable:
     pass
 
 
+class LimitsValues(NamedTuple):
+    service: str
+    quota_name: str
+    quota_code: str
+    aws_limit: int
+    local_limit: int
+    usage: int
+    percent: float
+
+
 class ResourceTag(NamedTuple, Filterable):
     key: str
     value: str
@@ -76,10 +87,11 @@ class ResourceType(NamedTuple, Filterable):
 
 class Resource(NamedTuple):
     digest: ResourceDigest
-    name: str
+    name: str = ""
     details: str = ""
     group: str = ""
     tags: List[ResourceTag] = []
+    limits: List[LimitsValues] = []
 
 
 class ResourceCache:
