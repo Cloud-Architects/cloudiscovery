@@ -57,6 +57,14 @@ ALLOWED_SERVICES_CODES = {
         "L-21C621EB": {"method": "list_clusters", "key": "clusterArns", "fields": [],},
         "global": False,
     },
+    "elasticfilesystem": {
+        "L-848C634D": {
+            "method": "describe_file_systems",
+            "key": "FileSystems",
+            "fields": [],
+        },
+        "global": False,
+    },
     "elasticbeanstalk": {
         "L-8EFC1C51": {
             "method": "describe_environments",
@@ -144,6 +152,11 @@ ALLOWED_SERVICES_CODES = {
     },
 }
 
+SERVICEQUOTA_TO_BOTO3 = {
+    "elasticloadbalancing": "elbv2",
+    "elasticfilesystem": "efs",
+}
+
 
 class LimitResources(ResourceProvider):
     def __init__(self, options: BaseAwsOptions):
@@ -199,11 +212,9 @@ class LimitResources(ResourceProvider):
                     "HEADER",
                 )
 
-                """
-                TODO: Add this as alias to convert service name.
-                """
-                if service == "elasticloadbalancing":
-                    service = "elbv2"
+                # Need to convert some quota-services endpoint
+                if service in SERVICEQUOTA_TO_BOTO3:
+                    service = SERVICEQUOTA_TO_BOTO3.get(service)
 
                 client = self.options.session.client(
                     service, region_name=self.options.region_name
