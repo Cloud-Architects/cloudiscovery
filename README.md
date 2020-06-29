@@ -295,6 +295,8 @@ It's possible to check resources limits in an account. This script allows check 
     *   rds
     *   s3
     *   sns
+    *   transcribe
+    *   translate
 
 AWS has a default quota to all services. At the first time that an account is created, AWS apply this default quota to all services.  
 An administrator can ask to increase the quota value of a certain service via ticket and this script will detect this.

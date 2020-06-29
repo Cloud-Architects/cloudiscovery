@@ -206,6 +206,22 @@ ALLOWED_SERVICES_CODES = {
         "L-61103206": {"method": "list_topics", "key": "Topics", "fields": [],},
         "global": False,
     },
+    "transcribe": {
+        "L-3278D334": {
+            "method": "list_vocabularies",
+            "key": "Vocabularies",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "translate": {
+        "L-4011ABD8": {
+            "method": "list_terminologies",
+            "key": "TerminologyPropertiesList",
+            "fields": [],
+        },
+        "global": False,
+    },
 }
 
 SERVICEQUOTA_TO_BOTO3 = {
