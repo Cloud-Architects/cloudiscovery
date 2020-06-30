@@ -14,6 +14,7 @@ from shared.common import (
     message_handler,
     ResourceAvailable,
     log_critical,
+    get_paginator,
 )
 
 OMITTED_RESOURCES = [
@@ -331,6 +332,26 @@ def all_exception(func):
                         ),
                         "WARNING",
                     )
+                elif (
+                    "Your account is not a member of an organization" in exception_str
+                    or "This action can only be made by accounts in an AWS Organization"
+                    in exception_str
+                    or "The request failed because organization is not in use"
+                    in exception_str
+                ):
+                    message_handler(
+                        "Service {} only available to account in an AWS Organization... Skipping".format(
+                            args[5]
+                        ),
+                        "WARNING",
+                    )
+                elif "is no longer available to new customers" in exception_str:
+                    message_handler(
+                        "Service {} is no longer available to new customers... Skipping".format(
+                            args[5]
+                        ),
+                        "WARNING",
+                    )
                 else:
                     log_critical(
                         "\nError running operation {}, type {}. Error message {}".format(
@@ -456,13 +477,11 @@ class AllResources(ResourceProvider):
         resources = []
         snake_operation_name = _to_snake_case(operation_name)
         if has_paginator:
-            paginator = client.get_paginator(snake_operation_name)
-            if resource_type == "aws_iam_policy":
-                pages = paginator.paginate(
-                    Scope="Local"
-                )  # hack to list only local IAM policies
-            else:
-                pages = paginator.paginate()
+            pages = get_paginator(
+                client=client,
+                operation_name=snake_operation_name,
+                resource_type=resource_type,
+            )
             list_metadata = pages.result_keys[0].parsed
             result_key = None
             result_parent = None

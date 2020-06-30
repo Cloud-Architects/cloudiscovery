@@ -1,5 +1,7 @@
 from typing import List
 
+from shared.common import get_paginator
+
 from shared.common import (
     ResourceProvider,
     Resource,
@@ -37,12 +39,12 @@ ALLOWED_SERVICES_CODES = {
         "global": False,
     },
     "cloudformation": {
-        "L-0485CB21": {"method": "list_stacks", "key": "StackSummaries", "fields": []},
-        "L-9DE8E4FB": {"method": "list_types", "key": "TypeSummaries", "fields": []},
+        "L-0485CB21": {"method": "list_stacks", "key": "StackSummaries", "fields": [],},
+        "L-9DE8E4FB": {"method": "list_types", "key": "TypeSummaries", "fields": [],},
         "global": False,
     },
     "dynamodb": {
-        "L-F98FE922": {"method": "list_tables", "key": "TableNames", "fields": []},
+        "L-F98FE922": {"method": "list_tables", "key": "TableNames", "fields": [],},
         "global": False,
     },
     "ec2": {
@@ -98,12 +100,53 @@ ALLOWED_SERVICES_CODES = {
             "method": "list_instance_profiles",
             "key": "InstanceProfiles",
             "fields": [],
+            "paginate": False,
         },
         "L-FE177D64": {"method": "list_roles", "key": "Roles", "fields": [],},
+        "L-DB618D39": {
+            "method": "list_saml_providers",
+            "key": "SAMLProviderList",
+            "fields": [],
+        },
         "global": True,
     },
     "kms": {
         "L-C2F1777E": {"method": "list_keys", "key": "Keys", "fields": [],},
+        "global": False,
+    },
+    "mediaconnect": {
+        "L-A99016A8": {"method": "list_flows", "key": "Flows", "fields": [],},
+        "L-F1F62F5D": {
+            "method": "list_entitlements",
+            "key": "Entitlements",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "medialive": {
+        "L-D1AFAF75": {"method": "list_channels", "key": "Channels", "fields": [],},
+        "L-BDF24E14": {
+            "method": "list_input_devices",
+            "key": "InputDevices",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "mediapackage": {
+        "L-352B8598": {"method": "list_channels", "key": "Channels", "fields": [],},
+        "global": False,
+    },
+    "qldb": {
+        "L-CD70CADB": {"method": "list_ledgers", "key": "Ledgers", "fields": [],},
+        "global": False,
+    },
+    "robomaker": {
+        "L-40FACCBF": {"method": "list_robots", "key": "robots", "fields": [],},
+        "L-D6554FB1": {
+            "method": "list_simulation_applications",
+            "key": "simulationApplicationSummaries",
+            "fields": [],
+        },
         "global": False,
     },
     "route53": {
@@ -115,6 +158,19 @@ ALLOWED_SERVICES_CODES = {
         "L-ACB674F3": {
             "method": "list_health_checks",
             "key": "HealthChecks",
+            "fields": [],
+        },
+        "global": True,
+    },
+    "route53resolver": {
+        "L-4A669CC0": {
+            "method": "list_resolver_endpoints",
+            "key": "ResolverEndpoints",
+            "fields": [],
+        },
+        "L-51D8A1FB": {
+            "method": "list_resolver_rules",
+            "key": "ResolverRules",
             "fields": [],
         },
         "global": True,
@@ -148,6 +204,22 @@ ALLOWED_SERVICES_CODES = {
     },
     "sns": {
         "L-61103206": {"method": "list_topics", "key": "Topics", "fields": [],},
+        "global": False,
+    },
+    "transcribe": {
+        "L-3278D334": {
+            "method": "list_vocabularies",
+            "key": "Vocabularies",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "translate": {
+        "L-4011ABD8": {
+            "method": "list_terminologies",
+            "key": "TerminologyPropertiesList",
+            "fields": [],
+        },
         "global": False,
     },
 }
@@ -220,9 +292,19 @@ class LimitResources(ResourceProvider):
                     service, region_name=self.options.region_name
                 )
 
-                response = getattr(client, quota_data["method"])()
+                usage = 0
 
-                usage = len(response[quota_data["key"]])
+                pages = get_paginator(
+                    client=client,
+                    operation_name=quota_data["method"],
+                    resource_type="aws_limit",
+                )
+                if not pages:
+                    response = getattr(client, quota_data["method"])()
+                    usage = len(response[quota_data["key"]])
+                else:
+                    for page in pages:
+                        usage = usage + len(page[quota_data["key"]])
 
                 percent = round((usage / value) * 100, 2)
 

@@ -320,3 +320,22 @@ def parse_filters(arg_filters) -> List[Filterable]:
             _add_filter(filters, is_tag, full_name, "".join(val_buffer))
 
     return filters
+
+
+def get_paginator(client, operation_name, resource_type):
+    """
+    TODO: Possible circular reference using in common_aws, move to there in future.
+    """
+    # Checking if can paginate
+    if client.can_paginate(operation_name):
+        paginator = client.get_paginator(operation_name)
+        if resource_type == "aws_iam_policy":
+            pages = paginator.paginate(
+                Scope="Local"
+            )  # hack to list only local IAM policies - aws_all
+        else:
+            pages = paginator.paginate()
+    else:
+        return False
+
+    return pages
