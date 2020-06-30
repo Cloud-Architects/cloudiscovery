@@ -28,6 +28,34 @@ ALLOWED_SERVICES_CODES = {
         "L-1BED97F3": {"method": "list_apps", "key": "apps", "fields": [],},
         "global": False,
     },
+    "appmesh": {
+        "L-AC861A39": {"method": "list_meshes", "key": "meshes", "fields": [],},
+        "global": False,
+    },
+    "appsync": {
+        "L-06A0647C": {
+            "method": "list_graphql_apis",
+            "key": "graphqlApis",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "autoscaling-plans": {
+        "L-BD401546": {
+            "method": "describe_scaling_plans",
+            "key": "ScalingPlans",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "batch": {
+        "L-144F0CA5": {
+            "method": "describe_compute_environments",
+            "key": "computeEnvironments",
+            "fields": [],
+        },
+        "global": False,
+    },
     "codebuild": {
         "L-ACCF6C0D": {"method": "list_projects", "key": "projects", "fields": [],},
         "global": False,

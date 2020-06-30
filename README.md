@@ -278,6 +278,10 @@ With `--threshold 0-100` option, you can customize a minimum percentage threshol
 *   Services available
     *   acm
     *   amplify
+    *   appmesh
+    *   appsync
+    *   autoscaling-plans
+    *   batch
     *   codebuild
     *   codecommit
     *   cloudformation
