@@ -108,7 +108,7 @@ class CommandRunner(object):
         :param filters:
         """
         self.filters: List[Filterable] = filters
-        self.services = services
+        self.services: List[str] = services
 
     # pylint: disable=too-many-locals,too-many-arguments
     def run(
