@@ -274,6 +274,10 @@ It's possible to check resources limits in an account. This script allows check 
 *   Services available
     *   acm
     *   amplify
+    *   appmesh
+    *   appsync
+    *   autoscaling-plans
+    *   batch
     *   codebuild
     *   codecommit
     *   cloudformation
