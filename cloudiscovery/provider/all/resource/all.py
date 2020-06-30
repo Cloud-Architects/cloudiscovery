@@ -87,6 +87,23 @@ OMITTED_RESOURCES = [
     "aws_license_manager_resource_inventory",
     "aws_license_manager_license_configuration",
     "aws_logs_query_definition",
+    "aws_autoscaling_scaling_activity",
+    "aws_cloudwatch_metric",
+    "aws_organizations_handshakes_for_organization",
+    "aws_config_organization_config_rule",
+    "aws_organizations_root",
+    "aws_organizations_delegated_administrator",
+    "aws_organizations_create_account_status",
+    "aws_config_organization_conformance_pack_status",
+    "aws_config_organization_conformance_pack",
+    "aws_ec2_reserved_instances_listing",
+    "aws_redshift_cluster_security_group",
+    "aws_guardduty_organization_admin_account",
+    "aws_elasticache_cache_security_group",
+    "aws_organizations_aws_service_access_for_organization",
+    "aws_organizations_account",
+    "aws_config_organization_config_rule_status",
+    "aws_dynamodb_backup",
 ]
 
 # Trying to fix documentation errors or its lack made by "happy pirates" at AWS
@@ -189,6 +206,9 @@ def _to_snake_case(camel_case):
         .replace("dbproxies", "db_proxies")
         .replace("dbparameter", "db_parameter")
         .replace("dbinstance", "db_instance")
+        .replace("d_bparameter", "db_parameter")
+        .replace("s_amlproviders", "saml_providers")
+        .replace("a_wsservice", "aws_service")
     )
 
 
@@ -206,7 +226,8 @@ def singular_from_plural(name: str) -> str:
             if name.endswith(plural_suffix):
                 name = name[: -len(plural_suffix)] + singular_suffix
                 return name
-        name = name[:-1]
+        if not name.endswith("ss"):
+            name = name[:-1]
     return name
 
 
@@ -313,7 +334,7 @@ def all_exception(func):
                     "is not subscribed to AWS Security Hub" in exception_str
                     or "not enabled for securityhub" in exception_str
                     or "The subscription does not exist" in exception_str
-                    or "not currently delegated by AWS FM" in exception_str
+                    or "calling the DescribeHub operation" in exception_str
                 ):
                     message_handler(
                         "Operation {} not accessible, AWS Security Hub is not configured... Skipping".format(
@@ -352,6 +373,16 @@ def all_exception(func):
                         ),
                         "WARNING",
                     )
+                elif (
+                    "only available to Master account in AWS FM" in exception_str
+                    or "not currently delegated by AWS FM" in exception_str
+                ):
+                    message_handler(
+                        "Operation {} not accessible, not master account in AWS FM... Skipping".format(
+                            args[2]
+                        ),
+                        "WARNING",
+                    )
                 else:
                     log_critical(
                         "\nError running operation {}, type {}. Error message {}".format(
@@ -366,6 +397,17 @@ def all_exception(func):
                 )
 
     return wrapper
+
+
+def build_resource_type(aws_service, name):
+    resource_name = re.sub(r"^List", "", name)
+    resource_name = re.sub(r"^Get", "", resource_name)
+    resource_name = re.sub(r"^Describe", "", resource_name)
+    return singular_from_plural(
+        "aws_{}_{}".format(
+            aws_service.replace("-", "_"), _to_snake_case(resource_name),
+        )
+    )
 
 
 class AllResources(ResourceProvider):
@@ -449,15 +491,7 @@ class AllResources(ResourceProvider):
                         and operation["name"] in REQUIRED_PARAMS_OVERRIDE[aws_service]
                     ):
                         continue
-                resource_type = "aws_{}_{}".format(
-                    aws_service.replace("-", "_"),
-                    _to_snake_case(
-                        name.replace("List", "")
-                        .replace("Get", "")
-                        .replace("Describe", "")
-                    ),
-                )
-                resource_type = singular_from_plural(resource_type)
+                resource_type = build_resource_type(aws_service, name)
                 if resource_type in OMITTED_RESOURCES:
                     continue
                 if not operation_allowed(allowed_actions, aws_service, name):

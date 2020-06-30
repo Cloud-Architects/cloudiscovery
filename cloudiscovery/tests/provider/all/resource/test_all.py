@@ -7,6 +7,7 @@ from provider.all.resource.all import (
     retrieve_resource_id,
     last_singular_name_element,
     operation_allowed,
+    build_resource_type,
 )
 
 
@@ -61,4 +62,9 @@ class TestAllDiagram(TestCase):
         )
         assert_that(operation_allowed(["ecs:List*"], "iam", "ListRoles")).is_equal_to(
             False
+        )
+
+    def test_build_resource_type(self):
+        assert_that(build_resource_type("rds", "DescribeDBParameterGroup")).is_equal_to(
+            "aws_rds_db_parameter_group"
         )
