@@ -101,12 +101,12 @@ class Report(object):
                     diagram_image=diagram_image,
                 )
 
-        self.make_directories()
+            self.make_directories()
 
-        name_output = PATH_REPORT_HTML_OUTPUT + filename + ".html"
+            name_output = PATH_REPORT_HTML_OUTPUT + filename + ".html"
 
-        with open(name_output, "w") as file_output:
-            file_output.write(html_output)
+            with open(name_output, "w") as file_output:
+                file_output.write(html_output)
 
-        message_handler("\n\nHTML report generated", "HEADER")
-        message_handler("Check your HTML report: " + name_output, "OKBLUE")
+            message_handler("\n\nHTML report generated", "HEADER")
+            message_handler("Check your HTML report: " + name_output, "OKBLUE")

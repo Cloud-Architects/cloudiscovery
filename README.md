@@ -57,7 +57,7 @@ cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--filt
 1.5 To check AWS limits per resource (more on [AWS Limit](#aws-limit)):
 
 ```sh
-cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx]
+cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx] [--usage 0-100]
 ```
 
 2.  For help use:
@@ -273,11 +273,19 @@ Types of resources mostly cover Terraform types.
 
 ### AWS Limit
 
-It's possible to check resources limits in an account. This script allows check all available services or check only a specific resource. With `--services value,value,value` selection, you can narrow down checks to services that you want to check.
+It's possible to check resources limits in an account. This script allows check all available services or check only a specific resource. 
+
+With `--services value,value,value` selection, you can narrow down checks to services that you want to check. 
+
+With `--threshold 0-100` option, you can customize a minimum percentage threshold to start reporting a warning.
 
 *   Services available
     *   acm
     *   amplify
+    *   appmesh
+    *   appsync
+    *   autoscaling-plans
+    *   batch
     *   codebuild
     *   codecommit
     *   cloudformation
@@ -303,7 +311,9 @@ It's possible to check resources limits in an account. This script allows check 
     *   translate
 
 AWS has a default quota to all services. At the first time that an account is created, AWS apply this default quota to all services.  
-An administrator can ask to increase the quota value of a certain service via ticket and this script will detect this.
+An administrator can ask to increase the quota value of a certain service via ticket. This command helps administrators detect those issues in advance.
+
+More information: [AWS WA, REL 1 How do you manage service limits?](https://wa.aws.amazon.com/wat.question.REL_1.en.html)
 
 ## Using a Docker container
 
