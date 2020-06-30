@@ -57,7 +57,7 @@ cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--filt
 1.5 To check AWS limits per resource (more on [AWS Limit](#aws-limit)):
 
 ```sh
-cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx]
+cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx] [--usage 0-100]
 ```
 
 2.  For help use:
@@ -269,7 +269,7 @@ Types of resources will mostly cover Terraform types.
 
 ### AWS Limit
 
-It's possible to check resources limits in an account. This script allows check all available services or check only a specific resource. With `--services value,value,value` selection, you can narrow down checks to services that you want to check.
+It's possible to check resources limits in an account. This script allows check all available services or check only a specific resource. With `--services value,value,value` selection, you can narrow down checks to services that you want to check. With `--usage 0-100` selection, you can inform a minimum usage % of a certain service.
 
 *   Services available
     *   acm
