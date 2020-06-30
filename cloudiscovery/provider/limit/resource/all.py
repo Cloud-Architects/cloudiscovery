@@ -300,7 +300,7 @@ class LimitResources(ResourceProvider):
 
             value_aws = value = data_quota_code["value"]
 
-            # Quota is adjustable by ticket request, then must override this values
+            # Quota is adjustable by ticket request, then must override this values.
             if bool(data_quota_code["adjustable"]) is True:
                 try:
                     response_quota = client_quota.get_service_quota(
