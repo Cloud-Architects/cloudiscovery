@@ -231,7 +231,7 @@ SERVICEQUOTA_TO_BOTO3 = {
     "elasticfilesystem": "efs",
 }
 
-MAX_EXECUTION_PARALLEL = 4
+MAX_EXECUTION_PARALLEL = 3
 
 
 class LimitResources(ResourceProvider):
@@ -268,7 +268,8 @@ class LimitResources(ResourceProvider):
             )
 
         for result in results:
-            resources_found.extend(result)
+            if result is not None:
+                resources_found.extend(result)
 
         return resources_found
 
