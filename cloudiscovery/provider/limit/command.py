@@ -9,7 +9,7 @@ from shared.common_aws import ALLOWED_SERVICES_CODES
 class LimitOptions(BaseAwsOptions):
     services: List[str]
 
-    def __new__(cls, session, region_name, services):
+    def __new__(cls, session, region_name, services, usage):
         """
         Limit Options
 
@@ -19,11 +19,12 @@ class LimitOptions(BaseAwsOptions):
         """
         self = super(BaseAwsOptions, cls).__new__(cls, (session, region_name))
         self.services = services
+        self.usage = usage
         return self
 
 
 class Limit(BaseCommand):
-    def __init__(self, region_names, session, services):
+    def __init__(self, region_names, session, services, usage):
         """
         All AWS resources
 
@@ -39,12 +40,17 @@ class Limit(BaseCommand):
         else:
             self.services = services.split(",")
 
+        self.usage = usage
+
     def run(self):
 
         for region in self.region_names:
             self.init_globalaws_limits_cache(region=region, services=self.services)
             limit_options = LimitOptions(
-                session=self.session, region_name=region, services=self.services
+                session=self.session,
+                region_name=region,
+                services=self.services,
+                usage=self.usage,
             )
 
             command_runner = CommandRunner(services=self.services)

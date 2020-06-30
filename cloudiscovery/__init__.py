@@ -94,6 +94,13 @@ def generate_parser():
         help='Inform services that you want to check, use "," (comma) to split them.  \
               If not informed, script will check all services.',
     )
+    limit_parser.add_argument(
+        "-u",
+        "--usage",
+        required=False,
+        help="Inform the %% of resource usage between 0 and 100. \
+              For example: --usage 50 will get all resources with more than 50%% usage.",
+    )
 
     return parser
 
@@ -135,7 +142,7 @@ def add_default_arguments(
         )
 
 
-# pylint: disable=too-many-branches
+# pylint: disable=too-many-branches,too-many-statements
 def main():
     # Entry point for the CLI.
     # Load commands
@@ -203,6 +210,14 @@ def main():
             region_parameter=args.region_name, region_name=region_name, session=session,
         )
 
+    if "usage" in args:
+        if args.usage is not None:
+            if args.usage.isdigit() is False:
+                exit_critical(_("Usage must be between 0 and 100"))
+            else:
+                if int(args.usage) < 0 or int(args.usage) > 100:
+                    exit_critical(_("Usage must be between 0 and 100"))
+
     if args.command == "aws-vpc":
         command = Vpc(
             vpc_id=args.vpc_id,
@@ -230,7 +245,10 @@ def main():
         command = All(region_names=region_names, session=session, filters=filters,)
     elif args.command == "aws-limit":
         command = Limit(
-            region_names=region_names, session=session, services=args.services,
+            region_names=region_names,
+            session=session,
+            services=args.services,
+            usage=args.usage,
         )
     else:
         raise NotImplementedError("Unknown command")
