@@ -98,8 +98,8 @@ def generate_parser():
         "-t",
         "--threshold",
         required=False,
-        help="Select the % of resource usage between 0 and 100. \
-              For example: --threshold 50 will report all resources with more than 50% usage.",
+        help="Select the % of resource threshold between 0 and 100. \
+              For example: --threshold 50 will report all resources with more than 50% threshold.",
     )
 
     return parser
@@ -210,13 +210,13 @@ def main():
             region_parameter=args.region_name, region_name=region_name, session=session,
         )
 
-    if "usage" in args:
-        if args.usage is not None:
-            if args.usage.isdigit() is False:
-                exit_critical(_("Usage must be between 0 and 100"))
+    if "threshold" in args:
+        if args.threshold is not None:
+            if args.threshold.isdigit() is False:
+                exit_critical(_("Threshold must be between 0 and 100"))
             else:
-                if int(args.usage) < 0 or int(args.usage) > 100:
-                    exit_critical(_("Usage must be between 0 and 100"))
+                if int(args.threshold) < 0 or int(args.threshold) > 100:
+                    exit_critical(_("Threshold must be between 0 and 100"))
 
     if args.command == "aws-vpc":
         command = Vpc(
@@ -248,7 +248,7 @@ def main():
             region_names=region_names,
             session=session,
             services=args.services,
-            usage=args.usage,
+            threshold=args.threshold,
         )
     else:
         raise NotImplementedError("Unknown command")

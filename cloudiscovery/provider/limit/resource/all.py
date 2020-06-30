@@ -277,7 +277,9 @@ class LimitResources(ResourceProvider):
     # pylint: disable=too-many-locals
     def get_resources(self) -> List[Resource]:
 
-        usage_check = 0 if self.options.usage is None else self.options.usage
+        threshold_requested = (
+            0 if self.options.threshold is None else self.options.threshold
+        )
 
         client_quota = self.options.session.client("service-quotas")
 
@@ -290,7 +292,7 @@ class LimitResources(ResourceProvider):
                 lambda aws_limit: self.analyze_service(
                     aws_limit=aws_limit,
                     client_quota=client_quota,
-                    usage_check=int(usage_check),
+                    threshold_requested=int(threshold_requested),
                 ),
                 services,
             )
@@ -302,7 +304,7 @@ class LimitResources(ResourceProvider):
         return resources_found
 
     @exception
-    def analyze_service(self, aws_limit, client_quota, usage_check):
+    def analyze_service(self, aws_limit, client_quota, threshold_requested):
 
         service = aws_limit
 
@@ -313,12 +315,12 @@ class LimitResources(ResourceProvider):
             client_quota=client_quota,
             data_resource=cache[service],
             service=service,
-            usage_check=usage_check,
+            threshold_requested=threshold_requested,
         )
 
     @exception
     # pylint: disable=too-many-locals
-    def analyze_detail(self, client_quota, data_resource, service, usage_check):
+    def analyze_detail(self, client_quota, data_resource, service, threshold_requested):
 
         resources_found = []
 
@@ -374,7 +376,7 @@ class LimitResources(ResourceProvider):
 
             percent = round((usage / value) * 100, 2)
 
-            if percent >= usage_check:
+            if percent >= threshold_requested:
                 resources_found.append(
                     Resource(
                         digest=ResourceDigest(
