@@ -18,7 +18,7 @@ The tool consists of various commands to help you understand the cloud infrastru
 
 ### Diagrams
 
-Commands can generate diagrams. When modelling them, we try to follow the following principle:
+Commands can generate diagrams. When modelling them, we try to follow the principle:
 
 > Graphical excellence is that which gives to the viewer the greatest number of ideas in the shortest time with the least ink in the smallest space.
 
@@ -26,11 +26,11 @@ Edward Tufte
 
 ## Report
 
-The commands generate reports that can be used to analyze command reports.
+The commands generate reports that can be used to further analyze resources.
 
 ### CLI
 
-1.  Run the cloudiscovery command with following options (if a region not informed, this script will try to get from ~/.aws/credentials):
+1.  Run the cloudiscovery command with following options (if a region not pass, this script will try to get it from ~/.aws/credentials):
 
 1.1 To detect AWS VPC resources (more on [AWS VPC](#aws-vpc)):
 
@@ -84,25 +84,29 @@ Useful [CF tags](https://aws.amazon.com/blogs/devops/tracking-the-cost-of-your-a
 
 ## Requirements and Installation
 
-### AWS Resources
+### Installation
 
-This script has been written in python3+ and AWS-CLI and it works in Linux, Windows and OSX.
+This tool has been written in Python3+ and AWS-CLI and it works on Linux, Windows and Mac OS.
 
-*   Make sure the latest version of AWS-CLI is installed on your workstation, and other components needed, with Python pip already installed:
+Make sure the latest version of AWS-CLI is installed on your workstation, and other components needed, with Python pip already installed:
 
 ```sh
 pip install -U cloudiscovery
 ```
 
-*   Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
+### AWS Credentials
+
+Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
 
 ```sh
 aws configure
 ```
 
-### AWS Permissions
+More on credentials configuration: [Configuration basics](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html)
 
-*   The configured credentials must be associated to a user or role with proper permissions to do all checks. If you want to use a role with narrowed set of permissions just to perform cloud discovery, use a role from the following CF template shown below. To further increase security, you can add a block to check `aws:MultiFactorAuthPresent` condition in `AssumeRolePolicyDocument`. More on using IAM roles in the [configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html).
+#### AWS Permissions
+
+The configured credentials must be associated to a user or role with proper permissions to do all checks. If you want to use a role with narrowed set of permissions just to perform cloud discovery, use a role from the following CF template shown below. To further increase security, you can add a block to check `aws:MultiFactorAuthPresent` condition in `AssumeRolePolicyDocument`. More on using IAM roles in the [configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html).
 
 ```json
 {
@@ -162,7 +166,7 @@ aws configure
 }
 ```
 
-*   (Optional) If you want to be able to switch between multiple AWS credentials and settings, you can configure [named profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) and later pass profile name when running the tool.
+(Optional) If you want to be able to switch between multiple AWS credentials and settings, you can configure [named profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) and later pass profile name when running the tool.
 
 ## Commands
 
@@ -265,7 +269,7 @@ The command tries to call all AWS services (200+) and operations with name `Desc
 
 The operations must be allowed to be called by permissions described in [AWS Permissions](#aws-permissions).
 
-Types of resources will mostly cover Terraform types.
+Types of resources mostly cover Terraform types.
 
 ### AWS Limit
 
@@ -311,7 +315,7 @@ An administrator can ask to increase the quota value of a certain service via ti
 
 More information: [AWS WA, REL 1 How do you manage service limits?](https://wa.aws.amazon.com/wat.question.REL_1.en.html)
 
-### Using a Docker container
+## Using a Docker container
 
 To build docker container using Dockerfile
 
@@ -332,7 +336,7 @@ cloudiscovery \
 
 *   If you are using Diagram output and due to fact container is a slim image of Python image, you must run cloudiscovery with "--diagram False", otherwise you'll have an error about "xdg-open". The output file will be saved in "assets/diagrams".
 
-### Translate
+## Translate
 
 This project support English and Portuguese (Brazil) languages. To contribute with a translation, follow this steps:
 
@@ -343,11 +347,11 @@ This project support English and Portuguese (Brazil) languages. To contribute wi
 python msgfmt.py -o locales/NEWFOLDER/LC_MESSAGES/messages.mo locales/NEWFOLDER/LC_MESSAGES/messages
 ```
 
-### Contributing
+## Contributing
 
 If you have improvements or fixes, we would love to have your contributions. Please use [PEP 8](https://pycodestyle.readthedocs.io/en/latest/) code style.
 
-### Development
+## Development
 
 When developing, it's recommended to use [venv](https://docs.python.org/3/library/venv.html).
 
@@ -395,7 +399,7 @@ To add new resources to check limit, please remove "assets/.cache/cache.db"
 1.  Update the version in cloudiscovery/__init\__.py and create a new git tag with `git tag $VERSION`.
 2.  Once you push the tag to GitHub with `git push --tags`, a new CircleCI build is triggered.
 
-### Similar projects and products
+## Similar projects and products
 
 *   [mingrammer/diagrams](https://github.com/mingrammer/diagrams) - library being used to draw diagrams
 *   [Lucidchart Cloud Insights](https://www.lucidchart.com/pages/solutions/cloud-insights) - commercial extension to Lucidchart
