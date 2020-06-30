@@ -95,11 +95,11 @@ def generate_parser():
               If not informed, script will check all services.',
     )
     limit_parser.add_argument(
-        "-u",
-        "--usage",
+        "-t",
+        "--threshold",
         required=False,
-        help="Inform the %% of resource usage between 0 and 100. \
-              For example: --usage 50 will get all resources with more than 50%% usage.",
+        help="Select the % of resource usage between 0 and 100. \
+              For example: --threshold 50 will report all resources with more than 50% usage.",
     )
 
     return parser
