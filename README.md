@@ -35,29 +35,29 @@ The commands generate reports that can be used to further analyze resources.
 1.1 To detect AWS VPC resources (more on [AWS VPC](#aws-vpc)):
 
 ```sh
-cloudiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx]
+cloudiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx] [--verbose DEBUG]
 ```
 1.2 To detect AWS policy resources (more on [AWS Policy](#aws-policy)):
 
 ```sh
-cloudiscovery aws-policy [--profile-name profile] [--diagram True/False] [--filter xxx]
+cloudiscovery aws-policy [--profile-name profile] [--diagram True/False] [--filter xxx] [--verbose DEBUG]
 ```
 1.3 To detect AWS IoT resources (more on [AWS IoT](#aws-iot)):
 
 ```sh
-cloudiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx]
+cloudiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx] [--verbose DEBUG]
 ```
 
 1.4 To detect all AWS resources (more on [AWS All](#aws-all)):
 
 ```sh
-cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--filter xxx]
+cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--filter xxx] [--verbose DEBUG]
 ```
 
 1.5 To check AWS limits per resource (more on [AWS Limit](#aws-limit)):
 
 ```sh
-cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx] [--usage 0-100]
+cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx] [--usage 0-100] [--verbose DEBUG]
 ```
 
 2.  For help use:
@@ -65,6 +65,10 @@ cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--se
 ```sh
 cloudiscovery [aws-vpc|aws-policy|aws-iot|aws-all|aws-limit] -h
 ```
+
+### Debbuging 
+
+Enabling verbose mode, it is possible to debug all calls to the providers endpoints and check possible problems.
 
 ### Filtering
 

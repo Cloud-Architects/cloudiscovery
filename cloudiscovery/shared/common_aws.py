@@ -1,4 +1,5 @@
 import botocore.exceptions
+import boto3
 from cachetools import TTLCache
 
 from shared.common import ResourceCache, message_handler
@@ -21,6 +22,15 @@ def describe_subnet(vpc_options, subnet_ids):
         return subnets
     except botocore.exceptions.ClientError:
         return None
+
+
+def aws_verbose(verbose_mode="DEBUG"):
+    """
+    Boto3 only provides usable information in DEBUG mode
+    Using empty name it catchs debug from boto3/botocore
+    TODO: Open a ticket in boto3/botocore project to provide more information at other levels of debugging
+    """
+    boto3.set_stream_logger(name="")
 
 
 class LimitParameters:
