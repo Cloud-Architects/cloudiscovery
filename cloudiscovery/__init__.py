@@ -98,8 +98,8 @@ def generate_parser():
         "-t",
         "--threshold",
         required=False,
-        help="Select the % of resource threshold between 0 and 100. \
-              For example: --threshold 50 will report all resources with more than 50% threshold.",
+        help="Select the %% of resource threshold between 0 and 100. \
+              For example: --threshold 50 will report all resources with more than 50%% threshold.",
     )
 
     return parser
@@ -123,7 +123,7 @@ def add_default_arguments(
         "-l", "--language", required=False, help="Available languages: pt_BR, en_US"
     )
     parser.add_argument(
-        "-ve", "--verbose", required=False, help="Enable debug mode to sdk calls"
+        "--verbose", "--verbose", required=False, help="Enable debug mode to sdk calls"
     )
     if filters_enabled:
         parser.add_argument(
