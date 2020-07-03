@@ -33,16 +33,16 @@ from provider.iot.command import Iot
 from provider.all.command import All
 from provider.limit.command import Limit
 
-# Check version
 from shared.common import (
     exit_critical,
     generate_session,
     Filterable,
     parse_filters,
 )
+from shared.common_aws import aws_verbose
 
 # pylint: enable=wrong-import-position
-
+# Check version
 if sys.version_info < (3, 6):
     print("Python 3.6 or newer is required", file=sys.stderr)
     sys.exit(1)
@@ -98,8 +98,8 @@ def generate_parser():
         "-t",
         "--threshold",
         required=False,
-        help="Select the % of resource threshold between 0 and 100. \
-              For example: --threshold 50 will report all resources with more than 50% threshold.",
+        help="Select the %% of resource threshold between 0 and 100. \
+              For example: --threshold 50 will report all resources with more than 50%% threshold.",
     )
 
     return parser
@@ -120,7 +120,10 @@ def add_default_arguments(
         "-p", "--profile-name", required=False, help="Profile to be used"
     )
     parser.add_argument(
-        "-l", "--language", required=False, help="available languages: pt_BR, en_US"
+        "-l", "--language", required=False, help="Available languages: pt_BR, en_US"
+    )
+    parser.add_argument(
+        "--verbose", "--verbose", required=False, help="Enable debug mode to sdk calls"
     )
     if filters_enabled:
         parser.add_argument(
@@ -153,6 +156,10 @@ def main():
 
     args = parser.parse_args()
 
+    # Check if verbose mode is enabled
+    if args.verbose:
+        aws_verbose(verbose_mode=args.verbose)
+
     if args.language is None or args.language not in AVAILABLE_LANGUAGES:
         language = "en_US"
     else:
@@ -174,15 +181,7 @@ def main():
     _ = defaultlanguage.gettext
 
     # diagram version check
-    if diagram:
-        # Checking diagram version. Must be 0.13 or higher
-        if pkg_resources.get_distribution("diagrams").version < "0.14":
-            exit_critical(
-                _(
-                    "You must update diagrams package to 0.14 or higher. "
-                    "- See on https://github.com/mingrammer/diagrams"
-                )
-            )
+    check_diagram_version(diagram)
 
     # filters check
     if "filters" in args:
@@ -253,6 +252,17 @@ def main():
     else:
         raise NotImplementedError("Unknown command")
     command.run()
+
+
+def check_diagram_version(diagram):
+
+    if diagram:
+        # Checking diagram version. Must be 0.13 or higher
+        if pkg_resources.get_distribution("diagrams").version < "0.14":
+            exit_critical(
+                "You must update diagrams package to 0.14 or higher. "
+                "- See on https://github.com/mingrammer/diagrams"
+            )
 
 
 def check_region(region_parameter, region_name, session):
