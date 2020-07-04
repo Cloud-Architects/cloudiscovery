@@ -1,7 +1,6 @@
 import importlib
 import inspect
 import os
-from abc import ABC
 from concurrent.futures.thread import ThreadPoolExecutor
 from os.path import dirname
 from typing import List, Dict, Optional
@@ -130,7 +129,7 @@ class GlobalParameters:
         return paths_found
 
 
-class BaseAwsCommand(BaseCommand, ABC):
+class BaseAwsCommand(BaseCommand):
     def __init__(self, region_names, session):
         """
         Base class for discovery command
@@ -140,6 +139,15 @@ class BaseAwsCommand(BaseCommand, ABC):
         """
         self.region_names: List[str] = region_names
         self.session: Session = session
+
+    def run(
+        self,
+        diagram: bool,
+        verbose: bool,
+        services: List[str],
+        filters: List[Filterable],
+    ):
+        raise NotImplementedError()
 
     def init_region_cache(self, region):
         # Get and cache SSM services available in specific region
