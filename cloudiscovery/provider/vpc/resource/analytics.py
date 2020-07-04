@@ -10,9 +10,9 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
-    resource_tags,
     ResourceAvailable,
 )
+from shared.common_aws import resource_tags
 from shared.error_handler import exception
 
 
@@ -36,7 +36,8 @@ class ELASTICSEARCH(ResourceProvider):
 
         response = client.list_domain_names()
 
-        message_handler("Collecting data from Elasticsearch Domains...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Elasticsearch Domains...", "HEADER")
 
         for data in response["DomainNames"]:
 
@@ -108,7 +109,8 @@ class MSK(ResourceProvider):
         # get all cache clusters
         response = client.list_clusters()
 
-        message_handler("Collecting data from MSK Clusters...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from MSK Clusters...", "HEADER")
 
         # iterate cache clusters to get subnet groups
         for data in response["ClusterInfoList"]:
@@ -172,7 +174,8 @@ class QUICKSIGHT(ResourceProvider):
 
         response = client.list_data_sources(AwsAccountId=account_id)
 
-        message_handler("Collecting data from Quicksight...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Quicksight...", "HEADER")
 
         for data in response["DataSources"]:
 

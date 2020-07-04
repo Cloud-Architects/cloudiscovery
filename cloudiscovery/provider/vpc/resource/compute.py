@@ -7,12 +7,9 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
-    get_name_tag,
-    get_tag,
-    resource_tags,
     ResourceAvailable,
 )
-from shared.common_aws import describe_subnet
+from shared.common_aws import describe_subnet, resource_tags, get_name_tag, get_tag
 from shared.error_handler import exception
 
 
@@ -31,7 +28,8 @@ class LAMBDA(ResourceProvider):
     def get_resources(self) -> List[Resource]:
         client = self.vpc_options.client("lambda")
 
-        message_handler("Collecting data from Lambda Functions...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Lambda Functions...", "HEADER")
 
         paginator = client.get_paginator("list_functions")
         pages = paginator.paginate()
@@ -88,7 +86,8 @@ class EC2(ResourceProvider):
 
         response = client.describe_instances()
 
-        message_handler("Collecting data from EC2 Instances...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from EC2 Instances...", "HEADER")
 
         for data in response["Reservations"]:
             for instances in data["Instances"]:
@@ -155,7 +154,8 @@ class EKS(ResourceProvider):
 
         response = client.list_clusters()
 
-        message_handler("Collecting data from EKS Clusters...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from EKS Clusters...", "HEADER")
 
         for data in response["clusters"]:
 
@@ -208,7 +208,8 @@ class EMR(ResourceProvider):
 
         response = client.list_clusters()
 
-        message_handler("Collecting data from EMR Clusters...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from EMR Clusters...", "HEADER")
 
         for data in response["Clusters"]:
 
@@ -268,7 +269,8 @@ class AUTOSCALING(ResourceProvider):
 
         response = client.describe_auto_scaling_groups()
 
-        message_handler("Collecting data from Autoscaling Groups...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Autoscaling Groups...", "HEADER")
 
         for data in response["AutoScalingGroups"]:
 

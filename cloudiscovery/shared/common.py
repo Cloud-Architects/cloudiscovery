@@ -3,11 +3,10 @@ import datetime
 import re
 import functools
 import threading
-from typing import NamedTuple, List, Optional, Dict
+from abc import ABC
+from typing import NamedTuple, List
 
 from diskcache import Cache
-
-import boto3
 
 VPCE_REGEX = re.compile(r'(?<=sourcevpce")(\s*:\s*")(vpce-[a-zA-Z0-9]+)', re.DOTALL)
 SOURCE_IP_ADDRESS_REGEX = re.compile(
@@ -32,22 +31,6 @@ class bcolors:
         "BOLD": "\033[1m",
         "UNDERLINE": "\033[4m",
     }
-
-
-class BaseAwsOptions(NamedTuple):
-    session: boto3.Session
-    region_name: str
-
-    def client(self, service_name: str):
-        return self.session.client(service_name, region_name=self.region_name)
-
-    def resulting_file_name(self, suffix):
-        return "{}_{}_{}".format(self.account_number(), self.region_name, suffix)
-
-    def account_number(self):
-        client = self.session.client("sts", region_name=self.region_name)
-        account_id = client.get_caller_identity()["Account"]
-        return account_id
 
 
 class ResourceDigest(NamedTuple):
@@ -135,78 +118,25 @@ class ResourceAvailable(object):
             if self.is_service_available(region_name, self.services):
                 return func(*args, **kwargs)
 
-            message_handler(
-                "Check "
-                + func.__qualname__
-                + " not available in this region... Skipping",
-                "WARNING",
-            )
+            verbose = False
+            if "vpc_options" in dir(args[0]):
+                verbose = args[0].vpc_options.verbose
+            elif "iot_options" in dir(args[0]):
+                verbose = args[0].iot_options.verbose
+            elif "options" in dir(args[0]):
+                verbose = args[0].options.verbose
+
+            if verbose:
+                message_handler(
+                    "Check "
+                    + func.__qualname__
+                    + " not available in this region... Skipping",
+                    "WARNING",
+                )
 
             return None
 
         return wrapper
-
-
-def resource_tags(resource_data: dict) -> List[ResourceTag]:
-    if "Tags" in resource_data:
-        tags_input = resource_data["Tags"]
-    elif "tags" in resource_data:
-        tags_input = resource_data["tags"]
-    elif "TagList" in resource_data:
-        tags_input = resource_data["TagList"]
-    elif "TagSet" in resource_data:
-        tags_input = resource_data["TagSet"]
-    else:
-        tags_input = None
-
-    tags = []
-    if isinstance(tags_input, list):
-        tags = resource_tags_from_tuples(tags_input)
-    elif isinstance(tags_input, dict):
-        tags = resource_tags_from_dict(tags_input)
-
-    return tags
-
-
-def resource_tags_from_tuples(tuples: List[Dict[str, str]]) -> List[ResourceTag]:
-    """
-        List of key-value tuples that store tags, syntax:
-        [
-            {
-                'Key': 'string',
-                'Value': 'string',
-                ...
-            },
-        ]
-        OR
-        [
-            {
-                'key': 'string',
-                'value': 'string',
-                ...
-            },
-        ]
-    """
-    result = []
-    for tuple_elem in tuples:
-        if "Key" in tuple_elem and "Value" in tuple_elem:
-            result.append(ResourceTag(key=tuple_elem["Key"], value=tuple_elem["Value"]))
-        elif "key" in tuple_elem and "value" in tuple_elem:
-            result.append(ResourceTag(key=tuple_elem["key"], value=tuple_elem["value"]))
-    return result
-
-
-def resource_tags_from_dict(tags: Dict[str, str]) -> List[ResourceTag]:
-    """
-        List of key-value dict that store tags, syntax:
-        {
-            'string': 'string'
-        }
-    """
-    result = []
-    for key, value in tags.items():
-        result.append(ResourceTag(key=key, value=value))
-    return result
 
 
 class ResourceProvider:
@@ -223,31 +153,6 @@ class ResourceProvider:
 
     def get_relations(self) -> List[ResourceEdge]:
         return self.relations_found
-
-
-def get_name_tag(d) -> Optional[str]:
-    return get_tag(d, "Name")
-
-
-def get_tag(d, tag_name) -> Optional[str]:
-    for k, v in d.items():
-        if k in ("Tags", "TagList"):
-            for value in v:
-                if value["Key"] == tag_name:
-                    return value["Value"]
-
-    return None
-
-
-def generate_session(profile_name):
-    try:
-        return boto3.Session(profile_name=profile_name)
-    # pylint: disable=broad-except
-    except Exception as e:
-        message = "You must configure awscli before use this script.\nError: {0}".format(
-            str(e)
-        )
-        exit_critical(message)
 
 
 def exit_critical(message):
@@ -322,20 +227,25 @@ def parse_filters(arg_filters) -> List[Filterable]:
     return filters
 
 
-def get_paginator(client, operation_name, resource_type):
-    """
-    TODO: Possible circular reference using in common_aws, move to there in future.
-    """
-    # Checking if can paginate
-    if client.can_paginate(operation_name):
-        paginator = client.get_paginator(operation_name)
-        if resource_type == "aws_iam_policy":
-            pages = paginator.paginate(
-                Scope="Local"
-            )  # hack to list only local IAM policies - aws_all
-        else:
-            pages = paginator.paginate()
-    else:
-        return False
+class BaseCommand(ABC):
+    def run(
+        self,
+        diagram: bool,
+        verbose: bool,
+        services: List[str],
+        filters: List[Filterable],
+    ):
+        raise NotImplementedError()
 
-    return pages
+
+class Object(object):
+    pass
+
+
+class BaseOptions(Object):
+    verbose: bool
+    filters: List[Filterable]
+
+    def __init__(self, verbose: bool, filters: List[Filterable]):
+        self.verbose = verbose
+        self.filters = filters

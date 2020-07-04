@@ -1,25 +1,34 @@
-from shared.command import BaseCommand, CommandRunner
-from shared.common import BaseAwsOptions
+from typing import List
+
+from shared.common import Filterable, BaseOptions
+from shared.common_aws import BaseAwsOptions, BaseAwsCommand, AwsCommandRunner
 from shared.diagram import NoDiagram
 
 
-class All(BaseCommand):
-    def __init__(self, region_names, session, filters):
-        """
-        All AWS resources
+class AllOptions(BaseAwsOptions, BaseOptions):
+    def __init__(self, verbose, filters, session, region_name):
+        BaseAwsOptions.__init__(self, session, region_name)
+        BaseOptions.__init__(self, verbose, filters)
 
-        :param region_names:
-        :param session:
-        :param filters:
-        """
-        super().__init__(region_names, session, False, filters)
 
-    def run(self):
+class All(BaseAwsCommand):
+    def run(
+        self,
+        diagram: bool,
+        verbose: bool,
+        services: List[str],
+        filters: List[Filterable],
+    ):
         for region in self.region_names:
             self.init_region_cache(region)
-            options = BaseAwsOptions(session=self.session, region_name=region)
+            options = AllOptions(
+                verbose=verbose,
+                filters=filters,
+                session=self.session,
+                region_name=region,
+            )
 
-            command_runner = CommandRunner(self.filters)
+            command_runner = AwsCommandRunner(filters)
             command_runner.run(
                 provider="all",
                 options=options,

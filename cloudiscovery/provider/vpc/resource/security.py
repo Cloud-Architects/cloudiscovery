@@ -10,9 +10,9 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     datetime_to_string,
-    resource_tags,
     ResourceAvailable,
 )
+from shared.common_aws import resource_tags
 from shared.error_handler import exception
 
 
@@ -34,7 +34,8 @@ class IAMPOLICY(ResourceProvider):
 
         resources_found = []
 
-        message_handler("Collecting data from IAM Policies...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from IAM Policies...", "HEADER")
         paginator = client.get_paginator("list_policies")
         pages = paginator.paginate(Scope="Local")
         for policies in pages:
@@ -99,7 +100,8 @@ class CLOUDHSM(ResourceProvider):
 
         response = client.describe_clusters()
 
-        message_handler("Collecting data from CloudHSM clusters...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from CloudHSM clusters...", "HEADER")
 
         for data in response["Clusters"]:
 

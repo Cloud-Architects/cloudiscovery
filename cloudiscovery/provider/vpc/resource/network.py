@@ -7,13 +7,12 @@ from shared.common import (
     ResourceProvider,
     Resource,
     message_handler,
-    get_name_tag,
     ResourceDigest,
     ResourceEdge,
     datetime_to_string,
-    resource_tags,
     ResourceAvailable,
 )
+from shared.common_aws import resource_tags, get_name_tag
 from shared.error_handler import exception
 
 
@@ -38,7 +37,8 @@ class INTERNETGATEWAY(ResourceProvider):
 
         response = client.describe_internet_gateways(Filters=filters)
 
-        message_handler("Collecting data from Internet Gateways...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Internet Gateways...", "HEADER")
 
         # One VPC has only 1 IGW then it's a direct check
         if len(response["InternetGateways"]) > 0:
@@ -94,7 +94,8 @@ class NATGATEWAY(ResourceProvider):
 
         response = client.describe_nat_gateways(Filters=filters)
 
-        message_handler("Collecting data from NAT Gateways...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from NAT Gateways...", "HEADER")
 
         for data in response["NatGateways"]:
 
@@ -149,7 +150,8 @@ class ELASTICLOADBALANCING(ResourceProvider):
 
         response = client.describe_load_balancers()
 
-        message_handler("Collecting data from Classic Load Balancers...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Classic Load Balancers...", "HEADER")
 
         for data in response["LoadBalancerDescriptions"]:
             if data["VPCId"] == self.vpc_options.vpc_id:
@@ -199,7 +201,10 @@ class ELASTICLOADBALANCINGV2(ResourceProvider):
 
         response = client.describe_load_balancers()
 
-        message_handler("Collecting data from Application Load Balancers...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler(
+                "Collecting data from Application Load Balancers...", "HEADER"
+            )
 
         for data in response["LoadBalancers"]:
 
@@ -256,7 +261,8 @@ class RouteTable(ResourceProvider):
 
         response = client.describe_route_tables(Filters=filters)
 
-        message_handler("Collecting data from Route Tables...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Route Tables...", "HEADER")
 
         # Iterate to get all route table filtered
         for data in response["RouteTables"]:
@@ -332,7 +338,8 @@ class SUBNET(ResourceProvider):
 
         response = client.describe_subnets(Filters=filters)
 
-        message_handler("Collecting data from Subnets...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Subnets...", "HEADER")
 
         for data in response["Subnets"]:
             nametag = get_name_tag(data)
@@ -383,7 +390,8 @@ class NACL(ResourceProvider):
 
         response = client.describe_network_acls(Filters=filters)
 
-        message_handler("Collecting data from NACLs...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from NACLs...", "HEADER")
 
         for data in response["NetworkAcls"]:
             nacl_digest = ResourceDigest(
@@ -438,7 +446,8 @@ class SECURITYGROUP(ResourceProvider):
 
         response = client.describe_security_groups(Filters=filters)
 
-        message_handler("Collecting data from Security Groups...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Security Groups...", "HEADER")
 
         for data in response["SecurityGroups"]:
             group_digest = ResourceDigest(id=data["GroupId"], type="aws_security_group")
@@ -480,7 +489,8 @@ class VPCPEERING(ResourceProvider):
 
         response = client.describe_vpc_peering_connections()
 
-        message_handler("Collecting data from VPC Peering...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from VPC Peering...", "HEADER")
 
         for data in response["VpcPeeringConnections"]:
 
@@ -568,7 +578,8 @@ class VPCENDPOINT(ResourceProvider):
 
         response = client.describe_vpc_endpoints(Filters=filters)
 
-        message_handler("Collecting data from VPC Endpoints...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from VPC Endpoints...", "HEADER")
 
         for data in response["VpcEndpoints"]:
 
@@ -638,7 +649,8 @@ class RESTAPIPOLICY(ResourceProvider):
         # get REST API available
         response = client.get_rest_apis()
 
-        message_handler("Collecting data from REST API Policies...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from REST API Policies...", "HEADER")
 
         with ThreadPoolExecutor(15) as executor:
             results = executor.map(self.analyze_restapi, response["items"])

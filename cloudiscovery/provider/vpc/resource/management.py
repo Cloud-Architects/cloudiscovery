@@ -7,9 +7,9 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
-    resource_tags,
     ResourceAvailable,
 )
+from shared.common_aws import resource_tags
 from shared.error_handler import exception
 
 
@@ -33,7 +33,8 @@ class SYNTHETICSCANARIES(ResourceProvider):
 
         response = client.describe_canaries()
 
-        message_handler("Collecting data from Synthetic Canaries...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Synthetic Canaries...", "HEADER")
 
         for data in response["Canaries"]:
 

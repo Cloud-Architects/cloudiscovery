@@ -7,10 +7,9 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
-    resource_tags,
-    get_name_tag,
     ResourceAvailable,
 )
+from shared.common_aws import resource_tags, get_name_tag
 from shared.error_handler import exception
 
 
@@ -34,7 +33,8 @@ class WORKSPACES(ResourceProvider):
 
         response = client.describe_workspaces()
 
-        message_handler("Collecting data from Workspaces...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Workspaces...", "HEADER")
 
         for data in response["Workspaces"]:
 

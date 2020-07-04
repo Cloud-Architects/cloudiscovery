@@ -7,9 +7,9 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
-    resource_tags,
     ResourceAvailable,
 )
+from shared.common_aws import resource_tags
 from shared.error_handler import exception
 
 
@@ -30,7 +30,8 @@ class THINGS(ResourceProvider):
 
         resources_found = []
 
-        message_handler("Collecting data from IoT Things...", "HEADER")
+        if self.iot_options.verbose:
+            message_handler("Collecting data from IoT Things...", "HEADER")
 
         for thing in self.iot_options.thing_name["things"]:
             client.describe_thing(thingName=thing["thingName"])
@@ -67,7 +68,8 @@ class TYPE(ResourceProvider):
 
         resources_found = []
 
-        message_handler("Collecting data from IoT Things Type...", "HEADER")
+        if self.iot_options.verbose:
+            message_handler("Collecting data from IoT Things Type...", "HEADER")
 
         for thing in self.iot_options.thing_name["things"]:
 
@@ -126,7 +128,8 @@ class JOB(ResourceProvider):
 
         resources_found = []
 
-        message_handler("Collecting data from IoT Jobs...", "HEADER")
+        if self.iot_options.verbose:
+            message_handler("Collecting data from IoT Jobs...", "HEADER")
 
         for thing in self.iot_options.thing_name["things"]:
 
@@ -188,7 +191,8 @@ class BILLINGGROUP(ResourceProvider):
 
         resources_found = []
 
-        message_handler("Collecting data from IoT Billing Group...", "HEADER")
+        if self.iot_options.verbose:
+            message_handler("Collecting data from IoT Billing Group...", "HEADER")
 
         for thing in self.iot_options.thing_name["things"]:
 

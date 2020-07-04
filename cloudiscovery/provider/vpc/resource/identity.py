@@ -7,9 +7,9 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
-    resource_tags,
     ResourceAvailable,
 )
+from shared.common_aws import resource_tags
 from shared.error_handler import exception
 
 
@@ -33,7 +33,8 @@ class DIRECTORYSERVICE(ResourceProvider):
 
         response = client.describe_directories()
 
-        message_handler("Collecting data from Directory Services...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Directory Services...", "HEADER")
 
         for data in response["DirectoryDescriptions"]:
 

@@ -1,48 +1,45 @@
+from typing import List
+
 from ipaddress import ip_network
 
 from provider.vpc.diagram import VpcDiagram
-from shared.command import CommandRunner, BaseCommand
 from shared.common import (
-    BaseAwsOptions,
     ResourceDigest,
     VPCE_REGEX,
     SOURCE_IP_ADDRESS_REGEX,
+    Filterable,
+    BaseOptions,
 )
+from shared.common_aws import BaseAwsOptions, BaseAwsCommand, AwsCommandRunner
 from shared.diagram import NoDiagram, BaseDiagram
 
 
-class VpcOptions(BaseAwsOptions):
+class VpcOptions(BaseAwsOptions, BaseOptions):
     vpc_id: str
 
-    def __new__(cls, session, region_name, vpc_id):
-        """
-        VPC Options
-
-        :param session:
-        :param region_name:
-        :param vpc_id:
-        """
-        self = super(BaseAwsOptions, cls).__new__(cls, (session, region_name))
+    # pylint: disable=too-many-arguments
+    def __init__(
+        self, verbose: bool, filters: List[Filterable], session, region_name, vpc_id
+    ):
+        BaseAwsOptions.__init__(self, session, region_name)
+        BaseOptions.__init__(self, verbose, filters)
         self.vpc_id = vpc_id
-        return self
 
     def vpc_digest(self):
         return ResourceDigest(id=self.vpc_id, type="aws_vpc")
 
 
-class Vpc(BaseCommand):
+class Vpc(BaseAwsCommand):
     # pylint: disable=too-many-arguments
-    def __init__(self, vpc_id, region_names, session, diagram, filters):
+    def __init__(self, vpc_id, region_names, session):
         """
         VPC command
 
         :param vpc_id:
         :param region_names:
         :param session:
-        :param diagram:
-        :param filters:
         """
-        super().__init__(region_names, session, diagram, filters)
+        super().__init__(region_names, session)
         self.vpc_id = vpc_id
 
     @staticmethod
@@ -64,9 +61,15 @@ class Vpc(BaseCommand):
         )
         print(message)
 
-    def run(self):
+    def run(
+        self,
+        diagram: bool,
+        verbose: bool,
+        services: List[str],
+        filters: List[Filterable],
+    ):
         # pylint: disable=too-many-branches
-        command_runner = CommandRunner(self.filters)
+        command_runner = AwsCommandRunner(filters)
 
         for region in self.region_names:
             self.init_region_cache(region)
@@ -78,11 +81,15 @@ class Vpc(BaseCommand):
                 for data in vpcs["Vpcs"]:
                     vpc_id = data["VpcId"]
                     vpc_options = VpcOptions(
-                        session=self.session, region_name=region, vpc_id=vpc_id,
+                        verbose=verbose,
+                        filters=filters,
+                        session=self.session,
+                        region_name=region,
+                        vpc_id=vpc_id,
                     )
                     self.check_vpc(vpc_options)
                     diagram_builder: BaseDiagram
-                    if self.diagram:
+                    if diagram:
                         diagram_builder = VpcDiagram(vpc_id=vpc_id)
                     else:
                         diagram_builder = NoDiagram()
@@ -95,11 +102,15 @@ class Vpc(BaseCommand):
                     )
             else:
                 vpc_options = VpcOptions(
-                    session=self.session, region_name=region, vpc_id=self.vpc_id,
+                    verbose=verbose,
+                    filters=filters,
+                    session=self.session,
+                    region_name=region,
+                    vpc_id=self.vpc_id,
                 )
 
                 self.check_vpc(vpc_options)
-                if self.diagram:
+                if diagram:
                     diagram_builder = VpcDiagram(vpc_id=self.vpc_id)
                 else:
                     diagram_builder = NoDiagram()
