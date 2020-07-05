@@ -6,9 +6,13 @@ from shared.diagram import NoDiagram
 
 
 class AllOptions(BaseAwsOptions, BaseOptions):
-    def __init__(self, verbose, filters, session, region_name):
+    services: List[str]
+
+    # pylint: disable=too-many-arguments
+    def __init__(self, verbose, filters, session, region_name, services: List[str]):
         BaseAwsOptions.__init__(self, session, region_name)
         BaseOptions.__init__(self, verbose, filters)
+        self.services = services
 
 
 class All(BaseAwsCommand):
@@ -26,6 +30,7 @@ class All(BaseAwsCommand):
                 filters=filters,
                 session=self.session,
                 region_name=region,
+                services=services,
             )
 
             command_runner = AwsCommandRunner(filters)

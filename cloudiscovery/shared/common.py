@@ -4,7 +4,7 @@ import re
 import functools
 import threading
 from abc import ABC
-from typing import NamedTuple, List
+from typing import NamedTuple, List, Dict
 
 from diskcache import Cache
 
@@ -73,7 +73,8 @@ class Resource(NamedTuple):
     details: str = ""
     group: str = ""
     tags: List[ResourceTag] = []
-    limits: List[LimitsValues] = []
+    limits: LimitsValues = None
+    attributes: Dict[str, object] = {}
 
 
 class ResourceCache:
