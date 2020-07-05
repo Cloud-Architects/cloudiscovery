@@ -10,9 +10,9 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
-    resource_tags,
     ResourceAvailable,
 )
+from shared.common_aws import resource_tags
 from shared.error_handler import exception
 
 
@@ -36,7 +36,8 @@ class SQSPOLICY(ResourceProvider):
 
         response = client.list_queues()
 
-        message_handler("Collecting data from SQS Queue Policy...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from SQS Queue Policy...", "HEADER")
 
         if "QueueUrls" in response:
 

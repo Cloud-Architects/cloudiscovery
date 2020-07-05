@@ -35,11 +35,10 @@ from provider.limit.command import Limit
 
 from shared.common import (
     exit_critical,
-    generate_session,
     Filterable,
     parse_filters,
 )
-from shared.common_aws import aws_verbose
+from shared.common_aws import aws_verbose, generate_session
 
 # pylint: enable=wrong-import-position
 # Check version
@@ -50,8 +49,19 @@ if sys.version_info < (3, 6):
 __version__ = "2.1.1"
 
 AVAILABLE_LANGUAGES = ["en_US", "pt_BR"]
-DIAGRAMS_OPTIONS = ["True", "False"]
 DEFAULT_REGION = "us-east-1"
+
+
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    # pylint: disable=no-else-return
+    if v.lower() in ("yes", "true", "t", "y", "1"):
+        return True
+    elif v.lower() in ("no", "false", "f", "n", "0"):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")
 
 
 def generate_parser():
@@ -123,7 +133,13 @@ def add_default_arguments(
         "-l", "--language", required=False, help="Available languages: pt_BR, en_US"
     )
     parser.add_argument(
-        "--verbose", "--verbose", required=False, help="Enable debug mode to sdk calls"
+        "--verbose",
+        "--verbose",
+        type=str2bool,
+        nargs="?",
+        const=True,
+        default=False,
+        help="Enable debug mode to sdk calls (default false)",
     )
     if filters_enabled:
         parser.add_argument(
@@ -139,9 +155,12 @@ def add_default_arguments(
         parser.add_argument(
             "-d",
             "--diagram",
-            required=False,
-            help='print diagram with resources (need Graphviz installed). Use options "True" to '
-            'view image or "False" to save image to disk. Default True',
+            type=str2bool,
+            nargs="?",
+            const=True,
+            default=True,
+            help="print diagram with resources (need Graphviz installed). Pass true/y[es] to "
+            "view image or false/n[o] not to generate image. Default true",
         )
 
 
@@ -158,7 +177,7 @@ def main():
 
     # Check if verbose mode is enabled
     if args.verbose:
-        aws_verbose(verbose_mode=args.verbose)
+        aws_verbose()
 
     if args.language is None or args.language not in AVAILABLE_LANGUAGES:
         language = "en_US"
@@ -167,9 +186,7 @@ def main():
 
     # Diagram check
     if "diagram" not in args:
-        diagram = "False"
-    elif args.diagram is not None and args.diagram not in DIAGRAMS_OPTIONS:
-        diagram = "True"
+        diagram = False
     else:
         diagram = args.diagram
 
@@ -184,8 +201,8 @@ def main():
     check_diagram_version(diagram)
 
     # filters check
+    filters: List[Filterable] = []
     if "filters" in args:
-        filters: List[Filterable] = []
         if args.filters is not None:
             filters = parse_filters(args.filters)
 
@@ -218,44 +235,29 @@ def main():
                     exit_critical(_("Threshold must be between 0 and 100"))
 
     if args.command == "aws-vpc":
-        command = Vpc(
-            vpc_id=args.vpc_id,
-            region_names=region_names,
-            session=session,
-            diagram=diagram,
-            filters=filters,
-        )
+        command = Vpc(vpc_id=args.vpc_id, region_names=region_names, session=session,)
     elif args.command == "aws-policy":
-        command = Policy(
-            region_names=region_names,
-            session=session,
-            diagram=diagram,
-            filters=filters,
-        )
+        command = Policy(region_names=region_names, session=session,)
     elif args.command == "aws-iot":
         command = Iot(
-            thing_name=args.thing_name,
-            region_names=region_names,
-            session=session,
-            diagram=diagram,
-            filters=filters,
+            thing_name=args.thing_name, region_names=region_names, session=session,
         )
     elif args.command == "aws-all":
-        command = All(region_names=region_names, session=session, filters=filters,)
+        command = All(region_names=region_names, session=session)
     elif args.command == "aws-limit":
         command = Limit(
-            region_names=region_names,
-            session=session,
-            services=args.services,
-            threshold=args.threshold,
+            region_names=region_names, session=session, threshold=args.threshold,
         )
     else:
         raise NotImplementedError("Unknown command")
-    command.run()
+    if "services" in args and args.services is not None:
+        services = args.services.split(",")
+    else:
+        services = []
+    command.run(diagram, args.verbose, services, filters)
 
 
 def check_diagram_version(diagram):
-
     if diagram:
         # Checking diagram version. Must be 0.13 or higher
         if pkg_resources.get_distribution("diagrams").version < "0.14":

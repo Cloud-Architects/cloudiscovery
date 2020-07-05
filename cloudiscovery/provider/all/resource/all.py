@@ -6,16 +6,16 @@ from typing import List, Optional
 from botocore.exceptions import UnknownServiceError
 from botocore.loaders import Loader
 
+from provider.all.command import AllOptions
 from shared.common import (
     ResourceProvider,
     Resource,
-    BaseAwsOptions,
     ResourceDigest,
     message_handler,
     ResourceAvailable,
     log_critical,
-    get_paginator,
 )
+from shared.common_aws import get_paginator
 
 OMITTED_RESOURCES = [
     "aws_cloudhsm_available_zone",
@@ -69,6 +69,7 @@ OMITTED_RESOURCES = [
     "aws_elasticbeanstalk_configuration_option",
     "aws_elasticbeanstalk_platform_version",
     "aws_iam_credential_report",
+    "aws_iam_account_password_policy",
     "aws_importexport_job",
     "aws_iot_o_taupdate",
     "aws_iot_default_authorizer",
@@ -329,6 +330,8 @@ def all_exception(func):
         # pylint: disable=broad-except
         except Exception as e:
             if func.__qualname__ == "AllResources.analyze_operation":
+                if not args[0].options.verbose:
+                    return
                 exception_str = str(e)
                 if (
                     "is not subscribed to AWS Security Hub" in exception_str
@@ -411,7 +414,7 @@ def build_resource_type(aws_service, name):
 
 
 class AllResources(ResourceProvider):
-    def __init__(self, options: BaseAwsOptions):
+    def __init__(self, options: AllOptions):
         """
         All resources
 
@@ -459,15 +462,16 @@ class AllResources(ResourceProvider):
         except UnknownServiceError:
             paginators_model = {"pagination": {}}
         service_full_name = service_model["metadata"]["serviceFullName"]
-        message_handler(
-            "Collecting data from {}...".format(service_full_name), "HEADER"
-        )
+        if self.options.verbose:
+            message_handler(
+                "Collecting data from {}...".format(service_full_name), "HEADER"
+            )
         if (
             not self.availabilityCheck.is_service_available(
                 self.options.region_name, aws_service
             )
             or aws_service in SKIPPED_SERVICES
-        ):
+        ) and self.options.verbose:
             message_handler(
                 "Service {} not available in this region... Skipping".format(
                     service_full_name

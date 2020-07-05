@@ -7,9 +7,9 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
-    resource_tags,
     ResourceAvailable,
 )
+from shared.common_aws import resource_tags
 from shared.error_handler import exception
 
 
@@ -31,7 +31,8 @@ class POLICY(ResourceProvider):
 
         resources_found = []
 
-        message_handler("Collecting data from IoT Policies...", "HEADER")
+        if self.iot_options.verbose:
+            message_handler("Collecting data from IoT Policies...", "HEADER")
 
         for thing in self.iot_options.thing_name["things"]:
 

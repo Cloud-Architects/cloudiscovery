@@ -7,9 +7,9 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
-    resource_tags,
     ResourceAvailable,
 )
+from shared.common_aws import resource_tags
 from shared.error_handler import exception
 
 
@@ -56,7 +56,7 @@ class RDS(ResourceProvider):
 
         response = client.describe_db_instances(Filters=[params])
 
-        if instance_id is None:
+        if instance_id is None and self.vpc_options.verbose:
             message_handler("Collecting data from RDS Instances...", "HEADER")
 
         for data in response["DBInstances"]:
@@ -116,7 +116,8 @@ class ELASTICACHE(ResourceProvider):
         # get all cache clusters
         response = client.describe_cache_clusters()
 
-        message_handler("Collecting data from Elasticache Clusters...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Elasticache Clusters...", "HEADER")
 
         # iterate cache clusters to get subnet groups
         for data in response["CacheClusters"]:
@@ -177,7 +178,8 @@ class DOCUMENTDB(ResourceProvider):
             Filters=[{"Name": "engine", "Values": ["docdb"]}]
         )
 
-        message_handler("Collecting data from DocumentDB Instances...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from DocumentDB Instances...", "HEADER")
 
         # iterate cache clusters to get subnet groups
         for data in response["DBInstances"]:
@@ -237,7 +239,8 @@ class NEPTUNE(ResourceProvider):
             Filters=[{"Name": "engine", "Values": ["neptune"]}]
         )
 
-        message_handler("Collecting data from Neptune Instances...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Neptune Instances...", "HEADER")
 
         # iterate cache clusters to get subnet groups
         for data in response["DBInstances"]:

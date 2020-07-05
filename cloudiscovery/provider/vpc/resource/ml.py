@@ -7,10 +7,9 @@ from shared.common import (
     message_handler,
     ResourceDigest,
     ResourceEdge,
-    resource_tags,
     ResourceAvailable,
 )
-from shared.common_aws import describe_subnet
+from shared.common_aws import describe_subnet, resource_tags
 from shared.error_handler import exception
 
 
@@ -34,9 +33,10 @@ class SAGEMAKERNOTEBOOK(ResourceProvider):
 
         response = client.list_notebook_instances()
 
-        message_handler(
-            "Collecting data from Sagemaker Notebook instances...", "HEADER"
-        )
+        if self.vpc_options.verbose:
+            message_handler(
+                "Collecting data from Sagemaker Notebook instances...", "HEADER"
+            )
 
         for data in response["NotebookInstances"]:
 
@@ -98,7 +98,8 @@ class SAGEMAKERTRAININGOB(ResourceProvider):
 
         response = client.list_training_jobs()
 
-        message_handler("Collecting data from Sagemaker Training Job...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Sagemaker Training Job...", "HEADER")
 
         for data in response["TrainingJobSummaries"]:
             tags_response = client.list_tags(ResourceArn=data["TrainingJobArn"],)
@@ -165,7 +166,8 @@ class SAGEMAKERMODEL(ResourceProvider):
 
         response = client.list_models()
 
-        message_handler("Collecting data from Sagemaker Model...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Sagemaker Model...", "HEADER")
 
         for data in response["Models"]:
             tags_response = client.list_tags(ResourceArn=data["ModelArn"],)

@@ -35,29 +35,29 @@ The commands generate reports that can be used to further analyze resources.
 1.1 To detect AWS VPC resources (more on [AWS VPC](#aws-vpc)):
 
 ```sh
-cloudiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx] [--verbose DEBUG]
+cloudiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram [yes/no]] [--filter xxx] [--verbose]
 ```
 1.2 To detect AWS policy resources (more on [AWS Policy](#aws-policy)):
 
 ```sh
-cloudiscovery aws-policy [--profile-name profile] [--diagram True/False] [--filter xxx] [--verbose DEBUG]
+cloudiscovery aws-policy [--profile-name profile] [--diagram [yes/no]] [--filter xxx] [--verbose]
 ```
 1.3 To detect AWS IoT resources (more on [AWS IoT](#aws-iot)):
 
 ```sh
-cloudiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram True/False] [--filter xxx] [--verbose DEBUG]
+cloudiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram [yes/no]] [--filter xxx] [--verbose]
 ```
 
 1.4 To detect all AWS resources (more on [AWS All](#aws-all)):
 
 ```sh
-cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--filter xxx] [--verbose DEBUG]
+cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--filter xxx] [--verbose]
 ```
 
 1.5 To check AWS limits per resource (more on [AWS Limit](#aws-limit)):
 
 ```sh
-cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx] [--usage 0-100] [--verbose DEBUG]
+cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx] [--usage 0-100] [--verbose]
 ```
 
 2.  For help use:
@@ -147,7 +147,12 @@ The configured credentials must be associated to a user or role with proper perm
                   "cloudhsm:DescribeClusters",
                   "ssm:GetParametersByPath",
                   "servicequotas:Get*",
-                  "amplify:ListApps"
+                  "amplify:ListApps",
+                  "autoscaling-plans:DescribeScalingPlans",
+                  "medialive:ListChannels",
+                  "mediapackage:ListChannels",
+                  "qldb:ListLedgers",
+                  "transcribe:ListVocabularies"
                 ],
                 "Resource": [ "*" ]
               }
@@ -338,7 +343,7 @@ cloudiscovery \
 
 ```
 
-*   If you are using Diagram output and due to fact container is a slim image of Python image, you must run cloudiscovery with "--diagram False", otherwise you'll have an error about "xdg-open". The output file will be saved in "assets/diagrams".
+*   If you are using Diagram output and due to fact container is a slim image of Python image, you must run cloudiscovery with "--diagram no", otherwise you'll have an error about "xdg-open". The output file will be saved in "assets/diagrams".
 
 ## Translate
 
