@@ -18,6 +18,8 @@ SERVICEQUOTA_TO_BOTO3 = {
     "elasticloadbalancing": "elbv2",
     "elasticfilesystem": "efs",
     "vpc": "ec2",
+    "codeguru-profiler": "codeguruprofiler",
+    "AWSCloudMap": "servicediscovery",
 }
 
 MAX_EXECUTION_PARALLEL = 3

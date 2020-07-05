@@ -37,6 +37,10 @@ ALLOWED_SERVICES_CODES = {
         },
         "global": False,
     },
+    "AWSCloudMap": {
+        "L-0FE3F50E": {"method": "list_namespaces", "key": "Namespaces", "fields": [],},
+        "global": False,
+    },
     "batch": {
         "L-144F0CA5": {
             "method": "describe_compute_environments",
@@ -44,6 +48,24 @@ ALLOWED_SERVICES_CODES = {
             "fields": [],
         },
         "global": False,
+    },
+    "chime": {
+        "L-8EE806B4": {
+            "method": "list_voice_connectors",
+            "key": "VoiceConnectors",
+            "fields": [],
+        },
+        "L-32405DBA": {
+            "method": "list_phone_numbers",
+            "key": "PhoneNumbers",
+            "fields": [],
+        },
+        "L-D3615084": {
+            "method": "list_voice_connector_groups",
+            "key": "VoiceConnectorGroups",
+            "fields": [],
+        },
+        "global": True,
     },
     "codebuild": {
         "L-ACCF6C0D": {"method": "list_projects", "key": "projects", "fields": [],},
@@ -89,6 +111,7 @@ ALLOWED_SERVICES_CODES = {
             },
         },
         "L-9DE8E4FB": {"method": "list_types", "key": "TypeSummaries", "fields": [],},
+        "L-31709F13": {"method": "list_stack_sets", "key": "Summaries", "fields": [],},
         "global": False,
     },
     "codeguru-reviewer": {
@@ -97,6 +120,14 @@ ALLOWED_SERVICES_CODES = {
             "key": "CodeReviewSummaries",
             "fields": [],
             "filter": {"Type": "PullRequest"},
+        },
+        "global": False,
+    },
+    "codeguru-profiler": {
+        "L-DA8D4E8D": {
+            "method": "list_profiling_groups",
+            "key": "profilingGroupNames",
+            "fields": [],
         },
         "global": False,
     },
@@ -135,12 +166,40 @@ ALLOWED_SERVICES_CODES = {
             "key": "Applications",
             "fields": [],
         },
+        "L-D64F1F14": {
+            "method": "describe_application_versions",
+            "key": "ApplicationVersions",
+            "fields": [],
+        },
         "global": False,
     },
     "elasticloadbalancing": {
         "L-53DA6B97": {
             "method": "describe_load_balancers",
             "key": "LoadBalancers",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "glue": {
+        "L-F953935E": {"method": "get_databases", "key": "DatabaseList", "fields": [],},
+        "L-D987EC31": {
+            "method": "get_user_defined_functions",
+            "key": "UserDefinedFunctions",
+            "fields": [],
+            "filter": {"Pattern": "*"},
+        },
+        "L-83192DBF": {
+            "method": "get_security_configurations",
+            "key": "SecurityConfigurations",
+            "fields": [],
+        },
+        "L-F1653A6D": {"method": "get_triggers", "key": "Triggers", "fields": [],},
+        "L-11FA2C1A": {"method": "get_crawlers", "key": "Crawlers", "fields": [],},
+        "L-7DD7C33A": {"method": "list_workflows", "key": "Workflows", "fields": [],},
+        "L-04CEE988": {
+            "method": "list_ml_transforms",
+            "key": "TransformIds",
             "fields": [],
         },
         "global": False,
@@ -169,6 +228,7 @@ ALLOWED_SERVICES_CODES = {
     },
     "kms": {
         "L-C2F1777E": {"method": "list_keys", "key": "Keys", "fields": [],},
+        "L-2601EE20": {"method": "list_aliases", "key": "Aliases", "fields": [],},
         "global": False,
     },
     "mediaconnect": {

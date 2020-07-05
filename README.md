@@ -295,16 +295,20 @@ With `--threshold 0-100` option, you can customize a minimum percentage threshol
     *   appsync
     *   autoscaling-plans
     *   batch
+    *   chime
     *   codebuild
     *   codecommit
     *   codeguru reviewer
+    *   codeguru profiler
     *   cloudformation
+    *   cloud map
     *   dynamodb
     *   ec2
     *   ecs
     *   elasticfilesystem
     *   elasticbeanstalk
     *   elasticloadbalancing
+    *   glue
     *   iam
     *   kms
     *   mediaconnect
