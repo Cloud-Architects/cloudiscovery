@@ -47,8 +47,10 @@ class Report(object):
                     "OKBLUE",
                 )
             elif resource.attributes:
+                # pylint: disable=too-many-format-args
                 message_handler(
-                    "resource type: {} - resource id: {} - resource name: {} - resource details: {}".format(
+                    "\nservice: {} - type: {} - id: {} - resource name: {}".format(
+                        resource.group,
                         resource.digest.type,
                         resource.digest.id,
                         resource.name,
@@ -61,12 +63,18 @@ class Report(object):
                     resource_attr_value,
                 ) in resource.attributes.items():
                     message_handler(
-                        "{}: {}".format(resource_attr_key, resource_attr_value,),
+                        "service: {} - type: {} - id: {} -> {}: {}".format(
+                            resource.group,
+                            resource.digest.type,
+                            resource.digest.id,
+                            resource_attr_key,
+                            resource_attr_value,
+                        ),
                         "OKBLUE",
                     )
             else:
                 message_handler(
-                    "resource type: {} - resource id: {} - resource name: {} - resource details: {}".format(
+                    "type: {} - id: {} - name: {} - details: {}".format(
                         resource.digest.type,
                         resource.digest.id,
                         resource.name,
@@ -78,7 +86,7 @@ class Report(object):
         if resource_relations:
             message_handler("\n\nFound relations", "HEADER")
             for resource_relation in resource_relations:
-                message = "resource type: {} - resource id: {} -> resource type: {} - resource id: {}".format(
+                message = "type: {} - id: {} -> type: {} - id: {}".format(
                     resource_relation.from_node.type,
                     resource_relation.from_node.id,
                     resource_relation.to_node.type,
