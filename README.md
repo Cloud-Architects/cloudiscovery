@@ -51,7 +51,7 @@ cloudiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--pro
 1.4 To detect all AWS resources (more on [AWS All](#aws-all)):
 
 ```sh
-cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--filter xxx] [--verbose]
+cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx] [--filter xxx] [--verbose]
 ```
 
 1.5 To check AWS limits per resource (more on [AWS Limit](#aws-limit)):
@@ -272,13 +272,13 @@ Following resources are checked in IoT command:
 
 ### AWS All
 
-List all AWS resources (preview)
+A command to list **ALL** AWS resources. 
 
-The command tries to call all AWS services (200+) and operations with name `Describe`, `Get...` and `List...` (500+).
+The command calls all AWS services (200+) and operations with name `Describe`, `Get...` and `List...` (500+).
 
 The operations must be allowed to be called by permissions described in [AWS Permissions](#aws-permissions).
 
-Types of resources mostly cover Terraform types.
+Types of resources mostly cover Terraform types. It is possible to narrow down scope of the resources to ones related with a given service with parameter `-s` e.g. `-s ec2,ecs,cloudfront,rds`.
 
 ### AWS Limit
 

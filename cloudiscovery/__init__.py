@@ -92,18 +92,13 @@ def generate_parser():
 
     all_parser = subparsers.add_parser("aws-all", help="Analyze all resources")
     add_default_arguments(all_parser, diagram_enabled=False)
+    add_services_argument(all_parser)
 
     limit_parser = subparsers.add_parser(
         "aws-limit", help="Analyze aws limit resources."
     )
     add_default_arguments(limit_parser, diagram_enabled=False, filters_enabled=False)
-    limit_parser.add_argument(
-        "-s",
-        "--services",
-        required=False,
-        help='Inform services that you want to check, use "," (comma) to split them.  \
-              If not informed, script will check all services.',
-    )
+    add_services_argument(limit_parser)
     limit_parser.add_argument(
         "-t",
         "--threshold",
@@ -113,6 +108,16 @@ def generate_parser():
     )
 
     return parser
+
+
+def add_services_argument(limit_parser):
+    limit_parser.add_argument(
+        "-s",
+        "--services",
+        required=False,
+        help='Define services that you want to check, use "," (comma) to separate multiple names. \
+              If not passed, command will check all services.',
+    )
 
 
 def add_default_arguments(

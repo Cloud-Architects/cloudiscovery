@@ -5,7 +5,7 @@
 <tbody>
 <tr>
 <td style="width: 20%; text-align: center;"><strong>Type</strong></td>
-<td style="width: 20%; text-align: center;"><strong>Group</strong></td>
+<td style="width: 20%; text-align: center;"><strong>{{ group_title }}</strong></td>
 <td style="width: 20%; text-align: center;"><strong>Id</strong></td>
 <td style="width: 20%; text-align: center;"><strong>Name</strong></td>
 <td style="width: 20%; text-align: center;"><strong>Details</strong></td>
@@ -17,7 +17,12 @@
     <td style="width: 20%;">{{ resource_found.group}}</td>
     <td style="width: 20%;">{{ resource_found.digest.id}}</td>
     <td style="width: 20%;">{{ resource_found.name}}</td>
-    <td style="width: 20%;">{{ resource_found.details}}</td>
+    <td style="width: 20%;">
+        {{ resource_found.details}}
+        {% for attribute_key, attribute_value in resource_found.attributes.items() %}
+        <small><b>{{ attribute_key}}</b>: {{ attribute_value}}</small><br />
+        {%- endfor %}
+    </td>
     <td style="width: 20%;">
         {% for tag in resource_found.tags %}
         <small><b>{{ tag.key}}</b>: {{ tag.value}}</small><br />

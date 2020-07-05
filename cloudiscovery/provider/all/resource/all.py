@@ -1,3 +1,4 @@
+import collections
 import functools
 import re
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -15,7 +16,7 @@ from shared.common import (
     ResourceAvailable,
     log_critical,
 )
-from shared.common_aws import get_paginator
+from shared.common_aws import get_paginator, resource_tags
 
 OMITTED_RESOURCES = [
     "aws_cloudhsm_available_zone",
@@ -309,7 +310,9 @@ def operation_allowed(
     return evaluation_result
 
 
-def build_resource(base_resource, operation_name, resource_type) -> Optional[Resource]:
+def build_resource(
+    base_resource, operation_name, resource_type, group
+) -> Optional[Resource]:
     if isinstance(base_resource, str):
         return None
     resource_name = retrieve_resource_name(base_resource, operation_name)
@@ -317,8 +320,13 @@ def build_resource(base_resource, operation_name, resource_type) -> Optional[Res
 
     if resource_id is None or resource_name is None:
         return None
+    attributes = flatten(base_resource)
     return Resource(
-        digest=ResourceDigest(id=resource_id, type=resource_type), name=resource_name,
+        digest=ResourceDigest(id=resource_id, type=resource_type),
+        group=group,
+        name=resource_name,
+        attributes=attributes,
+        tags=resource_tags(base_resource),
     )
 
 
@@ -413,6 +421,17 @@ def build_resource_type(aws_service, name):
     )
 
 
+def flatten(d, parent_key="", sep="."):
+    items = []
+    for k, v in d.items():
+        new_key = parent_key + sep + k if parent_key else k
+        if isinstance(v, collections.MutableMapping):
+            items.extend(flatten(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
+
 class AllResources(ResourceProvider):
     def __init__(self, options: AllOptions):
         """
@@ -427,16 +446,20 @@ class AllResources(ResourceProvider):
     @all_exception
     def get_resources(self) -> List[Resource]:
         boto_loader = Loader()
-        aws_services = boto_loader.list_available_services(type_name="service-2")
+        if self.options.services:
+            aws_services = self.options.services
+        else:
+            aws_services = boto_loader.list_available_services(type_name="service-2")
         resources = []
         allowed_actions = self.get_policies_allowed_actions()
 
-        message_handler(
-            "Analyzing listing operations across {} service...".format(
-                len(aws_services)
-            ),
-            "HEADER",
-        )
+        if self.options.verbose:
+            message_handler(
+                "Analyzing listing operations across {} service...".format(
+                    len(aws_services)
+                ),
+                "HEADER",
+            )
         with ThreadPoolExecutor(PARALLEL_SERVICE_CALLS) as executor:
             results = executor.map(
                 lambda aws_service: self.analyze_service(
@@ -501,7 +524,12 @@ class AllResources(ResourceProvider):
                 if not operation_allowed(allowed_actions, aws_service, name):
                     continue
                 analyze_operation = self.analyze_operation(
-                    resource_type, name, has_paginator, client, service_full_name
+                    resource_type,
+                    name,
+                    has_paginator,
+                    client,
+                    service_full_name,
+                    aws_service,
                 )
                 if analyze_operation is not None:
                     resources.extend(analyze_operation)
@@ -510,10 +538,17 @@ class AllResources(ResourceProvider):
     @all_exception
     # pylint: disable=too-many-locals,too-many-arguments
     def analyze_operation(
-        self, resource_type, operation_name, has_paginator, client, service_full_name
+        self,
+        resource_type,
+        operation_name,
+        has_paginator,
+        client,
+        service_full_name,
+        aws_service,
     ) -> List[Resource]:
         resources = []
         snake_operation_name = _to_snake_case(operation_name)
+        # pylint: disable=too-many-nested-blocks
         if has_paginator:
             pages = get_paginator(
                 client=client,
@@ -530,14 +565,23 @@ class AllResources(ResourceProvider):
                 result_parent = list_metadata["children"][0]["value"]
                 result_child = list_metadata["children"][1]["value"]
             else:
-                message_handler(
-                    "Operation {} has unsupported pagination definition... Skipping".format(
-                        snake_operation_name
-                    ),
-                    "WARNING",
-                )
+                if self.options.verbose:
+                    message_handler(
+                        "Operation {} has unsupported pagination definition... Skipping".format(
+                            snake_operation_name
+                        ),
+                        "WARNING",
+                    )
                 return []
             for page in pages:
+                if result_key == "Reservations":  # hack for EC2 instances
+                    for page_reservation in page["Reservations"]:
+                        for instance in page_reservation["Instances"]:
+                            resource = build_resource(
+                                instance, operation_name, resource_type, aws_service
+                            )
+                            if resource is not None:
+                                resources.append(resource)
                 if result_key is not None:
                     page_resources = page[result_key]
                 elif result_child in page[result_parent]:
@@ -546,7 +590,7 @@ class AllResources(ResourceProvider):
                     page_resources = []
                 for page_resource in page_resources:
                     resource = build_resource(
-                        page_resource, operation_name, resource_type
+                        page_resource, operation_name, resource_type, aws_service
                     )
                     if resource is not None:
                         resources.append(resource)
@@ -557,14 +601,18 @@ class AllResources(ResourceProvider):
                 if isinstance(response_elem, list):
                     for response_resource in response_elem:
                         resource = build_resource(
-                            response_resource, operation_name, resource_type
+                            response_resource,
+                            operation_name,
+                            resource_type,
+                            aws_service,
                         )
                         if resource is not None:
                             resources.append(resource)
         return resources
 
     def get_policies_allowed_actions(self):
-        message_handler("Fetching allowed actions...", "HEADER")
+        if self.options.verbose:
+            message_handler("Fetching allowed actions...", "HEADER")
         iam_client = self.options.client("iam")
         view_only_document = self.get_policy_allowed_calls(
             iam_client, "arn:aws:iam::aws:policy/job-function/ViewOnlyAccess"
@@ -580,9 +628,10 @@ class AllResources(ResourceProvider):
             allowed_actions[action] = True
         for action in ON_TOP_POLICIES:
             allowed_actions[action] = True
-        message_handler(
-            "Found {} allowed actions".format(len(allowed_actions)), "HEADER"
-        )
+        if self.options.verbose:
+            message_handler(
+                "Found {} allowed actions".format(len(allowed_actions)), "HEADER"
+            )
 
         return allowed_actions.keys()
 

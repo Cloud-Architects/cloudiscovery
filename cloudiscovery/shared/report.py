@@ -35,23 +35,45 @@ class Report(object):
                     + "%"
                 )
                 # pylint: disable=line-too-long
-                message = "service: {} - quota code: {} - quota name: {} - aws default quota: {} - applied quota: {} - usage: {}".format(  # noqa: E501
-                    resource.limits.service,
-                    resource.limits.quota_code,
-                    resource.limits.quota_name,
-                    resource.limits.aws_limit,
-                    resource.limits.local_limit,
-                    usage,
+                message_handler(
+                    "service: {} - quota code: {} - quota name: {} - aws default quota: {} - applied quota: {} - usage: {}".format(  # noqa: E501
+                        resource.limits.service,
+                        resource.limits.quota_code,
+                        resource.limits.quota_name,
+                        resource.limits.aws_limit,
+                        resource.limits.local_limit,
+                        usage,
+                    ),
+                    "OKBLUE",
                 )
+            elif resource.attributes:
+                message_handler(
+                    "resource type: {} - resource id: {} - resource name: {} - resource details: {}".format(
+                        resource.digest.type,
+                        resource.digest.id,
+                        resource.name,
+                        resource.details,
+                    ),
+                    "OKBLUE",
+                )
+                for (
+                    resource_attr_key,
+                    resource_attr_value,
+                ) in resource.attributes.items():
+                    message_handler(
+                        "{}: {}".format(resource_attr_key, resource_attr_value,),
+                        "OKBLUE",
+                    )
             else:
-                message = "resource type: {} - resource id: {} - resource name: {} - resource details: {}".format(
-                    resource.digest.type,
-                    resource.digest.id,
-                    resource.name,
-                    resource.details,
+                message_handler(
+                    "resource type: {} - resource id: {} - resource name: {} - resource details: {}".format(
+                        resource.digest.type,
+                        resource.digest.id,
+                        resource.name,
+                        resource.details,
+                    ),
+                    "OKBLUE",
                 )
-
-            message_handler(message, "OKBLUE")
 
         if resource_relations:
             message_handler("\n\nFound relations", "HEADER")
@@ -88,17 +110,21 @@ class Report(object):
                 with open(image_name, "rb") as image_file:
                     diagram_image = base64.b64encode(image_file.read()).decode("utf-8")
 
+        group_title = "Group"
         if resources:
             if resources[0].limits:
                 html_output = dir_template.get_template("report_limits.html").render(
                     default_name=title, resources_found=resources
                 )
             else:
+                if resources[0].attributes:
+                    group_title = "Service"
                 html_output = dir_template.get_template("report_html.html").render(
                     default_name=title,
                     resources_found=resources,
                     resources_relations=resource_relations,
                     diagram_image=diagram_image,
+                    group_title=group_title,
                 )
 
             self.make_directories()
