@@ -141,6 +141,83 @@ ALLOWED_SERVICES_CODES = {
             "key": "Addresses",
             "fields": [],
         },
+        "L-74FC7D96": {
+            "method": "describe_instances",
+            "key": "Reservations",
+            "fields": [],
+            "filter": {
+                "Filters": [
+                    {
+                        "Name": "instance-type",
+                        "Values": ["f1.2xlarge", "f1.4xlarge", "f1.16xlarge"],
+                    }
+                ]
+            },
+        },
+        "L-DB2E81BA": {
+            "method": "describe_instances",
+            "key": "Reservations",
+            "fields": [],
+            "filter": {
+                "Filters": [
+                    {
+                        "Name": "instance-type",
+                        "Values": [
+                            "g3s.xlarge",
+                            "g3.4xlarge",
+                            "g3.8xlarge",
+                            "g3.16xlarge",
+                            "g4dn.xlarge",
+                            "g4dn.2xlarge",
+                            "g4dn.4xlarge",
+                            "g4dn.8xlarge",
+                            "g4dn.16xlarge",
+                            "g4dn.12xlarge",
+                            "g4dn.metal",
+                        ],
+                    }
+                ]
+            },
+        },
+        "L-1945791B": {
+            "method": "describe_instances",
+            "key": "Reservations",
+            "fields": [],
+            "filter": {
+                "Filters": [
+                    {
+                        "Name": "instance-type",
+                        "Values": [
+                            "inf1.xlarge",
+                            "inf1.2xlarge",
+                            "inf1.6xlarge",
+                            "inf1.24xlarge",
+                        ],
+                    }
+                ]
+            },
+        },
+        "L-417A185B": {
+            "method": "describe_instances",
+            "key": "Reservations",
+            "fields": [],
+            "filter": {
+                "Filters": [
+                    {
+                        "Name": "instance-type",
+                        "Values": [
+                            "p2.xlarge",
+                            "p2.8xlarge",
+                            "p2.16xlarge",
+                            "p3.2xlarge",
+                            "p3.8xlarge",
+                            "p3.16xlarge",
+                            "p3dn.24xlarge",
+                        ],
+                    }
+                ]
+            },
+        },
         "global": False,
     },
     "ecs": {

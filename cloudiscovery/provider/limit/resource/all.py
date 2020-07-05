@@ -148,7 +148,10 @@ class LimitResources(ResourceProvider):
                 for page in pages:
                     usage = usage + len(page[quota_data["key"]])
 
-            percent = round((usage / value) * 100, 2)
+            try:
+                percent = round((usage / value) * 100, 2)
+            except ZeroDivisionError:
+                percent = 0
 
             if percent >= threshold_requested:
                 resources_found.append(
