@@ -160,7 +160,7 @@ def add_default_arguments(
             const=True,
             default=True,
             help="print diagram with resources (need Graphviz installed). Pass true/y[es] to "
-            "view image or false/n[0] not to generate image. Default true",
+            "view image or false/n[o] not to generate image. Default true",
         )
 
 
