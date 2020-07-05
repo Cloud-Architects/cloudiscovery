@@ -106,6 +106,7 @@ OMITTED_RESOURCES = [
     "aws_organizations_account",
     "aws_config_organization_config_rule_status",
     "aws_dynamodb_backup",
+    "aws_ec2_prefix_list",
 ]
 
 # Trying to fix documentation errors or its lack made by "happy pirates" at AWS
