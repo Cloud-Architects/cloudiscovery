@@ -297,6 +297,7 @@ With `--threshold 0-100` option, you can customize a minimum percentage threshol
     *   batch
     *   codebuild
     *   codecommit
+    *   codeguru reviewer
     *   cloudformation
     *   dynamodb
     *   ec2
@@ -318,6 +319,7 @@ With `--threshold 0-100` option, you can customize a minimum percentage threshol
     *   sns
     *   transcribe
     *   translate
+    *   vpc
 
 AWS has a default quota to all services. At the first time that an account is created, AWS apply this default quota to all services.  
 An administrator can ask to increase the quota value of a certain service via ticket. This command helps administrators detect those issues in advance.
