@@ -17,6 +17,7 @@ from shared.error_handler import exception
 SERVICEQUOTA_TO_BOTO3 = {
     "elasticloadbalancing": "elbv2",
     "elasticfilesystem": "efs",
+    "vpc": "ec2",
 }
 
 MAX_EXECUTION_PARALLEL = 3
@@ -123,13 +124,23 @@ class LimitResources(ResourceProvider):
 
             usage = 0
 
+            # Check filters by resource
+            if "filter" in quota_data:
+                filters = quota_data["filter"]
+            else:
+                filters = None
+
             pages = get_paginator(
                 client=client,
                 operation_name=quota_data["method"],
                 resource_type="aws_limit",
+                filters=filters,
             )
             if not pages:
-                response = getattr(client, quota_data["method"])()
+                if filters:
+                    response = getattr(client, quota_data["method"])(**filters)
+                else:
+                    response = getattr(client, quota_data["method"])()
                 usage = len(response[quota_data["key"]])
             else:
                 for page in pages:

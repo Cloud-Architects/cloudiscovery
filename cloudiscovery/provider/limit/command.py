@@ -58,8 +58,46 @@ ALLOWED_SERVICES_CODES = {
         "global": False,
     },
     "cloudformation": {
-        "L-0485CB21": {"method": "list_stacks", "key": "StackSummaries", "fields": [],},
+        "L-0485CB21": {
+            "method": "list_stacks",
+            "key": "StackSummaries",
+            "fields": [],
+            "filter": {
+                "StackStatusFilter": [
+                    "CREATE_IN_PROGRESS",
+                    "CREATE_FAILED",
+                    "CREATE_COMPLETE",
+                    "ROLLBACK_IN_PROGRESS",
+                    "ROLLBACK_FAILED",
+                    "ROLLBACK_COMPLETE",
+                    "DELETE_IN_PROGRESS",
+                    "DELETE_FAILED",
+                    "UPDATE_IN_PROGRESS",
+                    "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS",
+                    "UPDATE_COMPLETE",
+                    "UPDATE_ROLLBACK_IN_PROGRESS",
+                    "UPDATE_ROLLBACK_FAILED",
+                    "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS",
+                    "UPDATE_ROLLBACK_COMPLETE",
+                    "REVIEW_IN_PROGRESS",
+                    "IMPORT_IN_PROGRESS",
+                    "IMPORT_COMPLETE",
+                    "IMPORT_ROLLBACK_IN_PROGRESS",
+                    "IMPORT_ROLLBACK_FAILED",
+                    "IMPORT_ROLLBACK_COMPLETE",
+                ]
+            },
+        },
         "L-9DE8E4FB": {"method": "list_types", "key": "TypeSummaries", "fields": [],},
+        "global": False,
+    },
+    "codeguru-reviewer": {
+        "L-F5129FC6": {
+            "method": "list_code_reviews",
+            "key": "CodeReviewSummaries",
+            "fields": [],
+            "filter": {"Type": "PullRequest"},
+        },
         "global": False,
     },
     "dynamodb": {
@@ -239,6 +277,10 @@ ALLOWED_SERVICES_CODES = {
             "key": "TerminologyPropertiesList",
             "fields": [],
         },
+        "global": False,
+    },
+    "vpc": {
+        "L-F678F1CE": {"method": "describe_vpcs", "key": "Vpcs", "fields": [],},
         "global": False,
     },
 }

@@ -242,7 +242,7 @@ def generate_session(profile_name):
         exit_critical(message)
 
 
-def get_paginator(client, operation_name, resource_type):
+def get_paginator(client, operation_name, resource_type, filters=None):
     # Checking if can paginate
     if client.can_paginate(operation_name):
         paginator = client.get_paginator(operation_name)
@@ -251,7 +251,10 @@ def get_paginator(client, operation_name, resource_type):
                 Scope="Local"
             )  # hack to list only local IAM policies - aws_all
         else:
-            pages = paginator.paginate()
+            if filters:
+                pages = paginator.paginate(**filters)
+            else:
+                pages = paginator.paginate()
     else:
         return False
 

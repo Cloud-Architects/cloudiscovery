@@ -555,6 +555,7 @@ class AllResources(ResourceProvider):
                 client=client,
                 operation_name=snake_operation_name,
                 resource_type=resource_type,
+                filter=None,
             )
             list_metadata = pages.result_keys[0].parsed
             result_key = None
