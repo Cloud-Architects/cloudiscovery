@@ -1,8 +1,12 @@
+import os.path
 import datetime
 import re
-from typing import NamedTuple, List, Optional, Dict
+import functools
+import threading
+from abc import ABC
+from typing import NamedTuple, List, Dict
 
-import boto3
+from diskcache import Cache
 
 VPCE_REGEX = re.compile(r'(?<=sourcevpce")(\s*:\s*")(vpce-[a-zA-Z0-9]+)', re.DOTALL)
 SOURCE_IP_ADDRESS_REGEX = re.compile(
@@ -12,6 +16,8 @@ FILTER_NAME_PREFIX = "Name="
 FILTER_TAG_NAME_PREFIX = "tags."
 FILTER_TYPE_NAME = "type"
 FILTER_VALUE_PREFIX = "Value="
+
+_LOG_SEMAPHORE = threading.Semaphore()
 
 
 class bcolors:
@@ -25,22 +31,6 @@ class bcolors:
         "BOLD": "\033[1m",
         "UNDERLINE": "\033[4m",
     }
-
-
-class BaseAwsOptions(NamedTuple):
-    session: boto3.Session
-    region_name: str
-
-    def client(self, service_name: str):
-        return self.session.client(service_name, region_name=self.region_name)
-
-    def resulting_file_name(self, suffix):
-        return "{}_{}_{}".format(self.account_number(), self.region_name, suffix)
-
-    def account_number(self):
-        client = self.session.client("sts", region_name=self.region_name)
-        account_id = client.get_caller_identity()["Account"]
-        return account_id
 
 
 class ResourceDigest(NamedTuple):
@@ -58,6 +48,16 @@ class Filterable:
     pass
 
 
+class LimitsValues(NamedTuple):
+    service: str
+    quota_name: str
+    quota_code: str
+    aws_limit: int
+    local_limit: int
+    usage: int
+    percent: float
+
+
 class ResourceTag(NamedTuple, Filterable):
     key: str
     value: str
@@ -69,72 +69,75 @@ class ResourceType(NamedTuple, Filterable):
 
 class Resource(NamedTuple):
     digest: ResourceDigest
-    name: str
+    name: str = ""
     details: str = ""
     group: str = ""
     tags: List[ResourceTag] = []
+    limits: LimitsValues = None
+    attributes: Dict[str, object] = {}
 
 
-def resource_tags(resource_data: dict) -> List[ResourceTag]:
-    if "Tags" in resource_data:
-        tags_input = resource_data["Tags"]
-    elif "tags" in resource_data:
-        tags_input = resource_data["tags"]
-    elif "TagList" in resource_data:
-        tags_input = resource_data["TagList"]
-    elif "TagSet" in resource_data:
-        tags_input = resource_data["TagSet"]
-    else:
-        tags_input = None
+class ResourceCache:
+    def __init__(self):
+        self.cache = Cache(
+            directory=os.path.dirname(os.path.abspath(__file__))
+            + "/../../assets/.cache/"
+        )
 
-    tags = []
-    if isinstance(tags_input, list):
-        tags = resource_tags_from_tuples(tags_input)
-    elif isinstance(tags_input, dict):
-        tags = resource_tags_from_dict(tags_input)
+    def set_key(self, key: str, value: object, expire: int):
+        self.cache.set(key=key, value=value, expire=expire)
 
-    return tags
+    def get_key(self, key: str):
+        if key in self.cache:
+            return self.cache[key]
+
+        return None
 
 
-def resource_tags_from_tuples(tuples: List[Dict[str, str]]) -> List[ResourceTag]:
-    """
-        List of key-value tuples that store tags, syntax:
-        [
-            {
-                'Key': 'string',
-                'Value': 'string',
-                ...
-            },
-        ]
-        OR
-        [
-            {
-                'key': 'string',
-                'value': 'string',
-                ...
-            },
-        ]
-    """
-    result = []
-    for tuple_elem in tuples:
-        if "Key" in tuple_elem and "Value" in tuple_elem:
-            result.append(ResourceTag(key=tuple_elem["Key"], value=tuple_elem["Value"]))
-        elif "key" in tuple_elem and "value" in tuple_elem:
-            result.append(ResourceTag(key=tuple_elem["key"], value=tuple_elem["value"]))
-    return result
+# Decorator to check services.
+class ResourceAvailable(object):
+    def __init__(self, services):
+        self.services = services
+        self.cache = ResourceCache()
 
+    def is_service_available(self, region_name, service_name) -> bool:
+        cache_key = "aws_paths_" + region_name
+        cache = self.cache.get_key(cache_key)
+        return service_name in cache
 
-def resource_tags_from_dict(tags: Dict[str, str]) -> List[ResourceTag]:
-    """
-        List of key-value dict that store tags, syntax:
-        {
-            'string': 'string'
-        }
-    """
-    result = []
-    for key, value in tags.items():
-        result.append(ResourceTag(key=key, value=value))
-    return result
+    def __call__(self, func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+
+            if "vpc_options" in dir(args[0]):
+                region_name = args[0].vpc_options.region_name
+            elif "iot_options" in dir(args[0]):
+                region_name = args[0].iot_options.region_name
+            else:
+                region_name = "us-east-1"
+
+            if self.is_service_available(region_name, self.services):
+                return func(*args, **kwargs)
+
+            verbose = False
+            if "vpc_options" in dir(args[0]):
+                verbose = args[0].vpc_options.verbose
+            elif "iot_options" in dir(args[0]):
+                verbose = args[0].iot_options.verbose
+            elif "options" in dir(args[0]):
+                verbose = args[0].options.verbose
+
+            if verbose:
+                message_handler(
+                    "Check "
+                    + func.__qualname__
+                    + " not available in this region... Skipping",
+                    "WARNING",
+                )
+
+            return None
+
+        return wrapper
 
 
 class ResourceProvider:
@@ -153,42 +156,19 @@ class ResourceProvider:
         return self.relations_found
 
 
-def get_name_tag(d) -> Optional[str]:
-    return get_tag(d, "Name")
-
-
-def get_tag(d, tag_name) -> Optional[str]:
-    for k, v in d.items():
-        if k == "Tags":
-            for value in v:
-                if value["Key"] == tag_name:
-                    return value["Value"]
-
-    return None
-
-
-def generate_session(profile_name):
-    try:
-        return boto3.Session(profile_name=profile_name)
-    # pylint: disable=broad-except
-    except Exception as e:
-        message = "You must configure awscli before use this script.\nError: {0}".format(
-            str(e)
-        )
-        exit_critical(message)
-
-
 def exit_critical(message):
     log_critical(message)
     raise SystemExit
 
 
 def log_critical(message):
-    print(bcolors.colors.get("FAIL"), message, bcolors.colors.get("ENDC"), sep="")
+    message_handler(message, "FAIL")
 
 
 def message_handler(message, position):
+    _LOG_SEMAPHORE.acquire()
     print(bcolors.colors.get(position), message, bcolors.colors.get("ENDC"), sep="")
+    _LOG_SEMAPHORE.release()
 
 
 # pylint: disable=inconsistent-return-statements
@@ -246,3 +226,27 @@ def parse_filters(arg_filters) -> List[Filterable]:
             _add_filter(filters, is_tag, full_name, "".join(val_buffer))
 
     return filters
+
+
+class BaseCommand(ABC):
+    def run(
+        self,
+        diagram: bool,
+        verbose: bool,
+        services: List[str],
+        filters: List[Filterable],
+    ):
+        raise NotImplementedError()
+
+
+class Object(object):
+    pass
+
+
+class BaseOptions(Object):
+    verbose: bool
+    filters: List[Filterable]
+
+    def __init__(self, verbose: bool, filters: List[Filterable]):
+        self.verbose = verbose
+        self.filters = filters

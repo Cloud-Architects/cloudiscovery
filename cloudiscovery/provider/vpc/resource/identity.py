@@ -13,10 +13,10 @@ from shared.common_aws import resource_tags
 from shared.error_handler import exception
 
 
-class SYNTHETICSCANARIES(ResourceProvider):
+class DIRECTORYSERVICE(ResourceProvider):
     def __init__(self, vpc_options: VpcOptions):
         """
-        Synthetic canaries
+        Directory service
 
         :param vpc_options:
         """
@@ -24,39 +24,41 @@ class SYNTHETICSCANARIES(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
-    @ResourceAvailable(services="synthetics")
+    @ResourceAvailable(services="ds")
     def get_resources(self) -> List[Resource]:
 
-        client = self.vpc_options.client("synthetics")
+        client = self.vpc_options.client("ds")
 
         resources_found = []
 
-        response = client.describe_canaries()
+        response = client.describe_directories()
 
         if self.vpc_options.verbose:
-            message_handler("Collecting data from Synthetic Canaries...", "HEADER")
+            message_handler("Collecting data from Directory Services...", "HEADER")
 
-        for data in response["Canaries"]:
+        for data in response["DirectoryDescriptions"]:
 
-            # Check if VpcConfig is in dict
-            if "VpcConfig" in data:
+            if "VpcSettings" in data:
 
-                if data["VpcConfig"]["VpcId"] == self.vpc_options.vpc_id:
-                    digest = ResourceDigest(id=data["Id"], type="aws_canaries_function")
+                if data["VpcSettings"]["VpcId"] == self.vpc_options.vpc_id:
+                    directory_service_digest = ResourceDigest(
+                        id=data["DirectoryId"], type="aws_ds"
+                    )
                     resources_found.append(
                         Resource(
-                            digest=digest,
+                            digest=directory_service_digest,
                             name=data["Name"],
                             details="",
-                            group="management",
+                            group="identity",
                             tags=resource_tags(data),
                         )
                     )
-                    for subnet_id in data["VpcConfig"]["SubnetIds"]:
+
+                    for subnet in data["VpcSettings"]["SubnetIds"]:
                         self.relations_found.append(
                             ResourceEdge(
-                                from_node=digest,
-                                to_node=ResourceDigest(id=subnet_id, type="aws_subnet"),
+                                from_node=directory_service_digest,
+                                to_node=ResourceDigest(id=subnet, type="aws_subnet"),
                             )
                         )
 

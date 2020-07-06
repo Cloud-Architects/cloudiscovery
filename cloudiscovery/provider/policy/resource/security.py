@@ -1,19 +1,20 @@
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import List
 
-from shared.common import BaseAwsOptions, resource_tags
+from provider.policy.command import PolicyOptions
 from shared.common import (
     ResourceProvider,
     Resource,
     message_handler,
     ResourceDigest,
     ResourceEdge,
+    ResourceAvailable,
 )
+from shared.common_aws import resource_tags
 from shared.error_handler import exception
 
 
 class Principals:
-
     # Source: https://gist.github.com/shortjared/4c1e3fe52bdfa47522cfe5b41e5d6f22
     principals = {
         "a4b.amazonaws.com": {
@@ -291,7 +292,7 @@ class Principals:
             "name": "ECS Application Autoscaling",
             "group": "network",
         },
-        "edgelambda.lambda.amazonaws.com": {
+        "edgelambda.amazonaws.com": {
             "type": "aws_lambda_function",
             "name": "Lambda@Edge",
             "group": "compute",
@@ -811,7 +812,7 @@ class Principals:
 
 
 class IamPolicy(ResourceProvider):
-    def __init__(self, options: BaseAwsOptions):
+    def __init__(self, options: PolicyOptions):
         """
         Iam policy
 
@@ -821,9 +822,11 @@ class IamPolicy(ResourceProvider):
         self.options = options
 
     @exception
+    @ResourceAvailable(services="iam")
     def get_resources(self) -> List[Resource]:
         client = self.options.client("iam")
-        message_handler("Collecting data from IAM Policies...", "HEADER")
+        if self.options.verbose:
+            message_handler("Collecting data from IAM Policies...", "HEADER")
 
         resources_found = []
 
@@ -852,20 +855,23 @@ class IamPolicy(ResourceProvider):
 
 
 class IamGroup(ResourceProvider):
-    def __init__(self, options: BaseAwsOptions):
+    @ResourceAvailable(services="iam")
+    def __init__(self, options: PolicyOptions):
         """
         Iam group
 
         :param options:
         """
         super().__init__()
+        self.options = options
         self.client = options.client("iam")
         self.resources_found: List[Resource] = []
 
     @exception
     def get_resources(self) -> List[Resource]:
 
-        message_handler("Collecting data from IAM Groups...", "HEADER")
+        if self.options.verbose:
+            message_handler("Collecting data from IAM Groups...", "HEADER")
         paginator = self.client.get_paginator("list_groups")
         pages = paginator.paginate()
 
@@ -913,20 +919,23 @@ class IamGroup(ResourceProvider):
 
 
 class IamRole(ResourceProvider):
-    def __init__(self, options: BaseAwsOptions):
+    @ResourceAvailable(services="iam")
+    def __init__(self, options: PolicyOptions):
         """
         Iam role
 
         :param options:
         """
         super().__init__()
+        self.options = options
         self.client = options.client("iam")
         self.resources_found: List[Resource] = []
 
     @exception
     def get_resources(self) -> List[Resource]:
 
-        message_handler("Collecting data from IAM Roles...", "HEADER")
+        if self.options.verbose:
+            message_handler("Collecting data from IAM Roles...", "HEADER")
         paginator = self.client.get_paginator("list_roles")
         pages = paginator.paginate()
 
@@ -1027,7 +1036,7 @@ class IamRole(ResourceProvider):
 
 
 class InstanceProfile(ResourceProvider):
-    def __init__(self, vpc_options: BaseAwsOptions):
+    def __init__(self, vpc_options: PolicyOptions):
         """
         Instance profile
 
@@ -1039,7 +1048,8 @@ class InstanceProfile(ResourceProvider):
     @exception
     def get_resources(self) -> List[Resource]:
 
-        message_handler("Collecting data from Instance Profiles...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Instance Profiles...", "HEADER")
         paginator = self.vpc_options.client("iam").get_paginator(
             "list_instance_profiles"
         )

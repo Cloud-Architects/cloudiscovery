@@ -3,7 +3,7 @@ from typing import List, Dict
 
 from diagrams import Diagram, Cluster, Edge
 
-from shared.common import Resource, ResourceEdge, ResourceDigest
+from shared.common import Resource, ResourceEdge, ResourceDigest, message_handler
 from shared.error_handler import exception
 
 PATH_DIAGRAM_OUTPUT = "./assets/diagrams/"
@@ -214,6 +214,10 @@ class Mapsources:
         "aws_iotsitewise": "IotSitewise",
         "aws_neptune_cluster": "Neptune",
         "aws_alexa_for_business": "AlexaForBusiness",
+        "aws_customer_gateway": "SiteToSiteVpn",
+        "aws_vpn_connection": "SiteToSiteVpn",
+        "aws_vpn_gateway": "SiteToSiteVpn",
+        "aws_vpn_client_endpoint": "ClientVpn",
     }
 
 
@@ -282,15 +286,20 @@ class BaseDiagram(object):
             ordered_resources, initial_resource_relations
         )
 
+        output_filename = PATH_DIAGRAM_OUTPUT + filename
         with Diagram(
             name=title,
-            filename=PATH_DIAGRAM_OUTPUT + filename,
+            filename=output_filename,
             direction="TB",
+            show=False,
             graph_attr={"nodesep": "2.0", "ranksep": "1.0", "splines": "curved"},
         ) as d:
             d.dot.engine = self.engine
 
             self.draw_diagram(ordered_resources=ordered_resources, relations=relations)
+
+        message_handler("\n\nPNG diagram generated", "HEADER")
+        message_handler("Check your diagram: " + output_filename + ".png", "OKBLUE")
 
     def draw_diagram(self, ordered_resources, relations):
         already_drawn_elements = {}

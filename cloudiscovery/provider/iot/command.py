@@ -1,57 +1,62 @@
+from typing import List
+
 from provider.iot.diagram import IoTDiagram
-from shared.command import CommandRunner, BaseCommand
-from shared.common import BaseAwsOptions, ResourceDigest
+from shared.common import ResourceDigest, Filterable, BaseOptions
+from shared.common_aws import BaseAwsOptions, BaseAwsCommand, AwsCommandRunner
 from shared.diagram import NoDiagram, BaseDiagram
 
 
-class IotOptions(BaseAwsOptions):
+class IotOptions(BaseAwsOptions, BaseOptions):
     thing_name: str
 
-    def __new__(cls, session, region_name, thing_name):
-        """
-        Iot options
-
-        :param session:
-        :param region_name:
-        :param thing_name:
-        """
-        self = super(BaseAwsOptions, cls).__new__(cls, (session, region_name))
+    # pylint: disable=too-many-arguments
+    def __init__(self, verbose, filters, session, region_name, thing_name):
+        BaseAwsOptions.__init__(self, session, region_name)
+        BaseOptions.__init__(self, verbose, filters)
         self.thing_name = thing_name
-        return self
 
     def iot_digest(self):
         return ResourceDigest(id=self.thing_name, type="aws_iot")
 
 
-class Iot(BaseCommand):
+class Iot(BaseAwsCommand):
     # pylint: disable=too-many-arguments
-    def __init__(self, thing_name, region_names, session, diagram, filters):
+    def __init__(self, thing_name, region_names, session):
         """
         Iot command
 
         :param thing_name:
         :param region_names:
         :param session:
-        :param diagram:
-        :param filters:
         """
-        super().__init__(region_names, session, diagram, filters)
+        super().__init__(region_names, session)
         self.thing_name = thing_name
 
-    def run(self):
-        command_runner = CommandRunner(self.filters)
+    def run(
+        self,
+        diagram: bool,
+        verbose: bool,
+        services: List[str],
+        filters: List[Filterable],
+    ):
+        command_runner = AwsCommandRunner(filters)
 
         for region_name in self.region_names:
+            self.init_region_cache(region_name)
 
             # if thing_name is none, get all things and check
             if self.thing_name is None:
                 client = self.session.client("iot", region_name=region_name)
                 things = client.list_things()
                 thing_options = IotOptions(
-                    session=self.session, region_name=region_name, thing_name=things
+                    verbose=verbose,
+                    filters=filters,
+                    session=self.session,
+                    region_name=region_name,
+                    thing_name=things,
                 )
                 diagram_builder: BaseDiagram
-                if self.diagram:
+                if diagram:
                     diagram_builder = IoTDiagram(thing_name="")
                 else:
                     diagram_builder = NoDiagram()
@@ -66,10 +71,14 @@ class Iot(BaseCommand):
                 things = dict()
                 things["things"] = [{"thingName": self.thing_name}]
                 thing_options = IotOptions(
-                    session=self.session, region_name=region_name, thing_name=things
+                    verbose=verbose,
+                    filters=filters,
+                    session=self.session,
+                    region_name=region_name,
+                    thing_name=things,
                 )
 
-                if self.diagram:
+                if diagram:
                     diagram_builder = IoTDiagram(thing_name=self.thing_name)
                 else:
                     diagram_builder = NoDiagram()

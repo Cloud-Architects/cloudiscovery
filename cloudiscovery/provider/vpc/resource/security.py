@@ -10,8 +10,9 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     datetime_to_string,
-    resource_tags,
+    ResourceAvailable,
 )
+from shared.common_aws import resource_tags
 from shared.error_handler import exception
 
 
@@ -26,13 +27,15 @@ class IAMPOLICY(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="iam")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("iam")
 
         resources_found = []
 
-        message_handler("Collecting data from IAM Policies...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from IAM Policies...", "HEADER")
         paginator = client.get_paginator("list_policies")
         pages = paginator.paginate(Scope="Local")
         for policies in pages:
@@ -88,6 +91,7 @@ class CLOUDHSM(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="cloudhsmv2")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("cloudhsmv2")
@@ -96,33 +100,32 @@ class CLOUDHSM(ResourceProvider):
 
         response = client.describe_clusters()
 
-        message_handler("Collecting data from CloudHSM clusters...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from CloudHSM clusters...", "HEADER")
 
-        if len(response["Clusters"]) > 0:
+        for data in response["Clusters"]:
 
-            for data in response["Clusters"]:
-
-                if data["VpcId"] == self.vpc_options.vpc_id:
-                    cloudhsm_digest = ResourceDigest(
-                        id=data["ClusterId"], type="aws_cloudhsm"
+            if data["VpcId"] == self.vpc_options.vpc_id:
+                cloudhsm_digest = ResourceDigest(
+                    id=data["ClusterId"], type="aws_cloudhsm"
+                )
+                resources_found.append(
+                    Resource(
+                        digest=cloudhsm_digest,
+                        name=data["ClusterId"],
+                        details="",
+                        group="security",
+                        tags=resource_tags(data),
                     )
-                    resources_found.append(
-                        Resource(
-                            digest=cloudhsm_digest,
-                            name=data["ClusterId"],
-                            details="",
-                            group="security",
-                            tags=resource_tags(data),
+                )
+
+                for subnet in data["SubnetMapping"]:
+                    subnet_id = data["SubnetMapping"][subnet]
+                    self.relations_found.append(
+                        ResourceEdge(
+                            from_node=cloudhsm_digest,
+                            to_node=ResourceDigest(id=subnet_id, type="aws_subnet"),
                         )
                     )
-
-                    for subnet in data["SubnetMapping"]:
-                        subnet_id = data["SubnetMapping"][subnet]
-                        self.relations_found.append(
-                            ResourceEdge(
-                                from_node=cloudhsm_digest,
-                                to_node=ResourceDigest(id=subnet_id, type="aws_subnet"),
-                            )
-                        )
 
         return resources_found

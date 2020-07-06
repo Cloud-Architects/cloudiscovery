@@ -9,9 +9,9 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     datetime_to_string,
-    resource_tags,
+    ResourceAvailable,
 )
-from shared.common_aws import describe_subnet
+from shared.common_aws import describe_subnet, resource_tags
 from shared.error_handler import exception
 
 
@@ -26,6 +26,7 @@ class MEDIACONNECT(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="mediaconnect")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("mediaconnect")
@@ -34,7 +35,8 @@ class MEDIACONNECT(ResourceProvider):
 
         response = client.list_flows()
 
-        message_handler("Collecting data from Media Connect...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Media Connect...", "HEADER")
 
         for data in response["Flows"]:
             tags_response = client.list_tags_for_resource(ResourceArn=data["FlowArn"])
@@ -91,6 +93,7 @@ class MEDIALIVE(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="medialive")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("medialive")
@@ -99,7 +102,8 @@ class MEDIALIVE(ResourceProvider):
 
         response = client.list_inputs()
 
-        message_handler("Collecting data from Media Live Inputs...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Media Live Inputs...", "HEADER")
 
         for data in response["Inputs"]:
             tags_response = client.list_tags_for_resource(ResourceArn=data["Arn"])
@@ -142,6 +146,7 @@ class MEDIASTORE(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="mediastore")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("mediastore")
@@ -150,7 +155,8 @@ class MEDIASTORE(ResourceProvider):
 
         response = client.list_containers()
 
-        message_handler("Collecting data from Media Store...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from Media Store...", "HEADER")
 
         for data in response["Containers"]:
 

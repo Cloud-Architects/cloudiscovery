@@ -12,10 +12,9 @@ from shared.common import (
     ResourceDigest,
     ResourceEdge,
     datetime_to_string,
-    resource_tags,
-    get_name_tag,
+    ResourceAvailable,
 )
-from shared.common_aws import describe_subnet
+from shared.common_aws import describe_subnet, resource_tags, get_name_tag
 from shared.error_handler import exception
 
 
@@ -30,6 +29,7 @@ class EFS(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="efs")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("efs")
@@ -39,7 +39,8 @@ class EFS(ResourceProvider):
         # get filesystems available
         response = client.describe_file_systems()
 
-        message_handler("Collecting data from EFS Mount Targets...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from EFS Mount Targets...", "HEADER")
 
         for data in response["FileSystems"]:
 
@@ -95,6 +96,7 @@ class S3POLICY(ResourceProvider):
         self.vpc_options = vpc_options
 
     @exception
+    @ResourceAvailable(services="s3")
     def get_resources(self) -> List[Resource]:
 
         client = self.vpc_options.client("s3")
@@ -104,7 +106,8 @@ class S3POLICY(ResourceProvider):
         # get buckets available
         response = client.list_buckets()
 
-        message_handler("Collecting data from S3 Bucket Policies...", "HEADER")
+        if self.vpc_options.verbose:
+            message_handler("Collecting data from S3 Bucket Policies...", "HEADER")
 
         with ThreadPoolExecutor(15) as executor:
             results = executor.map(
