@@ -150,9 +150,19 @@ The configured credentials must be associated to a user or role with proper perm
                   "amplify:ListApps",
                   "autoscaling-plans:DescribeScalingPlans",
                   "medialive:ListChannels",
+                  "medialive:ListInputDevices",
                   "mediapackage:ListChannels",
                   "qldb:ListLedgers",
-                  "transcribe:ListVocabularies"
+                  "transcribe:ListVocabularies",
+                  "glue:GetDatabases",
+                  "glue:GetUserDefinedFunctions",
+                  "glue:GetSecurityConfigurations",
+                  "glue:GetTriggers",
+                  "glue:GetCrawlers",
+                  "glue:ListWorkflows",
+                  "glue:ListMLTransforms",
+                  "codeguru-reviewer:ListCodeReviews",
+                  "servicediscovery:ListNamespaces"
                 ],
                 "Resource": [ "*" ]
               }
@@ -282,9 +292,9 @@ Types of resources mostly cover Terraform types. It is possible to narrow down s
 
 ### AWS Limit
 
-It's possible to check resources limits in an account. This script allows check all available services or check only a specific resource. 
+It's possible to check resources limits  across various service in an account. This command implements over 60 limits checks.
 
-With `--services value,value,value` selection, you can narrow down checks to services that you want to check. 
+With `--services value,value,value` parameter, you can narrow down checks to just services that you want to check. 
 
 With `--threshold 0-100` option, you can customize a minimum percentage threshold to start reporting a warning.
 
@@ -295,15 +305,20 @@ With `--threshold 0-100` option, you can customize a minimum percentage threshol
     *   appsync
     *   autoscaling-plans
     *   batch
+    *   chime
     *   codebuild
     *   codecommit
+    *   codeguru reviewer
+    *   codeguru profiler
     *   cloudformation
+    *   cloud map
     *   dynamodb
     *   ec2
     *   ecs
     *   elasticfilesystem
     *   elasticbeanstalk
     *   elasticloadbalancing
+    *   glue
     *   iam
     *   kms
     *   mediaconnect
@@ -318,6 +333,7 @@ With `--threshold 0-100` option, you can customize a minimum percentage threshol
     *   sns
     *   transcribe
     *   translate
+    *   vpc
 
 AWS has a default quota to all services. At the first time that an account is created, AWS apply this default quota to all services.  
 An administrator can ask to increase the quota value of a certain service via ticket. This command helps administrators detect those issues in advance.
