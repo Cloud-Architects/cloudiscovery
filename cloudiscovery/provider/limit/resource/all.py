@@ -2,7 +2,8 @@ from typing import List
 
 from concurrent.futures.thread import ThreadPoolExecutor
 
-from provider.limit.command import LimitOptions, ALLOWED_SERVICES_CODES
+from provider.limit.command import LimitOptions
+from provider.limit.data.allowed_resources import ALLOWED_SERVICES_CODES
 from shared.common import (
     ResourceProvider,
     Resource,
