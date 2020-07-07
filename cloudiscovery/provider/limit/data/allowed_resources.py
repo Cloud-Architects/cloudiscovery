@@ -11,6 +11,18 @@ ALLOWED_SERVICES_CODES = {
         "L-1BED97F3": {"method": "list_apps", "key": "apps", "fields": [],},
         "global": False,
     },
+    "apigateway": {
+        "L-1D180A63": {"method": "get_api_keys", "key": "items", "fields": [],},
+        "L-824C9E42": {
+            "method": "get_client_certificates",
+            "key": "items",
+            "fields": [],
+        },
+        "L-A93447B8": {"method": "get_domain_names", "key": "items", "fields": [],},
+        "L-E8693075": {"method": "get_usage_plans", "key": "items", "fields": [],},
+        "L-A4C7274F": {"method": "get_vpc_links", "key": "items", "fields": [],},
+        "global": False,
+    },
     "appmesh": {
         "L-AC861A39": {"method": "list_meshes", "key": "meshes", "fields": [],},
         "global": False,
