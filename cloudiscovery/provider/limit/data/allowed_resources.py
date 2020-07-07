@@ -446,6 +446,12 @@ ALLOWED_SERVICES_CODES = {
                 ]
             },
         },
+        "L-949445B0": {
+            "method": "describe_hosts",
+            "key": "Hosts",
+            "fields": [],
+            "filter": {"Filters": [{"Name": "instance-type", "Values": ["a1",],}]},
+        },
         "global": False,
     },
     "ecs": {
@@ -647,5 +653,41 @@ ALLOWED_SERVICES_CODES = {
     "vpc": {
         "L-F678F1CE": {"method": "describe_vpcs", "key": "Vpcs", "fields": [],},
         "global": False,
+    },
+}
+
+FILTER_EC2_BIGFAMILY = {
+    "filter": {
+        "Filters": [
+            {
+                "Name": "instance-type",
+                "Values": [
+                    "a1.medium",
+                    "a1.large",
+                    "a1.xlarge",
+                    "a1.2xlarge",
+                    "a1.4xlarge",
+                    "a1.metal",
+                    "c6g.medium",
+                    "c6g.large",
+                    "c6g.xlarge",
+                    "c6g.2xlarge",
+                    "c6g.4xlarge",
+                    "c6g.8xlarge",
+                    "c6g.12xlarge",
+                    "c6g.16xlarge",
+                    "c6g.metal",
+                    "c5.large",
+                    "c5.xlarge",
+                    "c5.2xlarge",
+                    "c5.4xlarge",
+                    "c5.9xlarge",
+                    "c5.12xlarge",
+                    "c5.18xlarge",
+                    "c5.24xlarge",
+                    "c5.metal",
+                ],
+            }
+        ]
     },
 }
