@@ -322,10 +322,14 @@ With `--threshold 0-100` option, you can customize a minimum percentage threshol
     *   elasticloadbalancing
     *   glue
     *   iam
+    *   inspector
+    *   kendra
     *   kms
     *   mediaconnect
     *   medialive
     *   mediapackage
+    *   networkmanager
+    *   polly
     *   qldb
     *   robomaker
     *   route53
@@ -333,6 +337,7 @@ With `--threshold 0-100` option, you can customize a minimum percentage threshol
     *   rds
     *   s3
     *   sns
+    *   swf
     *   transcribe
     *   translate
     *   vpc

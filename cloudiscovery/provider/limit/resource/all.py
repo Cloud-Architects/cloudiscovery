@@ -92,7 +92,7 @@ class LimitResources(ResourceProvider):
         return resources_found
 
     @exception
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-statements
     def analyze_quota(
         self, client_quota, data_quota_code, service, threshold_requested
     ):
@@ -128,9 +128,17 @@ class LimitResources(ResourceProvider):
         if service in SERVICEQUOTA_TO_BOTO3:
             service = SERVICEQUOTA_TO_BOTO3.get(service)
 
-        client = self.options.session.client(
-            service, region_name=self.options.region_name
-        )
+        """
+        AWS Networkservice is a global service and just allows region us-west-2 instead us-east-1
+        Reference https://docs.aws.amazon.com/networkmanager/latest/APIReference/Welcome.html
+        TODO: If we detect more resources like that, convert it into a dict
+        """
+        if service == "networkmanager":
+            region_boto3 = "us-west-2"
+        else:
+            region_boto3 = self.options.region_name
+
+        client = self.options.session.client(service, region_name=region_boto3)
 
         usage = 0
 

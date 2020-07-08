@@ -795,6 +795,32 @@ ALLOWED_SERVICES_CODES = {
         },
         "global": True,
     },
+    "inspector": {
+        "L-E1AFB5F4": {
+            "method": "list_assessment_targets",
+            "key": "assessmentTargetArns",
+            "fields": [],
+        },
+        "L-7A3AEC10": {
+            "method": "list_assessment_templates",
+            "key": "assessmentTemplateArns",
+            "fields": [],
+        },
+        "L-12943E2F": {
+            "method": "list_assessment_runs",
+            "key": "assessmentRunArns",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "kendra": {
+        "L-51C776DF": {
+            "method": "list_indices",
+            "key": "IndexConfigurationSummaryItems",
+            "fields": [],
+        },
+        "global": False,
+    },
     "kms": {
         "L-C2F1777E": {"method": "list_keys", "key": "Keys", "fields": [],},
         "L-2601EE20": {"method": "list_aliases", "key": "Aliases", "fields": [],},
@@ -820,6 +846,18 @@ ALLOWED_SERVICES_CODES = {
     },
     "mediapackage": {
         "L-352B8598": {"method": "list_channels", "key": "Channels", "fields": [],},
+        "global": False,
+    },
+    "networkmanager": {
+        "L-2418390E": {
+            "method": "describe_global_networks",
+            "key": "GlobalNetworks",
+            "fields": [],
+        },
+        "global": True,
+    },
+    "polly": {
+        "L-BC40090A": {"method": "list_lexicons", "key": "Lexicons", "fields": [],},
         "global": False,
     },
     "qldb": {
@@ -890,6 +928,15 @@ ALLOWED_SERVICES_CODES = {
     },
     "sns": {
         "L-61103206": {"method": "list_topics", "key": "Topics", "fields": [],},
+        "global": False,
+    },
+    "swf": {
+        "L-464CCB53": {
+            "method": "list_domains",
+            "key": "domainInfos",
+            "fields": [],
+            "filter": {"registrationStatus": "REGISTERED"},
+        },
         "global": False,
     },
     "transcribe": {
