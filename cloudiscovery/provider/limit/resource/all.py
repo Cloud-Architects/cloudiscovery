@@ -78,6 +78,19 @@ class LimitResources(ResourceProvider):
         if service_name not in cache:
             return []
 
+        """
+        Services that must be enabled in your account. Those services will fail you don't enable
+        Fraud Detector: https://pages.awscloud.com/amazon-fraud-detector-preview.html#
+        AWS Organizations: https://console.aws.amazon.com/organizations/
+        """
+        if service_name in ("frauddetector", "organizations"):
+            message_handler(
+                "Attention: Service "
+                + service_name
+                + " must be enabled to use API calls.",
+                "WARNING",
+            )
+
         for data_quota_code in cache[service_name]:
             if data_quota_code is None:
                 continue
@@ -154,6 +167,7 @@ class LimitResources(ResourceProvider):
             resource_type="aws_limit",
             filters=filters,
         )
+
         if not pages:
             if filters:
                 response = getattr(client, quota_data["method"])(**filters)

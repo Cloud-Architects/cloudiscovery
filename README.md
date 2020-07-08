@@ -320,6 +320,9 @@ With `--threshold 0-100` option, you can customize a minimum percentage threshol
     *   elasticfilesystem
     *   elasticbeanstalk
     *   elasticloadbalancing
+    *   forecast
+    *   fraud detector
+    *   gamelift
     *   glue
     *   iam
     *   inspector

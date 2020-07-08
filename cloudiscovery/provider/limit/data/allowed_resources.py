@@ -750,6 +750,33 @@ ALLOWED_SERVICES_CODES = {
         },
         "global": False,
     },
+    "forecast": {
+        "L-D87814A4": {"method": "list_predictors", "key": "Predictors", "fields": [],},
+        "L-B3A7DE22": {
+            "method": "list_dataset_import_jobs",
+            "key": "DatasetImportJobs",
+            "fields": [],
+        },
+        "L-A8E1A12A": {"method": "get_outcomes", "key": "outcomes", "fields": [],},
+        "global": False,
+    },
+    "frauddetector": {
+        "L-EB925C6F": {"method": "get_detectors", "key": "detectors", "fields": [],},
+        "L-A499790A": {"method": "get_models", "key": "models", "fields": [],},
+        "L-A8E1A12A": {"method": "get_outcomes", "key": "outcomes", "fields": [],},
+        "global": False,
+    },
+    "gamelift": {
+        "L-AED4A06A": {"method": "list_aliases", "key": "Aliases", "fields": [],},
+        "L-90D24F1B": {"method": "list_builds", "key": "Builds", "fields": [],},
+        "L-FDDD1260": {"method": "list_fleets", "key": "FleetIds", "fields": [],},
+        "L-8D885299": {
+            "method": "list_game_server_groups",
+            "key": "GameServerGroups",
+            "fields": [],
+        },
+        "global": False,
+    },
     "glue": {
         "L-F953935E": {"method": "get_databases", "key": "DatabaseList", "fields": [],},
         "L-D987EC31": {
