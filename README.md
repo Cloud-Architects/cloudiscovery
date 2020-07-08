@@ -300,50 +300,52 @@ With `--services value,value,value` parameter, you can narrow down checks to jus
 With `--threshold 0-100` option, you can customize a minimum percentage threshold to start reporting a warning.
 
 *   Services available
-    *   acm
-    *   amplify
-    *   apigateway
-    *   appmesh
-    *   appsync
-    *   autoscaling-plans
-    *   batch
-    *   chime
-    *   codebuild
-    *   codecommit
-    *   codeguru reviewer
-    *   codeguru profiler
-    *   cloudformation
-    *   cloud map
-    *   dynamodb
-    *   ec2
-    *   ecs
-    *   elasticfilesystem
-    *   elasticbeanstalk
-    *   elasticloadbalancing
-    *   forecast
-    *   fraud detector
-    *   gamelift
-    *   glue
-    *   iam
-    *   inspector
-    *   kendra
-    *   kms
-    *   mediaconnect
-    *   medialive
-    *   mediapackage
-    *   networkmanager
-    *   polly
-    *   qldb
-    *   robomaker
-    *   route53
-    *   route53resolver
-    *   rds
-    *   s3
-    *   sns
-    *   swf
-    *   transcribe
-    *   translate
-    *   vpc
+    *   Acm
+    *   Amplify
+    *   Apigateway
+    *   Appmesh
+    *   Appsync
+    *   Autoscaling Plans
+    *   Batch
+    *   Chime
+    *   Codebuild
+    *   Codecommit
+    *   Codeguru Reviewer
+    *   Codeguru Profiler
+    *   Cloudformation
+    *   Cloud map
+    *   Dynamodb
+    *   EC2
+    *   ECR
+    *   ECS
+    *   Elastic Inference
+    *   Elastic Filesystem
+    *   Elastic Beanstalk
+    *   Elastic Loadbalancing
+    *   Forecast
+    *   Fraud Detector
+    *   Gamelift
+    *   Glue
+    *   IAM
+    *   Inspector
+    *   Kendra
+    *   KMS
+    *   Media Connect
+    *   Media Live
+    *   Media Package
+    *   Metwork Manager
+    *   Polly
+    *   Qldb
+    *   Robomaker
+    *   Route53
+    *   Route53resolver
+    *   RDS
+    *   S3
+    *   SNS
+    *   SWF
+    *   Transcribe
+    *   Translate
+    *   VPC
 
 AWS has a default quota to all services. At the first time that an account is created, AWS apply this default quota to all services.  
 An administrator can ask to increase the quota value of a certain service via ticket. This command helps administrators detect those issues in advance.

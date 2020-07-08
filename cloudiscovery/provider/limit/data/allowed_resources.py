@@ -712,6 +712,14 @@ ALLOWED_SERVICES_CODES = {
         },
         "global": False,
     },
+    "ecr": {
+        "L-CFEB8E8D": {
+            "method": "describe_repositories",
+            "key": "repositories",
+            "fields": [],
+        },
+        "global": False,
+    },
     "ecs": {
         "L-21C621EB": {"method": "list_clusters", "key": "clusterArns", "fields": [],},
         "global": False,
@@ -746,6 +754,22 @@ ALLOWED_SERVICES_CODES = {
         "L-53DA6B97": {
             "method": "describe_load_balancers",
             "key": "LoadBalancers",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "elastic-inference": {
+        "L-495D9A1B": {
+            "method": "describe_accelerators",
+            "key": "acceleratorSet",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "es": {
+        "L-076D529E": {
+            "method": "list_domain_names",
+            "key": "DomainNames",
             "fields": [],
         },
         "global": False,
