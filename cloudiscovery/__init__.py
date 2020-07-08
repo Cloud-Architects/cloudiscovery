@@ -220,7 +220,7 @@ def main():
         region_names = [DEFAULT_REGION]
     else:
         if args.region_name is None and region_name is None:
-            exit_critical(_("Neither region parameter or region config were informed"))
+            exit_critical(_("Neither region parameter nor region config were passed"))
 
         # assuming region parameter precedes region configuration
         if args.region_name is not None:
