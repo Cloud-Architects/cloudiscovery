@@ -312,8 +312,10 @@ With `--threshold 0-100` option, you can customize a minimum percentage threshol
     *   Codecommit
     *   Codeguru Reviewer
     *   Codeguru Profiler
+    *   Cognito Federated Identities
     *   Cloudformation
-    *   Cloud map
+    *   Cloud Map
+    *   CloudWatch Logs
     *   Dynamodb
     *   EC2
     *   ECR

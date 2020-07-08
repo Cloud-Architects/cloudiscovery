@@ -137,6 +137,15 @@ ALLOWED_SERVICES_CODES = {
         },
         "global": False,
     },
+    "cognito-identity": {
+        "L-8692CE1C": {
+            "method": "list_identity_pools",
+            "key": "IdentityPools",
+            "fields": [],
+            "filter": {"MaxResults": 60},
+        },
+        "global": False,
+    },
     "dynamodb": {
         "L-F98FE922": {"method": "list_tables", "key": "TableNames", "fields": [],},
         "global": False,
@@ -875,6 +884,14 @@ ALLOWED_SERVICES_CODES = {
     "kms": {
         "L-C2F1777E": {"method": "list_keys", "key": "Keys", "fields": [],},
         "L-2601EE20": {"method": "list_aliases", "key": "Aliases", "fields": [],},
+        "global": False,
+    },
+    "logs": {
+        "L-D2832119": {
+            "method": "describe_log_groups",
+            "key": "logGroups",
+            "fields": [],
+        },
         "global": False,
     },
     "mediaconnect": {
