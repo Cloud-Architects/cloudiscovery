@@ -19,5 +19,5 @@ msgid "Python 3.6 or newer is required"
 msgstr ""
 
 #: .\commands\vpc.py:20
-msgid "Neither region parameter or region config were informed"
+msgid "Neither region parameter nor region config were passed"
 msgstr ""
