@@ -162,6 +162,7 @@ The configured credentials must be associated to a user or role with proper perm
                   "glue:ListWorkflows",
                   "glue:ListMLTransforms",
                   "codeguru-reviewer:ListCodeReviews",
+                  "servicediscovery:ListNamespaces",
                   "apigateway:GET"
                 ],
                 "Resource": [ "*" ]
