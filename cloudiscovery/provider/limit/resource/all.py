@@ -3,7 +3,10 @@ from typing import List
 from concurrent.futures.thread import ThreadPoolExecutor
 
 from provider.limit.command import LimitOptions
-from provider.limit.data.allowed_resources import ALLOWED_SERVICES_CODES
+from provider.limit.data.allowed_resources import (
+    ALLOWED_SERVICES_CODES,
+    FILTER_EC2_BIGFAMILY,
+)
 from shared.common import (
     ResourceProvider,
     Resource,
@@ -152,6 +155,26 @@ class LimitResources(ResourceProvider):
         else:
             for page in pages:
                 usage = usage + len(page[quota_data["key"]])
+
+        """
+        Hack to workaround boto3 limits of 200 items per filter.
+        Quota L-1216C47A needs more than 200 items. Not happy with this code
+        TODO: Refactor this piece of terrible code.
+        """
+        if data_quota_code["quota_code"] == "L-1216C47A":
+            filters = FILTER_EC2_BIGFAMILY["filter"]
+            pages = get_paginator(
+                client=client,
+                operation_name=quota_data["method"],
+                resource_type="aws_limit",
+                filters=filters,
+            )
+            if not pages:
+                response = getattr(client, quota_data["method"])(**filters)
+                usage = len(response[quota_data["key"]])
+            else:
+                for page in pages:
+                    usage = usage + len(page[quota_data["key"]])
 
         try:
             percent = round((usage / value) * 100, 2)
