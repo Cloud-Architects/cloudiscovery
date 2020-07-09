@@ -39,6 +39,9 @@ filter:
     - Filter format used by boto3 resource. Check boto3 documentation
     - Example: "filter": {"Filters": [{"Name": "", "Values": [],}]},
     - Example: "filter": {"Type": "PullRequest"},
+
+global:
+    - Global parameter determines if this is an AWS Global Service such IAM, Route53, others.
 """
 
 ALLOWED_SERVICES_CODES = {
@@ -1100,6 +1103,26 @@ ALLOWED_SERVICES_CODES = {
         "L-9FA33840": {
             "method": "describe_option_groups",
             "key": "OptionGroupsList",
+            "fields": [],
+        },
+        "L-7ADDB58A": {
+            "method": "describe_db_instances",
+            "key": "DBInstances",
+            "fields": "AllocatedStorage",
+        },
+        "L-D94C7EA3": {
+            "method": "describe_db_proxies",
+            "key": "DBProxies",
+            "fields": [],
+        },
+        "L-732153D0": {
+            "method": "describe_db_security_groups",
+            "key": "DBSecurityGroups",
+            "fields": [],
+        },
+        "L-48C6BF61": {
+            "method": "describe_db_subnet_groups",
+            "key": "DBSubnetGroups",
             "fields": [],
         },
         "global": False,
