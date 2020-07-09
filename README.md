@@ -163,7 +163,15 @@ The configured credentials must be associated to a user or role with proper perm
                   "glue:ListMLTransforms",
                   "codeguru-reviewer:ListCodeReviews",
                   "servicediscovery:ListNamespaces",
-                  "apigateway:GET"
+                  "apigateway:GET",
+                  "forecast:ListPredictors",
+                  "frauddetector:GetDetectors",
+                  "forecast:ListDatasetImportJobs",
+                  "frauddetector:GetModels",
+                  "frauddetector:GetOutcomes",
+                  "networkmanager:DescribeGlobalNetworks",
+                  "codeartifact:ListDomains",
+                  "ses:GetSendQuota"
                 ],
                 "Resource": [ "*" ]
               }
