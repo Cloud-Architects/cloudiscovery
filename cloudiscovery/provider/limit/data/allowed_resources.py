@@ -73,6 +73,10 @@ ALLOWED_SERVICES_CODES = {
         },
         "global": True,
     },
+    "codeartifact": {
+        "L-DD7208D3": {"method": "list_domains", "key": "domains", "fields": [],},
+        "global": False,
+    },
     "codebuild": {
         "L-ACCF6C0D": {"method": "list_projects", "key": "projects", "fields": [],},
         "global": False,
@@ -81,6 +85,24 @@ ALLOWED_SERVICES_CODES = {
         "L-81790602": {
             "method": "list_repositories",
             "key": "repositories",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "codedeploy": {
+        "L-3F19B6A5": {
+            "method": "list_applications",
+            "key": "applications",
+            "fields": [],
+        },
+        "L-B0CB7B38": {
+            "method": "list_git_hub_account_token_names",
+            "key": "tokenNameList",
+            "fields": [],
+        },
+        "L-5AD34096": {
+            "method": "list_deployment_configs",
+            "key": "deploymentConfigsList",
             "fields": [],
         },
         "global": False,

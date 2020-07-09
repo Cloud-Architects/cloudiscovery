@@ -308,8 +308,10 @@ With `--threshold 0-100` option, you can customize a minimum percentage threshol
     *   Autoscaling Plans
     *   Batch
     *   Chime
-    *   Codebuild
-    *   Codecommit
+    *   Code Artifact
+    *   Code Build
+    *   Code Commit
+    *   Code Deploy
     *   Codeguru Reviewer
     *   Codeguru Profiler
     *   Cognito Federated Identities
