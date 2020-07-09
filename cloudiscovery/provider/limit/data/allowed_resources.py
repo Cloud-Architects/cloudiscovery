@@ -146,11 +146,6 @@ ALLOWED_SERVICES_CODES = {
             "key": "tokenNameList",
             "fields": [],
         },
-        "L-5AD34096": {
-            "method": "list_deployment_configs",
-            "key": "deploymentConfigsList",
-            "fields": [],
-        },
         "global": False,
     },
     "cloudformation": {
@@ -223,6 +218,7 @@ ALLOWED_SERVICES_CODES = {
             "method": "describe_snapshots",
             "key": "Snapshots",
             "fields": [],
+            "filter": {"OwnerIds": ["self"]},
         },
         "L-D18FCD1D": {
             "method": "describe_volumes",
