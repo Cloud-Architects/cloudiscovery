@@ -319,6 +319,7 @@ With `--threshold 0-100` option, you can customize a minimum percentage threshol
     *   Cloud Map
     *   CloudWatch Logs
     *   Dynamodb
+    *   EBS
     *   EC2
     *   ECR
     *   ECS
