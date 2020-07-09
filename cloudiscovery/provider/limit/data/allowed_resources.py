@@ -1,3 +1,46 @@
+"""
+JSON Format to check quota
+
+    "service": {
+        "quota-code": {
+            "method": "xxx",
+            "key": "xxx",
+            "fields": "xxx",
+            "divisor": xxx,
+            "filter": {xxx},
+        },
+        "global": True|False,
+    }
+
+service:
+    - Service name in Services Quota
+    - Ref: https://docs.aws.amazon.com/cli/latest/reference/service-quotas/list-service-quotas.html
+
+quota-code:
+    - Quota code used by Services Quota
+    - Ref: https://docs.aws.amazon.com/cli/latest/reference/service-quotas/list-service-quotas.html
+
+method:
+    - boto3 method name to check a specific resource. Usually List*, Describe*, Get*
+    - Ref: https://boto3.amazonaws.com/v1/documentation/api/latest/index.html
+    - Example:
+    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2.html#EC2.Client.describe_volumes
+
+key:
+    - boto3 key List
+
+fields:
+    - If needed sum a specific field, specify here
+
+divisor:
+    - If used fields and needs to convert between TB -> GB, GB -> TB, GB -> MB, others.
+
+filter:
+    - Filter format used by boto3 resource. Check boto3 documentation
+    - Example: "filter": {"Filters": [{"Name": "", "Values": [],}]},
+    - Example: "filter": {"Type": "PullRequest"},
+"""
+
 ALLOWED_SERVICES_CODES = {
     "acm": {
         "L-F141DD1D": {
@@ -170,6 +213,42 @@ ALLOWED_SERVICES_CODES = {
     },
     "dynamodb": {
         "L-F98FE922": {"method": "list_tables", "key": "TableNames", "fields": [],},
+        "global": False,
+    },
+    "ebs": {
+        "L-309BACF6": {
+            "method": "describe_snapshots",
+            "key": "Snapshots",
+            "fields": [],
+        },
+        "L-D18FCD1D": {
+            "method": "describe_volumes",
+            "key": "Volumes",
+            "fields": "Size",
+            "divisor": 1000,
+            "filter": {"Filters": [{"Name": "volume-type", "Values": ["gp2",],}]},
+        },
+        "L-9CF3C2EB": {
+            "method": "describe_volumes",
+            "key": "Volumes",
+            "fields": "Size",
+            "divisor": 1000,
+            "filter": {"Filters": [{"Name": "volume-type", "Values": ["standard",],}]},
+        },
+        "L-FD252861": {
+            "method": "describe_volumes",
+            "key": "Volumes",
+            "fields": "Size",
+            "divisor": 1000,
+            "filter": {"Filters": [{"Name": "volume-type", "Values": ["io1",],}]},
+        },
+        "L-17AF77E8": {
+            "method": "describe_volumes",
+            "key": "Volumes",
+            "fields": "Size",
+            "divisor": 1000,
+            "filter": {"Filters": [{"Name": "volume-type", "Values": ["sc1",],}]},
+        },
         "global": False,
     },
     "ec2": {

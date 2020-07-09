@@ -24,6 +24,7 @@ SERVICEQUOTA_TO_BOTO3 = {
     "vpc": "ec2",
     "codeguru-profiler": "codeguruprofiler",
     "AWSCloudMap": "servicediscovery",
+    "ebs": "ec2",
 }
 
 MAX_EXECUTION_PARALLEL = 2
@@ -173,10 +174,24 @@ class LimitResources(ResourceProvider):
                 response = getattr(client, quota_data["method"])(**filters)
             else:
                 response = getattr(client, quota_data["method"])()
-            usage = len(response[quota_data["key"]])
+
+            # If fields element is not empty, sum values instead list len
+            if quota_data["fields"]:
+                for item in response[quota_data["method"]]:
+                    usage = usage + item[quota_data["fields"]]
+            else:
+                usage = len(response[quota_data["key"]])
         else:
             for page in pages:
-                usage = usage + len(page[quota_data["key"]])
+                if quota_data["fields"]:
+                    if len(page[quota_data["key"]]) > 0:
+                        usage = usage + page[quota_data["key"]][0][quota_data["fields"]]
+                else:
+                    usage = usage + len(page[quota_data["key"]])
+
+        # Value for division
+        if "divisor" in quota_data:
+            usage = usage / quota_data["divisor"]
 
         """
         Hack to workaround boto3 limits of 200 items per filter.
