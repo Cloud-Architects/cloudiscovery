@@ -249,6 +249,19 @@ ALLOWED_SERVICES_CODES = {
             "divisor": 1000,
             "filter": {"Filters": [{"Name": "volume-type", "Values": ["sc1",],}]},
         },
+        "L-82ACEF56": {
+            "method": "describe_volumes",
+            "key": "Volumes",
+            "fields": "Size",
+            "divisor": 1000,
+            "filter": {"Filters": [{"Name": "volume-type", "Values": ["st1",],}]},
+        },
+        "L-B3A130E6": {
+            "method": "describe_volumes",
+            "key": "Volumes",
+            "fields": "Iops",
+            "filter": {"Filters": [{"Name": "volume-type", "Values": ["io1",],}]},
+        },
         "global": False,
     },
     "ec2": {
