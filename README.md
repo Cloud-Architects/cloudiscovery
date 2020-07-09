@@ -354,6 +354,7 @@ With `--threshold 0-100` option, you can customize a minimum percentage threshol
     *   Route53resolver
     *   RDS
     *   S3
+    *   SES
     *   SNS
     *   SWF
     *   Transcribe
