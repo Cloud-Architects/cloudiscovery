@@ -98,6 +98,8 @@ Make sure the latest version of AWS-CLI is installed on your workstation, and ot
 pip install -U cloudiscovery
 ```
 
+Once a while after installation, there can be some issues related with a cache from older version being used by a newer version. In that case, it's recommended to remove directory `./assets/.cache`.
+
 ### AWS Credentials
 
 Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
