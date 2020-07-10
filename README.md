@@ -98,6 +98,8 @@ Make sure the latest version of AWS-CLI is installed on your workstation, and ot
 pip install -U cloudiscovery
 ```
 
+Once a while after installation, there can be some issues related with a cache from older version being used by a newer version. In that case, it's recommended to remove directory `./assets/.cache`.
+
 ### AWS Credentials
 
 Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
@@ -163,7 +165,15 @@ The configured credentials must be associated to a user or role with proper perm
                   "glue:ListMLTransforms",
                   "codeguru-reviewer:ListCodeReviews",
                   "servicediscovery:ListNamespaces",
-                  "apigateway:GET"
+                  "apigateway:GET",
+                  "forecast:ListPredictors",
+                  "frauddetector:GetDetectors",
+                  "forecast:ListDatasetImportJobs",
+                  "frauddetector:GetModels",
+                  "frauddetector:GetOutcomes",
+                  "networkmanager:DescribeGlobalNetworks",
+                  "codeartifact:ListDomains",
+                  "ses:GetSendQuota"
                 ],
                 "Resource": [ "*" ]
               }
@@ -300,42 +310,58 @@ With `--services value,value,value` parameter, you can narrow down checks to jus
 With `--threshold 0-100` option, you can customize a minimum percentage threshold to start reporting a warning.
 
 *   Services available
-    *   acm
-    *   amplify
-    *   apigateway
-    *   appmesh
-    *   appsync
-    *   autoscaling-plans
-    *   batch
-    *   chime
-    *   codebuild
-    *   codecommit
-    *   codeguru reviewer
-    *   codeguru profiler
-    *   cloudformation
-    *   cloud map
-    *   dynamodb
-    *   ec2
-    *   ecs
-    *   elasticfilesystem
-    *   elasticbeanstalk
-    *   elasticloadbalancing
-    *   glue
-    *   iam
-    *   kms
-    *   mediaconnect
-    *   medialive
-    *   mediapackage
-    *   qldb
-    *   robomaker
-    *   route53
-    *   route53resolver
-    *   rds
-    *   s3
-    *   sns
-    *   transcribe
-    *   translate
-    *   vpc
+    *   Acm
+    *   Amplify
+    *   Apigateway
+    *   Appmesh
+    *   Appsync
+    *   Autoscaling Plans
+    *   Batch
+    *   Chime
+    *   Code Artifact
+    *   Code Build
+    *   Code Commit
+    *   Code Deploy
+    *   Codeguru Reviewer
+    *   Codeguru Profiler
+    *   Cognito Federated Identities
+    *   Cloudformation
+    *   Cloud Map
+    *   CloudWatch Logs
+    *   Dynamodb
+    *   EBS
+    *   EC2
+    *   ECR
+    *   ECS
+    *   Elastic Inference
+    *   Elastic Filesystem
+    *   Elastic Beanstalk
+    *   Elastic Loadbalancing
+    *   Forecast
+    *   Fraud Detector
+    *   Gamelift
+    *   Glue
+    *   IAM
+    *   Inspector
+    *   Kendra
+    *   KMS
+    *   Media Connect
+    *   Media Live
+    *   Media Package
+    *   Metwork Manager
+    *   Polly
+    *   Qldb
+    *   Robomaker
+    *   Route53
+    *   Route53resolver
+    *   RDS
+    *   S3
+    *   SES
+    *   SNS
+    *   SWF
+    *   Transcribe
+    *   Translate
+    *   VPC
 
 AWS has a default quota to all services. At the first time that an account is created, AWS apply this default quota to all services.  
 An administrator can ask to increase the quota value of a certain service via ticket. This command helps administrators detect those issues in advance.

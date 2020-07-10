@@ -1,3 +1,49 @@
+"""
+JSON Format to check quota
+
+    "service": {
+        "quota-code": {
+            "method": "xxx",
+            "key": "xxx",
+            "fields": "xxx",
+            "divisor": xxx,
+            "filter": {xxx},
+        },
+        "global": True|False,
+    }
+
+service:
+    - Service name in Services Quota
+    - Ref: https://docs.aws.amazon.com/cli/latest/reference/service-quotas/list-service-quotas.html
+
+quota-code:
+    - Quota code used by Services Quota
+    - Ref: https://docs.aws.amazon.com/cli/latest/reference/service-quotas/list-service-quotas.html
+
+method:
+    - boto3 method name to check a specific resource. Usually List*, Describe*, Get*
+    - Ref: https://boto3.amazonaws.com/v1/documentation/api/latest/index.html
+    - Example:
+    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/ec2.html#EC2.Client.describe_volumes
+
+key:
+    - boto3 key List
+
+fields:
+    - If needed sum a specific field, specify here
+
+divisor:
+    - If used fields and needs to convert between TB -> GB, GB -> TB, GB -> MB, others.
+
+filter:
+    - Filter format used by boto3 resource. Check boto3 documentation
+    - Example: "filter": {"Filters": [{"Name": "", "Values": [],}]},
+    - Example: "filter": {"Type": "PullRequest"},
+
+global:
+    - Global parameter determines if this is an AWS Global Service such IAM, Route53, others.
+"""
+
 ALLOWED_SERVICES_CODES = {
     "acm": {
         "L-F141DD1D": {
@@ -73,6 +119,10 @@ ALLOWED_SERVICES_CODES = {
         },
         "global": True,
     },
+    "codeartifact": {
+        "L-DD7208D3": {"method": "list_domains", "key": "domains", "fields": [],},
+        "global": False,
+    },
     "codebuild": {
         "L-ACCF6C0D": {"method": "list_projects", "key": "projects", "fields": [],},
         "global": False,
@@ -81,6 +131,19 @@ ALLOWED_SERVICES_CODES = {
         "L-81790602": {
             "method": "list_repositories",
             "key": "repositories",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "codedeploy": {
+        "L-3F19B6A5": {
+            "method": "list_applications",
+            "key": "applications",
+            "fields": [],
+        },
+        "L-B0CB7B38": {
+            "method": "list_git_hub_account_token_names",
+            "key": "tokenNameList",
             "fields": [],
         },
         "global": False,
@@ -137,8 +200,67 @@ ALLOWED_SERVICES_CODES = {
         },
         "global": False,
     },
+    "cognito-identity": {
+        "L-8692CE1C": {
+            "method": "list_identity_pools",
+            "key": "IdentityPools",
+            "fields": [],
+            "filter": {"MaxResults": 60},
+        },
+        "global": False,
+    },
     "dynamodb": {
         "L-F98FE922": {"method": "list_tables", "key": "TableNames", "fields": [],},
+        "global": False,
+    },
+    "ebs": {
+        "L-309BACF6": {
+            "method": "describe_snapshots",
+            "key": "Snapshots",
+            "fields": [],
+            "filter": {"OwnerIds": ["self"]},
+        },
+        "L-D18FCD1D": {
+            "method": "describe_volumes",
+            "key": "Volumes",
+            "fields": "Size",
+            "divisor": 1000,
+            "filter": {"Filters": [{"Name": "volume-type", "Values": ["gp2",],}]},
+        },
+        "L-9CF3C2EB": {
+            "method": "describe_volumes",
+            "key": "Volumes",
+            "fields": "Size",
+            "divisor": 1000,
+            "filter": {"Filters": [{"Name": "volume-type", "Values": ["standard",],}]},
+        },
+        "L-FD252861": {
+            "method": "describe_volumes",
+            "key": "Volumes",
+            "fields": "Size",
+            "divisor": 1000,
+            "filter": {"Filters": [{"Name": "volume-type", "Values": ["io1",],}]},
+        },
+        "L-17AF77E8": {
+            "method": "describe_volumes",
+            "key": "Volumes",
+            "fields": "Size",
+            "divisor": 1000,
+            "filter": {"Filters": [{"Name": "volume-type", "Values": ["sc1",],}]},
+        },
+        "L-82ACEF56": {
+            "method": "describe_volumes",
+            "key": "Volumes",
+            "fields": "Size",
+            "divisor": 1000,
+            "filter": {"Filters": [{"Name": "volume-type", "Values": ["st1",],}]},
+        },
+        "L-B3A130E6": {
+            "method": "describe_volumes",
+            "key": "Volumes",
+            "fields": "Iops",
+            "filter": {"Filters": [{"Name": "volume-type", "Values": ["io1",],}]},
+        },
         "global": False,
     },
     "ec2": {
@@ -712,6 +834,14 @@ ALLOWED_SERVICES_CODES = {
         },
         "global": False,
     },
+    "ecr": {
+        "L-CFEB8E8D": {
+            "method": "describe_repositories",
+            "key": "repositories",
+            "fields": [],
+        },
+        "global": False,
+    },
     "ecs": {
         "L-21C621EB": {"method": "list_clusters", "key": "clusterArns", "fields": [],},
         "global": False,
@@ -746,6 +876,49 @@ ALLOWED_SERVICES_CODES = {
         "L-53DA6B97": {
             "method": "describe_load_balancers",
             "key": "LoadBalancers",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "elastic-inference": {
+        "L-495D9A1B": {
+            "method": "describe_accelerators",
+            "key": "acceleratorSet",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "es": {
+        "L-076D529E": {
+            "method": "list_domain_names",
+            "key": "DomainNames",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "forecast": {
+        "L-D87814A4": {"method": "list_predictors", "key": "Predictors", "fields": [],},
+        "L-B3A7DE22": {
+            "method": "list_dataset_import_jobs",
+            "key": "DatasetImportJobs",
+            "fields": [],
+        },
+        "L-A8E1A12A": {"method": "get_outcomes", "key": "outcomes", "fields": [],},
+        "global": False,
+    },
+    "frauddetector": {
+        "L-EB925C6F": {"method": "get_detectors", "key": "detectors", "fields": [],},
+        "L-A499790A": {"method": "get_models", "key": "models", "fields": [],},
+        "L-A8E1A12A": {"method": "get_outcomes", "key": "outcomes", "fields": [],},
+        "global": False,
+    },
+    "gamelift": {
+        "L-AED4A06A": {"method": "list_aliases", "key": "Aliases", "fields": [],},
+        "L-90D24F1B": {"method": "list_builds", "key": "Builds", "fields": [],},
+        "L-FDDD1260": {"method": "list_fleets", "key": "FleetIds", "fields": [],},
+        "L-8D885299": {
+            "method": "list_game_server_groups",
+            "key": "GameServerGroups",
             "fields": [],
         },
         "global": False,
@@ -795,9 +968,43 @@ ALLOWED_SERVICES_CODES = {
         },
         "global": True,
     },
+    "inspector": {
+        "L-E1AFB5F4": {
+            "method": "list_assessment_targets",
+            "key": "assessmentTargetArns",
+            "fields": [],
+        },
+        "L-7A3AEC10": {
+            "method": "list_assessment_templates",
+            "key": "assessmentTemplateArns",
+            "fields": [],
+        },
+        "L-12943E2F": {
+            "method": "list_assessment_runs",
+            "key": "assessmentRunArns",
+            "fields": [],
+        },
+        "global": False,
+    },
+    "kendra": {
+        "L-51C776DF": {
+            "method": "list_indices",
+            "key": "IndexConfigurationSummaryItems",
+            "fields": [],
+        },
+        "global": False,
+    },
     "kms": {
         "L-C2F1777E": {"method": "list_keys", "key": "Keys", "fields": [],},
         "L-2601EE20": {"method": "list_aliases", "key": "Aliases", "fields": [],},
+        "global": False,
+    },
+    "logs": {
+        "L-D2832119": {
+            "method": "describe_log_groups",
+            "key": "logGroups",
+            "fields": [],
+        },
         "global": False,
     },
     "mediaconnect": {
@@ -820,6 +1027,18 @@ ALLOWED_SERVICES_CODES = {
     },
     "mediapackage": {
         "L-352B8598": {"method": "list_channels", "key": "Channels", "fields": [],},
+        "global": False,
+    },
+    "networkmanager": {
+        "L-2418390E": {
+            "method": "describe_global_networks",
+            "key": "GlobalNetworks",
+            "fields": [],
+        },
+        "global": True,
+    },
+    "polly": {
+        "L-BC40090A": {"method": "list_lexicons", "key": "Lexicons", "fields": [],},
         "global": False,
     },
     "qldb": {
@@ -882,6 +1101,26 @@ ALLOWED_SERVICES_CODES = {
             "key": "OptionGroupsList",
             "fields": [],
         },
+        "L-7ADDB58A": {
+            "method": "describe_db_instances",
+            "key": "DBInstances",
+            "fields": "AllocatedStorage",
+        },
+        "L-D94C7EA3": {
+            "method": "describe_db_proxies",
+            "key": "DBProxies",
+            "fields": [],
+        },
+        "L-732153D0": {
+            "method": "describe_db_security_groups",
+            "key": "DBSecurityGroups",
+            "fields": [],
+        },
+        "L-48C6BF61": {
+            "method": "describe_db_subnet_groups",
+            "key": "DBSubnetGroups",
+            "fields": [],
+        },
         "global": False,
     },
     "s3": {
@@ -890,6 +1129,15 @@ ALLOWED_SERVICES_CODES = {
     },
     "sns": {
         "L-61103206": {"method": "list_topics", "key": "Topics", "fields": [],},
+        "global": False,
+    },
+    "swf": {
+        "L-464CCB53": {
+            "method": "list_domains",
+            "key": "domainInfos",
+            "fields": [],
+            "filter": {"registrationStatus": "REGISTERED"},
+        },
         "global": False,
     },
     "transcribe": {

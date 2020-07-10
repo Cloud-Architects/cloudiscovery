@@ -24,6 +24,7 @@ SERVICEQUOTA_TO_BOTO3 = {
     "vpc": "ec2",
     "codeguru-profiler": "codeguruprofiler",
     "AWSCloudMap": "servicediscovery",
+    "ebs": "ec2",
 }
 
 MAX_EXECUTION_PARALLEL = 2
@@ -78,6 +79,19 @@ class LimitResources(ResourceProvider):
         if service_name not in cache:
             return []
 
+        """
+        Services that must be enabled in your account. Those services will fail you don't enable
+        Fraud Detector: https://pages.awscloud.com/amazon-fraud-detector-preview.html#
+        AWS Organizations: https://console.aws.amazon.com/organizations/
+        """
+        if service_name in ("frauddetector", "organizations"):
+            message_handler(
+                "Attention: Service "
+                + service_name
+                + " must be enabled to use API calls.",
+                "WARNING",
+            )
+
         for data_quota_code in cache[service_name]:
             if data_quota_code is None:
                 continue
@@ -92,7 +106,7 @@ class LimitResources(ResourceProvider):
         return resources_found
 
     @exception
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-statements
     def analyze_quota(
         self, client_quota, data_quota_code, service, threshold_requested
     ):
@@ -128,9 +142,17 @@ class LimitResources(ResourceProvider):
         if service in SERVICEQUOTA_TO_BOTO3:
             service = SERVICEQUOTA_TO_BOTO3.get(service)
 
-        client = self.options.session.client(
-            service, region_name=self.options.region_name
-        )
+        """
+        AWS Networkservice is a global service and just allows region us-west-2 instead us-east-1
+        Reference https://docs.aws.amazon.com/networkmanager/latest/APIReference/Welcome.html
+        TODO: If we detect more resources like that, convert it into a dict
+        """
+        if service == "networkmanager":
+            region_boto3 = "us-west-2"
+        else:
+            region_boto3 = self.options.region_name
+
+        client = self.options.session.client(service, region_name=region_boto3)
 
         usage = 0
 
@@ -146,15 +168,30 @@ class LimitResources(ResourceProvider):
             resource_type="aws_limit",
             filters=filters,
         )
+
         if not pages:
             if filters:
                 response = getattr(client, quota_data["method"])(**filters)
             else:
                 response = getattr(client, quota_data["method"])()
-            usage = len(response[quota_data["key"]])
+
+            # If fields element is not empty, sum values instead list len
+            if quota_data["fields"]:
+                for item in response[quota_data["method"]]:
+                    usage = usage + item[quota_data["fields"]]
+            else:
+                usage = len(response[quota_data["key"]])
         else:
             for page in pages:
-                usage = usage + len(page[quota_data["key"]])
+                if quota_data["fields"]:
+                    if len(page[quota_data["key"]]) > 0:
+                        usage = usage + page[quota_data["key"]][0][quota_data["fields"]]
+                else:
+                    usage = usage + len(page[quota_data["key"]])
+
+        # Value for division
+        if "divisor" in quota_data:
+            usage = usage / quota_data["divisor"]
 
         """
         Hack to workaround boto3 limits of 200 items per filter.
