@@ -17,7 +17,7 @@ def exception(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        # pylint: disable=broad-except
+
         except botocore.client.ClientError as e:
             exception_str = str(e)
             if (
@@ -33,7 +33,6 @@ def exception(func):
                 )
             log_critical(message)
 
-        # pylint: disable=broad-except
         except botocore.exceptions.UnknownServiceError:
             log_critical("You're running a possible out of date boto3 version.")
             log_critical("Please update boto3 to last version.")
@@ -49,7 +48,6 @@ def exception(func):
             )
             exit_critical(issue_info)
 
-        # pylint: disable=broad-except
         except Exception:  # pylint: disable=broad-except
             log_critical("You've found a bug! Please, open an issue in GitHub project")
             log_critical("https://github.com/Cloud-Architects/cloudiscovery/issues\n")
