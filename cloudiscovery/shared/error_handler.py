@@ -3,7 +3,7 @@ import platform
 import traceback
 import sys
 
-from shared.common import log_critical, exit_critical
+from shared.common import log_critical
 
 
 # Decorator to catch exceptions and avoid stop script.
@@ -48,7 +48,7 @@ def exception(func):
                     traceback.format_exc(),
                 )
             )
-            exit_critical(issue_info)
+            log_critical(issue_info)
 
         except Exception:  # pylint: disable=broad-except
             log_critical("You've found a bug! Please, open an issue in GitHub project")
