@@ -54,6 +54,7 @@ setup(
             "locales/en_US/LC_MESSAGES/messages.mo",
             "locales/pt_BR/LC_MESSAGES/messages.mo",
             "templates/report_html.html",
+            "templates/report_limits.html",
         ]
     },
     packages=find_packages(exclude=["tests*"]),
