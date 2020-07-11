@@ -54,7 +54,7 @@ class LimitsValues(NamedTuple):
     quota_code: str
     aws_limit: int
     local_limit: int
-    usage: int
+    usage: float
     percent: float
 
 

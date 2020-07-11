@@ -6,6 +6,7 @@
 ![python version](https://img.shields.io/badge/python-3.6%2C3.7%2C3.8-blue?logo=python)
 [![CircleCI](https://circleci.com/gh/Cloud-Architects/cloudiscovery.svg?style=svg)](https://circleci.com/gh/Cloud-Architects/cloudiscovery)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c0a7a5bc51044c7ca8bd9115965e4467)](https://www.codacy.com/gh/Cloud-Architects/cloudiscovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Cloud-Architects/cloudiscovery&amp;utm_campaign=Badge_Grade)
+[![Hits-of-Code](https://sloc.xyz/github/Cloud-Architects/cloudiscovery?category=code)](https://github.com/Cloud-Architects/cloudiscovery)
 [![GitHub license](https://img.shields.io/github/license/Cloud-Architects/cloudiscovery.svg)](https://github.com/Cloud-Architects/cloudiscovery/blob/develop/LICENSE)
 
 ![aws provider](https://img.shields.io/badge/provider-AWS-orange?logo=amazon-aws&color=ff9900)
@@ -24,7 +25,7 @@ Commands can generate diagrams. When modelling them, we try to follow the princi
 
 Edward Tufte
 
-## Report
+### Report
 
 The commands generate reports that can be used to further analyze resources.
 
@@ -98,6 +99,8 @@ Make sure the latest version of AWS-CLI is installed on your workstation, and ot
 pip install -U cloudiscovery
 ```
 
+Once a while after installation, there can be some issues related with a cache from older version being used by a newer version. In that case, it's recommended to remove directory `./assets/.cache`.
+
 ### AWS Credentials
 
 Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
@@ -162,7 +165,16 @@ The configured credentials must be associated to a user or role with proper perm
                   "glue:ListWorkflows",
                   "glue:ListMLTransforms",
                   "codeguru-reviewer:ListCodeReviews",
-                  "servicediscovery:ListNamespaces"
+                  "servicediscovery:ListNamespaces",
+                  "apigateway:GET",
+                  "forecast:ListPredictors",
+                  "frauddetector:GetDetectors",
+                  "forecast:ListDatasetImportJobs",
+                  "frauddetector:GetModels",
+                  "frauddetector:GetOutcomes",
+                  "networkmanager:DescribeGlobalNetworks",
+                  "codeartifact:ListDomains",
+                  "ses:GetSendQuota"
                 ],
                 "Resource": [ "*" ]
               }
@@ -188,9 +200,9 @@ The configured credentials must be associated to a user or role with proper perm
 (Optional) If you want to be able to switch between multiple AWS credentials and settings, you can configure [named profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) and later pass profile name when running the tool.
 
 ## Commands
+Cloudiscovery provides a CLI to easily perform desired actions.
 
 ### AWS VPC
-
 Example of a diagram:
 
 ![diagrams logo](docs/assets/aws-vpc.png)
@@ -245,8 +257,9 @@ The subnets are aggregated to simplify the diagram and hide infrastructure redun
 
 If EC2 instances and ECS instances are part of an autoscaling group, those instances will be aggregated on a diagram.
 
-### AWS Policy
+More information: [AWS WA, REL 2: How do you plan your network topology?](https://wa.aws.amazon.com/wat.question.REL_2.en.html)
 
+### AWS Policy
 Example of a diagram:
 
 ![diagrams logo](docs/assets/aws-policy.png)
@@ -265,8 +278,9 @@ Following resources are checked in Policy command:
 
 Some roles can be aggregated to simplify the diagram. If a role is associated with a principal and is not attached to any named policy, will be aggregated.
 
-### AWS IoT
+More information: [AWS WA, SEC 3: How do you manage permissions for people and machines?](https://wa.aws.amazon.com/wat.question.SEC_3.en.html)
 
+### AWS IoT
 Example of a diagram:
 
 ![diagrams logo](docs/assets/aws-iot.png)
@@ -281,8 +295,11 @@ Following resources are checked in IoT command:
 *   IoT Thing Type
 
 ### AWS All
+A command to list **ALL** AWS resources.
 
-A command to list **ALL** AWS resources. 
+Example of an HTML report:
+
+![diagrams logo](docs/assets/aws-all.png)
 
 The command calls all AWS services (200+) and operations with name `Describe`, `Get...` and `List...` (500+).
 
@@ -290,50 +307,72 @@ The operations must be allowed to be called by permissions described in [AWS Per
 
 Types of resources mostly cover Terraform types. It is possible to narrow down scope of the resources to ones related with a given service with parameter `-s` e.g. `-s ec2,ecs,cloudfront,rds`.
 
-### AWS Limit
+More information: [AWS WA, COST 2: How do you govern usage?](https://wa.aws.amazon.com/wat.question.COST_2.en.html)
 
+### AWS Limit
 It's possible to check resources limits  across various service in an account. This command implements over 60 limits checks.
+
+Example of an HTML report:
+
+![diagrams logo](docs/assets/aws-limit.png)
 
 With `--services value,value,value` parameter, you can narrow down checks to just services that you want to check. 
 
 With `--threshold 0-100` option, you can customize a minimum percentage threshold to start reporting a warning.
 
 *   Services available
-    *   acm
-    *   amplify
-    *   appmesh
-    *   appsync
-    *   autoscaling-plans
-    *   batch
-    *   chime
-    *   codebuild
-    *   codecommit
-    *   codeguru reviewer
-    *   codeguru profiler
-    *   cloudformation
-    *   cloud map
-    *   dynamodb
-    *   ec2
-    *   ecs
-    *   elasticfilesystem
-    *   elasticbeanstalk
-    *   elasticloadbalancing
-    *   glue
-    *   iam
-    *   kms
-    *   mediaconnect
-    *   medialive
-    *   mediapackage
-    *   qldb
-    *   robomaker
-    *   route53
-    *   route53resolver
-    *   rds
-    *   s3
-    *   sns
-    *   transcribe
-    *   translate
-    *   vpc
+    *   Acm
+    *   Amplify
+    *   Apigateway
+    *   Appmesh
+    *   Appsync
+    *   Autoscaling Plans
+    *   Batch
+    *   Chime
+    *   Code Artifact
+    *   Code Build
+    *   Code Commit
+    *   Code Deploy
+    *   Codeguru Reviewer
+    *   Codeguru Profiler
+    *   Cognito Federated Identities
+    *   Cloudformation
+    *   Cloud Map
+    *   CloudWatch Logs
+    *   Dynamodb
+    *   EBS
+    *   EC2
+    *   ECR
+    *   ECS
+    *   Elastic Inference
+    *   Elastic Filesystem
+    *   Elastic Beanstalk
+    *   Elastic Loadbalancing
+    *   Forecast
+    *   Fraud Detector
+    *   Gamelift
+    *   Glue
+    *   IAM
+    *   Inspector
+    *   Kendra
+    *   KMS
+    *   Media Connect
+    *   Media Live
+    *   Media Package
+    *   Metwork Manager
+    *   Polly
+    *   Qldb
+    *   Robomaker
+    *   Route53
+    *   Route53resolver
+    *   RDS
+    *   S3
+    *   SES
+    *   SNS
+    *   SWF
+    *   Transcribe
+    *   Translate
+    *   VPC
 
 AWS has a default quota to all services. At the first time that an account is created, AWS apply this default quota to all services.  
 An administrator can ask to increase the quota value of a certain service via ticket. This command helps administrators detect those issues in advance.
@@ -341,7 +380,6 @@ An administrator can ask to increase the quota value of a certain service via ti
 More information: [AWS WA, REL 1 How do you manage service limits?](https://wa.aws.amazon.com/wat.question.REL_1.en.html)
 
 ## Using a Docker container
-
 To build docker container using Dockerfile
 
 ```sh
@@ -362,7 +400,6 @@ cloudiscovery \
 *   If you are using Diagram output and due to fact container is a slim image of Python image, you must run cloudiscovery with "--diagram no", otherwise you'll have an error about "xdg-open". The output file will be saved in "assets/diagrams".
 
 ## Translate
-
 This project support English and Portuguese (Brazil) languages. To contribute with a translation, follow this steps:
 
 *   Create a folder inside locales folder with prefix of new idiom with appropiate [locale code](https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html). Copy "locales/messages.pot" to locales/newfolder/LC_MESSAGES/.

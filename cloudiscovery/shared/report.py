@@ -54,7 +54,6 @@ class Report(object):
                         resource.digest.type,
                         resource.digest.id,
                         resource.name,
-                        resource.details,
                     ),
                     "OKBLUE",
                 )
@@ -63,10 +62,10 @@ class Report(object):
                     resource_attr_value,
                 ) in resource.attributes.items():
                     message_handler(
-                        "service: {} - type: {} - id: {} -> {}: {}".format(
+                        "service: {} - type: {} - name: {} -> {}: {}".format(
                             resource.group,
                             resource.digest.type,
-                            resource.digest.id,
+                            resource.name,
                             resource_attr_key,
                             resource_attr_value,
                         ),

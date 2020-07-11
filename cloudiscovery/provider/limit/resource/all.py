@@ -3,7 +3,11 @@ from typing import List
 from concurrent.futures.thread import ThreadPoolExecutor
 
 from provider.limit.command import LimitOptions
-from provider.limit.data.allowed_resources import ALLOWED_SERVICES_CODES
+from provider.limit.data.allowed_resources import (
+    ALLOWED_SERVICES_CODES,
+    FILTER_EC2_BIGFAMILY,
+    SPECIAL_RESOURCES,
+)
 from shared.common import (
     ResourceProvider,
     Resource,
@@ -21,6 +25,7 @@ SERVICEQUOTA_TO_BOTO3 = {
     "vpc": "ec2",
     "codeguru-profiler": "codeguruprofiler",
     "AWSCloudMap": "servicediscovery",
+    "ebs": "ec2",
 }
 
 MAX_EXECUTION_PARALLEL = 2
@@ -45,7 +50,7 @@ class LimitResources(ResourceProvider):
             0 if self.options.threshold is None else self.options.threshold
         )
 
-        client_quota = self.options.session.client("service-quotas")
+        client_quota = self.options.client("service-quotas")
 
         resources_found = []
 
@@ -69,11 +74,28 @@ class LimitResources(ResourceProvider):
 
     @exception
     def analyze_service(self, service_name, client_quota, threshold_requested):
+
+        if service_name in SPECIAL_RESOURCES:
+            return []
+
         cache_key = "aws_limits_" + service_name + "_" + self.options.region_name
         cache = self.cache.get_key(cache_key)
         resources_found = []
         if service_name not in cache:
             return []
+
+        """
+        Services that must be enabled in your account. Those services will fail you don't enable
+        Fraud Detector: https://pages.awscloud.com/amazon-fraud-detector-preview.html#
+        AWS Organizations: https://console.aws.amazon.com/organizations/
+        """
+        if service_name in ("frauddetector", "organizations"):
+            message_handler(
+                "Attention: Service "
+                + service_name
+                + " must be enabled to use API calls.",
+                "WARNING",
+            )
 
         for data_quota_code in cache[service_name]:
             if data_quota_code is None:
@@ -89,7 +111,7 @@ class LimitResources(ResourceProvider):
         return resources_found
 
     @exception
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-statements
     def analyze_quota(
         self, client_quota, data_quota_code, service, threshold_requested
     ):
@@ -125,9 +147,17 @@ class LimitResources(ResourceProvider):
         if service in SERVICEQUOTA_TO_BOTO3:
             service = SERVICEQUOTA_TO_BOTO3.get(service)
 
-        client = self.options.session.client(
-            service, region_name=self.options.region_name
-        )
+        """
+        AWS Networkservice is a global service and just allows region us-west-2 instead us-east-1
+        Reference https://docs.aws.amazon.com/networkmanager/latest/APIReference/Welcome.html
+        TODO: If we detect more resources like that, convert it into a dict
+        """
+        if service == "networkmanager":
+            region_boto3 = "us-west-2"
+        else:
+            region_boto3 = self.options.region_name
+
+        client = self.options.session.client(service, region_name=region_boto3)
 
         usage = 0
 
@@ -143,15 +173,50 @@ class LimitResources(ResourceProvider):
             resource_type="aws_limit",
             filters=filters,
         )
+
         if not pages:
             if filters:
                 response = getattr(client, quota_data["method"])(**filters)
             else:
                 response = getattr(client, quota_data["method"])()
-            usage = len(response[quota_data["key"]])
+
+            # If fields element is not empty, sum values instead list len
+            if quota_data["fields"]:
+                for item in response[quota_data["method"]]:
+                    usage = usage + item[quota_data["fields"]]
+            else:
+                usage = len(response[quota_data["key"]])
         else:
             for page in pages:
-                usage = usage + len(page[quota_data["key"]])
+                if quota_data["fields"]:
+                    if len(page[quota_data["key"]]) > 0:
+                        usage = usage + page[quota_data["key"]][0][quota_data["fields"]]
+                else:
+                    usage = usage + len(page[quota_data["key"]])
+
+        # Value for division
+        if "divisor" in quota_data:
+            usage = usage / quota_data["divisor"]
+
+        """
+        Hack to workaround boto3 limits of 200 items per filter.
+        Quota L-1216C47A needs more than 200 items. Not happy with this code
+        TODO: Refactor this piece of terrible code.
+        """
+        if data_quota_code["quota_code"] == "L-1216C47A":
+            filters = FILTER_EC2_BIGFAMILY["filter"]
+            pages = get_paginator(
+                client=client,
+                operation_name=quota_data["method"],
+                resource_type="aws_limit",
+                filters=filters,
+            )
+            if not pages:
+                response = getattr(client, quota_data["method"])(**filters)
+                usage = len(response[quota_data["key"]])
+            else:
+                for page in pages:
+                    usage = usage + len(page[quota_data["key"]])
 
         try:
             percent = round((usage / value) * 100, 2)

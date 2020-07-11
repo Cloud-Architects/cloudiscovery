@@ -46,7 +46,7 @@ if sys.version_info < (3, 6):
     print("Python 3.6 or newer is required", file=sys.stderr)
     sys.exit(1)
 
-__version__ = "2.2.0"
+__version__ = "2.2.2"
 
 AVAILABLE_LANGUAGES = ["en_US", "pt_BR"]
 DEFAULT_REGION = "us-east-1"
@@ -212,15 +212,24 @@ def main():
             filters = parse_filters(args.filters)
 
     # aws profile check
-    session = generate_session(args.profile_name)
+    if "region_name" not in args:
+        session = generate_session(profile_name=args.profile_name, region_name=None)
+    else:
+        session = generate_session(
+            profile_name=args.profile_name, region_name=args.region_name
+        )
+
     session.get_credentials()
     region_name = session.region_name
 
     if "region_name" not in args:
         region_names = [DEFAULT_REGION]
     else:
-        if args.region_name is None and region_name is None:
-            exit_critical(_("Neither region parameter or region config were informed"))
+
+        # checking region configuration
+        check_region_profile(
+            arg_region_name=args.region_name, profile_region_name=region_name
+        )
 
         # assuming region parameter precedes region configuration
         if args.region_name is not None:
@@ -270,6 +279,12 @@ def check_diagram_version(diagram):
                 "You must update diagrams package to 0.14 or higher. "
                 "- See on https://github.com/mingrammer/diagrams"
             )
+
+
+def check_region_profile(arg_region_name, profile_region_name):
+
+    if arg_region_name is None and profile_region_name is None:
+        exit_critical("Neither region parameter nor region config were passed")
 
 
 def check_region(region_parameter, region_name, session):

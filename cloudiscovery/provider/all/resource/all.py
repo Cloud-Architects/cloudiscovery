@@ -107,6 +107,7 @@ OMITTED_RESOURCES = [
     "aws_config_organization_config_rule_status",
     "aws_dynamodb_backup",
     "aws_ec2_prefix_list",
+    "aws_route53_hosted_zones_by_name",
 ]
 
 # Trying to fix documentation errors or its lack made by "happy pirates" at AWS

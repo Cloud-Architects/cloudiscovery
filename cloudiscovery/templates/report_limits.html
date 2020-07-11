@@ -1,18 +1,34 @@
 <p><strong><span style="font-size: 15pt;">cloudiscovery </span>- <span style="font-size: 12pt;">A tool to help you discover resources in the cloud environment.</span></strong></p>
 <p><span style="font-size: 14pt;"><strong>{{ default_name }}</strong></span></p>
-<p><span style="font-size: 12pt;">Limits</span></p>
+<p>
+    An administrator can request a quota increase for a certain limit via <a href="https://console.aws.amazon.com/servicequotas/" target="_blank">Service Quotas console</a></span><br />
+    More on opening a case to <a href="https://docs.aws.amazon.com/ses/latest/DeveloperGuide/manage-sending-quotas-request-increase-procedure.html" target="_blank">Increase Amazon SES Sending Quotas</a>
+</p>
 <table style="border-collapse: collapse; width: 100%;" border="1">
 <tbody>
-<tr>
-<td style="width: 10%; text-align: center;"><strong>Service</strong></td>
-<td style="width: 10%; text-align: center;"><strong>Quota code</strong></td>
-<td style="width: 20%; text-align: center;"><strong>Quota name</strong></td>
-<td style="width: 15%; text-align: center;"><strong>AWS default quota</strong></td>
-<td style="width: 15%; text-align: center;"><strong>Applied quota</strong></td>
-<td style="width: 15%; text-align: center;"><strong>Usage</strong></td>
-<td style="width: 15%; text-align: center;"><strong>Usage percent</strong></td>
-</tr>
+{% set ns = namespace(oldservice="") %}
+
 {% for resource_found in resources_found %}
+
+{% if ns.oldservice != resource_found.limits.service %}
+    {% if ns.oldservice != "" %}
+        <tr>
+            <td colspan="6" style="width: 100%; height: 30px; text-align: left; border: none;">&nbsp;</td>
+        </tr>
+    {% endif %}
+    <tr>
+        <td colspan="6" style="width: 100%; height: 30px; text-align: left; background-color: #A9CDE3;"><strong>Service - {{ resource_found.limits.service}}</strong></td>
+    </tr>
+    <tr>
+        <td style="width: 10%; text-align: center;"><strong>Quota code</strong></td>
+        <td style="width: 20%; text-align: center;"><strong>Quota name</strong></td>
+        <td style="width: 15%; text-align: center;"><strong>AWS default quota</strong></td>
+        <td style="width: 15%; text-align: center;"><strong>Applied quota</strong></td>
+        <td style="width: 15%; text-align: center;"><strong>Usage</strong></td>
+        <td style="width: 15%; text-align: center;"><strong>Usage percent</strong></td>
+    </tr>
+{% endif %}
+
     {% set percent = resource_found.limits.percent %}
 
     {% if percent <= 70 %}
@@ -26,7 +42,6 @@
         {% set message = "Risk" %}
     {% endif %}
     <tr>
-        <td style="width: 10%;">{{ resource_found.limits.service}}</td>
         <td style="width: 10%;">{{ resource_found.limits.quota_code}}</td>
         <td style="width: 20%;">{{ resource_found.limits.quota_name}}</td>
         <td style="width: 15%;" align="center">{{ resource_found.limits.aws_limit}}</td>
@@ -39,6 +54,7 @@
             </svg>
         </td>
     </tr>
+{% set ns.oldservice = resource_found.limits.service %}
 {%- endfor %}
 </tbody>
 </table>
