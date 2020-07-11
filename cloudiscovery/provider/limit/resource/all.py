@@ -50,7 +50,7 @@ class LimitResources(ResourceProvider):
             0 if self.options.threshold is None else self.options.threshold
         )
 
-        client_quota = self.options.session.client("service-quotas")
+        client_quota = self.options.client("service-quotas")
 
         resources_found = []
 
