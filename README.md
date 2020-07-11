@@ -6,6 +6,7 @@
 ![python version](https://img.shields.io/badge/python-3.6%2C3.7%2C3.8-blue?logo=python)
 [![CircleCI](https://circleci.com/gh/Cloud-Architects/cloudiscovery.svg?style=svg)](https://circleci.com/gh/Cloud-Architects/cloudiscovery)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/c0a7a5bc51044c7ca8bd9115965e4467)](https://www.codacy.com/gh/Cloud-Architects/cloudiscovery?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Cloud-Architects/cloudiscovery&amp;utm_campaign=Badge_Grade)
+[![Hits-of-Code](https://sloc.xyz/github/Cloud-Architects/cloudiscovery?category=code)](https://github.com/Cloud-Architects/cloudiscovery)
 [![GitHub license](https://img.shields.io/github/license/Cloud-Architects/cloudiscovery.svg)](https://github.com/Cloud-Architects/cloudiscovery/blob/develop/LICENSE)
 
 ![aws provider](https://img.shields.io/badge/provider-AWS-orange?logo=amazon-aws&color=ff9900)
