@@ -231,9 +231,9 @@ def get_tag(d, tag_name) -> Optional[str]:
     return None
 
 
-def generate_session(profile_name):
+def generate_session(profile_name, region_name):
     try:
-        return boto3.Session(profile_name=profile_name)
+        return boto3.Session(profile_name=profile_name, region_name=region_name)
     # pylint: disable=broad-except
     except Exception as e:
         message = "You must configure awscli before use this script.\nError: {0}".format(

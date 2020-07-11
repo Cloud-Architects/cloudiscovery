@@ -63,6 +63,6 @@ def exception(func):
                     traceback.format_exc(),
                 )
             )
-            exit_critical(issue_info)
+            log_critical(issue_info)
 
     return wrapper

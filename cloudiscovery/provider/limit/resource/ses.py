@@ -17,6 +17,11 @@ class SesResources(ResourceProvider):
 
     @exception
     def get_resources(self) -> List[Resource]:
+
+        services = self.options.services
+        if "ses" not in services:
+            return []
+
         client = self.options.client("ses")
 
         response = client.get_send_quota()
