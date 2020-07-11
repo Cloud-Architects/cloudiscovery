@@ -295,6 +295,7 @@ Following resources are checked in IoT command:
 
 ### AWS All
 A command to list **ALL** AWS resources.
+
 Example of an HTML report:
 
 ![diagrams logo](docs/assets/aws-all.png)
