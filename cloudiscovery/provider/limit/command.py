@@ -9,7 +9,10 @@ from shared.common import (
 )
 from shared.common_aws import BaseAwsOptions, BaseAwsCommand, AwsCommandRunner
 from shared.diagram import NoDiagram
-from provider.limit.data.allowed_resources import ALLOWED_SERVICES_CODES
+from provider.limit.data.allowed_resources import (
+    ALLOWED_SERVICES_CODES,
+    SPECIAL_RESOURCES,
+)
 
 
 class LimitOptions(BaseAwsOptions, BaseOptions):
@@ -39,8 +42,11 @@ class LimitParameters:
         self.session = session
         self.options = options
         self.services = []
+
         if services is None:
             for service in ALLOWED_SERVICES_CODES:
+                self.services.append(service)
+            for service in SPECIAL_RESOURCES:
                 self.services.append(service)
         else:
             self.services = services
@@ -150,6 +156,8 @@ class Limit(BaseAwsCommand):
         if not services:
             services = []
             for service in ALLOWED_SERVICES_CODES:
+                services.append(service)
+            for service in SPECIAL_RESOURCES:
                 services.append(service)
 
         for region in self.region_names:

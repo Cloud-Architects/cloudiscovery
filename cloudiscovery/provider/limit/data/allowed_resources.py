@@ -1162,6 +1162,9 @@ ALLOWED_SERVICES_CODES = {
     },
 }
 
+# These resources are not covered by services-quota, than we must use "manual" checks
+SPECIAL_RESOURCES = ["ses"]
+
 FILTER_EC2_BIGFAMILY = {
     "filter": {
         "Filters": [
