@@ -6,6 +6,7 @@ from provider.limit.command import LimitOptions
 from provider.limit.data.allowed_resources import (
     ALLOWED_SERVICES_CODES,
     FILTER_EC2_BIGFAMILY,
+    SPECIAL_RESOURCES,
 )
 from shared.common import (
     ResourceProvider,
@@ -49,7 +50,7 @@ class LimitResources(ResourceProvider):
             0 if self.options.threshold is None else self.options.threshold
         )
 
-        client_quota = self.options.session.client("service-quotas")
+        client_quota = self.options.client("service-quotas")
 
         resources_found = []
 
@@ -73,6 +74,10 @@ class LimitResources(ResourceProvider):
 
     @exception
     def analyze_service(self, service_name, client_quota, threshold_requested):
+
+        if service_name in SPECIAL_RESOURCES:
+            return []
+
         cache_key = "aws_limits_" + service_name + "_" + self.options.region_name
         cache = self.cache.get_key(cache_key)
         resources_found = []
