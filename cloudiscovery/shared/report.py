@@ -54,7 +54,6 @@ class Report(object):
                         resource.digest.type,
                         resource.digest.id,
                         resource.name,
-                        resource.details,
                     ),
                     "OKBLUE",
                 )

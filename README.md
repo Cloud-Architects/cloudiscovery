@@ -258,7 +258,6 @@ If EC2 instances and ECS instances are part of an autoscaling group, those insta
 
 More information: [AWS WA, REL 2: How do you plan your network topology?](https://wa.aws.amazon.com/wat.question.REL_2.en.html)
 
-
 ### AWS Policy
 Example of a diagram:
 
@@ -279,7 +278,6 @@ Following resources are checked in Policy command:
 Some roles can be aggregated to simplify the diagram. If a role is associated with a principal and is not attached to any named policy, will be aggregated.
 
 More information: [AWS WA, SEC 3: How do you manage permissions for people and machines?](https://wa.aws.amazon.com/wat.question.SEC_3.en.html)
-
 
 ### AWS IoT
 Example of a diagram:
@@ -308,7 +306,6 @@ The operations must be allowed to be called by permissions described in [AWS Per
 Types of resources mostly cover Terraform types. It is possible to narrow down scope of the resources to ones related with a given service with parameter `-s` e.g. `-s ec2,ecs,cloudfront,rds`.
 
 More information: [AWS WA, COST 2: How do you govern usage?](https://wa.aws.amazon.com/wat.question.COST_2.en.html)
-
 
 ### AWS Limit
 It's possible to check resources limits  across various service in an account. This command implements over 60 limits checks.
@@ -380,7 +377,6 @@ An administrator can ask to increase the quota value of a certain service via ti
 
 More information: [AWS WA, REL 1 How do you manage service limits?](https://wa.aws.amazon.com/wat.question.REL_1.en.html)
 
-
 ## Using a Docker container
 To build docker container using Dockerfile
 
@@ -400,7 +396,6 @@ cloudiscovery \
 ```
 
 *   If you are using Diagram output and due to fact container is a slim image of Python image, you must run cloudiscovery with "--diagram no", otherwise you'll have an error about "xdg-open". The output file will be saved in "assets/diagrams".
-
 
 ## Translate
 This project support English and Portuguese (Brazil) languages. To contribute with a translation, follow this steps:
