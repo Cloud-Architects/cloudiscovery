@@ -3,9 +3,6 @@ import platform
 import traceback
 import sys
 
-import botocore
-import boto3
-
 from shared.common import log_critical, exit_critical
 
 
@@ -15,10 +12,15 @@ from shared.common import log_critical, exit_critical
 def exception(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        # pylint: disable=import-outside-toplevel
+        from botocore.client import ClientError
+        from botocore.exceptions import UnknownServiceError
+        from boto3 import __version__ as boto3_version
+
         try:
             return func(*args, **kwargs)
 
-        except botocore.client.ClientError as e:
+        except ClientError as e:
             exception_str = str(e)
             if (
                 "Could not connect to the endpoint URL" in exception_str
@@ -33,14 +35,14 @@ def exception(func):
                 )
             log_critical(message)
 
-        except botocore.exceptions.UnknownServiceError:
+        except UnknownServiceError:
             log_critical("You're running a possible out of date boto3 version.")
             log_critical("Please update boto3 to last version.")
 
             issue_info = "\n".join(
                 (
                     "Python:        {0}".format(sys.version),
-                    "boto3 version: {0}".format(boto3.__version__),
+                    "boto3 version: {0}".format(boto3_version),
                     "Platform:      {0}".format(platform.platform()),
                     "",
                     traceback.format_exc(),
@@ -55,7 +57,7 @@ def exception(func):
             issue_info = "\n".join(
                 (
                     "Python:        {0}".format(sys.version),
-                    "boto3 version: {0}".format(boto3.__version__),
+                    "boto3 version: {0}".format(boto3_version),
                     "Platform:      {0}".format(platform.platform()),
                     "",
                     traceback.format_exc(),
