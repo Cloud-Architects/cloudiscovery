@@ -19,4 +19,10 @@ COMMANDS_ENABLED = {
         "method": "imdsv2_check",
         "short_description": "Checks Amazon EC2 instance metadata is configured with IMDSv2.",
     },
+    "pitr-enabled": {
+        "parameters": [{"name": "pitr_enabled", "default_value": "no", "type": "bool"}],
+        "class": "DYNAMODB",
+        "method": "pitr_enabled",
+        "short_description": "Checks that point in time recovery is enabled for Amazon DynamoDB tables.",
+    },
 }
