@@ -72,7 +72,7 @@ class SecuritytResources(ResourceProvider):
                             "provider.security.resource.commands." + _class
                         )
                         instance = getattr(module, _class)(self.options)
-                        result = getattr(instance, _method)(**_parameter)
+                        result = result + getattr(instance, _method)(**_parameter)
         else:
             print(
                 'You must inform a command. Run this command using "-c list" to check all commands available'
