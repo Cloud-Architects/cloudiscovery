@@ -61,6 +61,12 @@ cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--serv
 cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx] [--usage 0-100] [--verbose]
 ```
 
+1.6 To run AWS security controls (experimental feature):
+
+```sh
+cloudiscovery aws-security --region-name xx-xxxx-xxx [--profile-name profile] [--commands x] [--verbose]
+```
+
 2.  For help use:
 
 ```sh

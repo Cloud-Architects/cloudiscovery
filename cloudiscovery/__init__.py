@@ -32,6 +32,7 @@ from provider.vpc.command import Vpc
 from provider.iot.command import Iot
 from provider.all.command import All
 from provider.limit.command import Limit
+from provider.security.command import Security
 
 from shared.common import (
     exit_critical,
@@ -105,6 +106,20 @@ def generate_parser():
         required=False,
         help="Select the %% of resource threshold between 0 and 100. \
               For example: --threshold 50 will report all resources with more than 50%% threshold.",
+    )
+
+    security_parser = subparsers.add_parser(
+        "aws-security", help="Analyze aws several security checks."
+    )
+    add_default_arguments(security_parser, diagram_enabled=False, filters_enabled=False)
+    security_parser.add_argument(
+        "-c",
+        "--commands",
+        action="append",
+        required=False,
+        help='Select the security check command that you want to run. \
+              To see available commands, please type "-c list". \
+              If not passed, command will check all services.',
     )
 
     return parser
@@ -262,12 +277,18 @@ def main():
         command = Limit(
             region_names=region_names, session=session, threshold=args.threshold,
         )
+    elif args.command == "aws-security":
+        command = Security(
+            region_names=region_names, session=session, commands=args.commands,
+        )
     else:
         raise NotImplementedError("Unknown command")
+
     if "services" in args and args.services is not None:
         services = args.services.split(",")
     else:
         services = []
+
     command.run(diagram, args.verbose, services, filters)
 
 
