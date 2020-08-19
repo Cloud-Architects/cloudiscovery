@@ -29,7 +29,7 @@ class DYNAMODB:
                 resources_found.append(
                     Resource(
                         digest=ResourceDigest(id=table, type="pitr_enabled"),
-                        details="PITR disabled.",
+                        details="PITR disabled",
                         name=table,
                         group="ddb_security",
                         security=SecurityValues(
@@ -59,7 +59,7 @@ class DYNAMODB:
                             digest=ResourceDigest(
                                 id=instance_detail["InstanceId"], type="imdsv2_check"
                             ),
-                            details="IMDSv2 tokens not enforced.",
+                            details="IMDSv2 tokens not enforced",
                             name=instance_detail["InstanceId"],
                             group="ddb_security",
                             security=SecurityValues(

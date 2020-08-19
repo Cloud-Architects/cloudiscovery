@@ -37,7 +37,7 @@ class IAM:
                                 digest=ResourceDigest(
                                     id=key["AccessKeyId"], type="access_keys_rotated"
                                 ),
-                                details="You must rotate your keys.",
+                                details="You must rotate your keys",
                                 name=key["UserName"],
                                 group="iam_security",
                                 security=SecurityValues(

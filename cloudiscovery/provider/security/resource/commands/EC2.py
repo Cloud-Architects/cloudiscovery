@@ -58,7 +58,7 @@ class EC2:
                             digest=ResourceDigest(
                                 id=instance_detail["InstanceId"], type="imdsv2_check"
                             ),
-                            details="IMDSv2 tokens not enforced.",
+                            details="IMDSv2 tokens not enforced",
                             name=instance_detail["InstanceId"],
                             group="ec2_security",
                             security=SecurityValues(
