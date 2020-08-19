@@ -31,7 +31,7 @@ class DYNAMODB:
                         digest=ResourceDigest(id=table, type="pitr_enabled"),
                         details="PITR disabled.",
                         name=table,
-                        group="iam_security",
+                        group="ddb_security",
                         security=SecurityValues(
                             status="CRITICAL", parameter="pitr_enabled", value="False",
                         ),
@@ -61,7 +61,7 @@ class DYNAMODB:
                             ),
                             details="IMDSv2 tokens not enforced.",
                             name=instance_detail["InstanceId"],
-                            group="iam_security",
+                            group="ddb_security",
                             security=SecurityValues(
                                 status="CRITICAL",
                                 parameter="imdsv2_check",

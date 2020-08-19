@@ -28,7 +28,7 @@ class EC2:
                         ),
                         details="This volume is not encypted.",
                         name=volume["VolumeId"],
-                        group="iam_security",
+                        group="ec2_security",
                         security=SecurityValues(
                             status="CRITICAL",
                             parameter="ebs_encryption",
@@ -60,7 +60,7 @@ class EC2:
                             ),
                             details="IMDSv2 tokens not enforced.",
                             name=instance_detail["InstanceId"],
-                            group="iam_security",
+                            group="ec2_security",
                             security=SecurityValues(
                                 status="CRITICAL",
                                 parameter="imdsv2_check",

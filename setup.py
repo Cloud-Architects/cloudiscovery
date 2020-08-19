@@ -19,6 +19,7 @@ requires = [
     "jinja2<3.0",
     "cachetools",
     "diskcache",
+    "pytz",
 ]
 
 
