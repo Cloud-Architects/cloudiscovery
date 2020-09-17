@@ -156,6 +156,9 @@ class BaseAwsCommand(BaseCommand):
 
 
 def resource_tags(resource_data: dict) -> List[ResourceTag]:
+    if isinstance(resource_data, str):
+        return []
+
     if "Tags" in resource_data:
         tags_input = resource_data["Tags"]
     elif "tags" in resource_data:
