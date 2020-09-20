@@ -235,7 +235,7 @@ def get_policy_allowed_calls(iam_client, policy_arn):
 
 def permutate_parameters(operation_parameters):
     if not operation_parameters:
-        return {}
+        return [{}]
     operation_parameter_keys, operation_parameter_values = zip(
         *operation_parameters.items()
     )
@@ -319,49 +319,18 @@ class AllResources(ResourceProvider):
             return None
         for name, operation in service_model["operations"].items():
             if is_listing_operation(name):
-                has_paginator = name in paginators_model["pagination"]
-                resource_type = build_resource_type(aws_service, name)
-                if resource_type in OMITTED_RESOURCES:
-                    continue
-                if not operation_allowed(allowed_actions, aws_service, name):
-                    continue
+                operation_resources = self.analyze_listing_operation(
+                    name,
+                    paginators_model,
+                    aws_service,
+                    allowed_actions,
+                    operation,
+                    service_model,
+                    client,
+                    service_full_name,
+                )
+                resources.extend(operation_resources)
 
-                operation_parameters = dict()
-                if "input" in operation:
-                    input_model = service_model["shapes"][operation["input"]["shape"]]
-                    required_fields = operation_required_fields(
-                        aws_service, input_model, operation
-                    )
-
-                    if len(required_fields) == 1:
-                        required_field = required_fields[0]
-                        required_field_values = self.check_required_field(
-                            required_field,
-                            service_model,
-                            paginators_model["pagination"],
-                            aws_service,
-                            allowed_actions,
-                            client,
-                            service_full_name,
-                        )
-                        operation_parameters[required_field] = required_field_values
-                    elif len(required_fields) != 0:
-                        continue
-
-                parameters_permutation = permutate_parameters(operation_parameters)
-
-                for parameter_permutation in parameters_permutation:
-                    operation_resources = self.retrieve_operation_resources(
-                        resource_type,
-                        name,
-                        has_paginator,
-                        client,
-                        service_full_name,
-                        aws_service,
-                        parameter_permutation,
-                    )
-                    if operation_resources is not None:
-                        resources.extend(operation_resources)
         return resources
 
     @all_exception
@@ -522,3 +491,62 @@ class AllResources(ResourceProvider):
             required_field_ids.append(resource.digest.id)
 
         return required_field_ids
+
+    # pylint: disable=too-many-locals,too-many-arguments
+    def analyze_listing_operation(
+        self,
+        name,
+        paginators_model,
+        aws_service,
+        allowed_actions,
+        operation,
+        service_model,
+        client,
+        service_full_name,
+    ) -> List[Resource]:
+        operation_resources: List[Resource] = []
+
+        has_paginator = name in paginators_model["pagination"]
+        resource_type = build_resource_type(aws_service, name)
+        if resource_type in OMITTED_RESOURCES:
+            return operation_resources
+        if not operation_allowed(allowed_actions, aws_service, name):
+            return operation_resources
+
+        operation_parameters = dict()
+        if "input" in operation:
+            input_model = service_model["shapes"][operation["input"]["shape"]]
+            required_fields = operation_required_fields(
+                aws_service, input_model, operation
+            )
+
+            if len(required_fields) == 1:
+                required_field = required_fields[0]
+                required_field_values = self.check_required_field(
+                    required_field,
+                    service_model,
+                    paginators_model["pagination"],
+                    aws_service,
+                    allowed_actions,
+                    client,
+                    service_full_name,
+                )
+                operation_parameters[required_field] = required_field_values
+            elif len(required_fields) != 0:
+                return operation_resources
+
+        parameters_permutation = permutate_parameters(operation_parameters)
+
+        for parameter_permutation in parameters_permutation:
+            permutation_resources = self.retrieve_operation_resources(
+                resource_type,
+                name,
+                has_paginator,
+                client,
+                service_full_name,
+                aws_service,
+                parameter_permutation,
+            )
+            if permutation_resources is not None:
+                operation_resources.extend(permutation_resources)
+        return operation_resources
