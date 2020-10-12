@@ -33,7 +33,7 @@ class All(BaseAwsCommand):
                 services=services,
             )
 
-            command_runner = AwsCommandRunner(filters)
+            command_runner = AwsCommandRunner(filters=filters)
             command_runner.run(
                 provider="all",
                 options=options,
