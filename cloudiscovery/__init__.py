@@ -47,7 +47,7 @@ if sys.version_info < (3, 6):
     print("Python 3.6 or newer is required", file=sys.stderr)
     sys.exit(1)
 
-__version__ = "2.2.3"
+__version__ = "2.3.0"
 
 AVAILABLE_LANGUAGES = ["en_US", "pt_BR"]
 DEFAULT_REGION = "us-east-1"
