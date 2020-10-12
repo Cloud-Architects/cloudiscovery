@@ -58,6 +58,12 @@ class LimitsValues(NamedTuple):
     percent: float
 
 
+class SecurityValues(NamedTuple):
+    status: str
+    parameter: str
+    value: str
+
+
 class ResourceTag(NamedTuple, Filterable):
     key: str
     value: str
@@ -74,6 +80,7 @@ class Resource(NamedTuple):
     group: str = ""
     tags: List[ResourceTag] = []
     limits: LimitsValues = None
+    security: SecurityValues = None
     attributes: Dict[str, object] = {}
 
 

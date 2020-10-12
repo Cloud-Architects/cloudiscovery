@@ -61,6 +61,12 @@ cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--serv
 cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx] [--usage 0-100] [--verbose]
 ```
 
+1.6 To run AWS security controls (experimental feature):
+
+```sh
+cloudiscovery aws-security --region-name xx-xxxx-xxx [--profile-name profile] [--commands x] [--verbose]
+```
+
 2.  For help use:
 
 ```sh
@@ -113,89 +119,10 @@ More on credentials configuration: [Configuration basics](https://docs.aws.amazo
 
 #### AWS Permissions
 
-The configured credentials must be associated to a user or role with proper permissions to do all checks. If you want to use a role with narrowed set of permissions just to perform cloud discovery, use a role from the following CF template shown below. To further increase security, you can add a block to check `aws:MultiFactorAuthPresent` condition in `AssumeRolePolicyDocument`. More on using IAM roles in the [configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html).
+The configured credentials must be associated to a user or role with proper permissions to do all checks. If you want to use a role with narrowed set of permissions just to perform cloud discovery, use a role from the following the [CF template maintained by our team](docs/assets/role-template.json). 
 
-```json
-{
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Setups a role for diagram builder for all resources within an account",
-  "Resources": {
-    "cloudiscoveryRole": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "AssumeRolePolicyDocument" : {
-          "Statement" : [
-            {
-              "Effect" : "Allow",
-              "Principal" : {
-                "AWS": { "Fn::Join" : [ "", [
-                  "arn:aws:iam::", { "Ref" : "AWS::AccountId" }, ":root"
-                ]]}
-              },
-              "Action" : [ "sts:AssumeRole" ]
-            }
-          ]
-        },
-        "Policies": [{
-          "PolicyName": "additional-permissions",
-          "PolicyDocument": {
-            "Version": "2012-10-17",
-            "Statement" : [
-              {
-                "Effect" : "Allow",
-                "Action" : [
-                  "kafka:ListClusters",
-                  "synthetics:DescribeCanaries",
-                  "medialive:ListInputs",
-                  "cloudhsm:DescribeClusters",
-                  "ssm:GetParametersByPath",
-                  "servicequotas:Get*",
-                  "amplify:ListApps",
-                  "autoscaling-plans:DescribeScalingPlans",
-                  "medialive:ListChannels",
-                  "medialive:ListInputDevices",
-                  "mediapackage:ListChannels",
-                  "qldb:ListLedgers",
-                  "transcribe:ListVocabularies",
-                  "glue:GetDatabases",
-                  "glue:GetUserDefinedFunctions",
-                  "glue:GetSecurityConfigurations",
-                  "glue:GetTriggers",
-                  "glue:GetCrawlers",
-                  "glue:ListWorkflows",
-                  "glue:ListMLTransforms",
-                  "codeguru-reviewer:ListCodeReviews",
-                  "servicediscovery:ListNamespaces",
-                  "apigateway:GET",
-                  "forecast:ListPredictors",
-                  "frauddetector:GetDetectors",
-                  "forecast:ListDatasetImportJobs",
-                  "frauddetector:GetModels",
-                  "frauddetector:GetOutcomes",
-                  "networkmanager:DescribeGlobalNetworks",
-                  "codeartifact:ListDomains",
-                  "ses:GetSendQuota"
-                ],
-                "Resource": [ "*" ]
-              }
-            ]
-          }
-        }],
-        "Path" : "/",
-        "ManagedPolicyArns" : [
-          "arn:aws:iam::aws:policy/job-function/ViewOnlyAccess",
-          "arn:aws:iam::aws:policy/SecurityAudit"
-        ]
-      }
-    }
-  },
-  "Outputs" : {
-    "cloudiscoveryRoleArn" : {
-      "Value" : { "Fn::GetAtt": [ "cloudiscoveryRole", "Arn" ]}
-    }
-  }
-}
-```
+To further increase security, you can add a block to check `aws:MultiFactorAuthPresent` condition in `AssumeRolePolicyDocument`. More on using IAM roles in the [configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html).
+
 
 (Optional) If you want to be able to switch between multiple AWS credentials and settings, you can configure [named profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html) and later pass profile name when running the tool.
 
