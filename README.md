@@ -310,7 +310,7 @@ More information: [AWS WA, REL 1 How do you manage service limits?](https://wa.a
 This features is experimental, but now you can run commands to check and analyze some security issues. The following commands are available now:
 
 *   Access key age
-*   EBS Encryption
+*   EBS Encryption enabled
 *   EC2 IMDSV2 Check
 *   DynamoDB PITR Enabled
 
