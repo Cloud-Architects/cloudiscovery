@@ -306,6 +306,14 @@ An administrator can ask to increase the quota value of a certain service via ti
 
 More information: [AWS WA, REL 1 How do you manage service limits?](https://wa.aws.amazon.com/wat.question.REL_1.en.html)
 
+### AWS Security
+This features is experimental, but now you can run commands to check and analyze some security issues. The following commands are available now:
+
+*   Access key age
+*   EBS Encryption enabled
+*   EC2 IMDSV2 Check
+*   DynamoDB PITR Enabled
+
 ## Using a Docker container
 To build docker container using Dockerfile
 
