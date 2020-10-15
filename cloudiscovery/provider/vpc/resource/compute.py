@@ -290,13 +290,18 @@ class AUTOSCALING(ResourceProvider):
                         digest = ResourceDigest(
                             id=asg_name, type="aws_autoscaling_group"
                         )
+                        if "LaunchConfigurationName" in data:
+                            details = "Using LaunchConfigurationName {0}".format(
+                                data["LaunchConfigurationName"]
+                            )
+                        else:
+                            details = "Using Launch Template"
+
                         resources_found.append(
                             Resource(
                                 digest=digest,
                                 name=asg_name,
-                                details="Using LaunchConfigurationName {0}".format(
-                                    data["LaunchConfigurationName"]
-                                ),
+                                details=details,
                                 group="compute",
                                 tags=resource_tags(data),
                             )
