@@ -69,7 +69,7 @@ setup(
         "pytest-pythonpath",
     ],
     tests_suite="cloudiscovery",
-    python_requires=">=3.6",
+    python_requires=">=3.8",
     scripts=["bin/cloudiscovery", "bin/cloudiscovery.cmd"],
     license="Apache License 2.0",
     classifiers=[
