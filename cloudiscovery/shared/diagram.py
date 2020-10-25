@@ -1,9 +1,12 @@
+import base64
+import zlib
 from pathlib import Path
 from typing import List, Dict
 
 from diagrams import Diagram, Cluster, Edge
 
 from shared.common import Resource, ResourceEdge, ResourceDigest, message_handler
+from shared.diagramsnet import DIAGRAM_HEADER, DIAGRAM_SUFFIX, MX_FILE
 from shared.error_handler import exception
 
 PATH_DIAGRAM_OUTPUT = "./assets/diagrams/"
@@ -373,3 +376,46 @@ class NoDiagram(BaseDiagram):
         filename: str,
     ):
         pass
+
+
+class DiagramsNetDiagram(BaseDiagram):
+    def generate_diagram(
+        self,
+        resources: List[Resource],
+        initial_resource_relations: List[ResourceEdge],
+        title: str,
+        filename: str,
+    ):
+        ordered_resources = self.group_by_group(resources, initial_resource_relations)
+        relations = self.process_relationships(
+            ordered_resources, initial_resource_relations
+        )
+        diagram = self.build_diagram(ordered_resources, relations)
+        output_filename = PATH_DIAGRAM_OUTPUT + filename + ".drawio"
+
+        with open(output_filename, "w") as diagram_file:
+            diagram_file.write(diagram)
+
+    @staticmethod
+    def decode_inflate(value: str):
+        decoded = base64.b64decode(value)
+        try:
+            result = zlib.decompress(decoded, -15)
+        # pylint: disable=broad-except
+        except Exception:
+            result = decoded
+        return result.decode("utf-8")
+
+    @staticmethod
+    def deflate_encode(value: str):
+        return base64.b64encode(zlib.compress(value.encode("utf-8"))[2:-4]).decode(
+            "utf-8"
+        )
+
+    def build_diagram(
+        self,
+        resources: Dict[str, List[Resource]],
+        resource_relations: List[ResourceEdge],
+    ):
+        mx_graph_model = DIAGRAM_HEADER + DIAGRAM_SUFFIX
+        return MX_FILE.replace("<MX_GRAPH>", self.deflate_encode(mx_graph_model))

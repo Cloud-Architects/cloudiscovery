@@ -1,4 +1,4 @@
-FROM python:3.7-slim as cloudiscovery
+FROM python:3.8-slim as cloudiscovery
 
 LABEL maintainer_1="https://github.com/leandrodamascena/"
 LABEL maintainer_2="https://github.com/meshuga"
