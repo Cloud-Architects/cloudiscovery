@@ -1,7 +1,7 @@
 from typing import List, Dict, Optional
 
 from shared.common import ResourceEdge, Resource, ResourceDigest
-from shared.diagram import add_resource_to_group, DiagramsNetDiagram
+from shared.diagram import add_resource_to_group, VPCDiagramsNetDiagram
 
 PUBLIC_SUBNET = "{public subnet}"
 PRIVATE_SUBNET = "{private subnet}"
@@ -95,7 +95,7 @@ def aggregate_asg_groups(
             add_resource_to_group(groups, "", agg_resource)
 
 
-class VpcDiagram(DiagramsNetDiagram):
+class VpcDiagram(VPCDiagramsNetDiagram):
     def __init__(self, vpc_id: str):
         """
         VPC diagram

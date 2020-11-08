@@ -16,13 +16,8 @@ DIAGRAM_SUFFIX = """
    </root>
 </mxGraphModel>"""
 
-CELL_TEMPLATE = (
-    """
-<mxCell id="zB3y0Dp3mfEUP9Fxs3Er-<CELL_IDX>" value="" style="outlineConnect=0;fontColor=#232F3E;"""
-    + "gradientColor=#4AB29A;gradientDirection=north;fillColor=#116D5B;strokeColor=#ffffff;dashed=0;"
-    + "verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;"
-    + """aspect=fixed;shape=<SHAPE>;resIcon=<RES_ICON>;" vertex="1" parent="1">
-   <mxGeometry x="<X>" y="<Y>" width="<W>" height="<H>" as="geometry" />
+CELL_TEMPLATE = """
+<mxCell id="{CELL_IDX}" value="{TITLE}" style="{STYLE}" vertex="1" parent="1">
+   <mxGeometry x="{X}" y="{Y}" width="50" height="50" as="geometry" />
 </mxCell>
 """
-)
