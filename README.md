@@ -130,7 +130,7 @@ To further increase security, you can add a block to check `aws:MultiFactorAuthP
 Cloudiscovery provides a CLI to easily perform desired actions.
 
 ### AWS VPC
-Example of a diagram:
+Example of a diagram ([diagrams.net](https://www.diagrams.net/) supported):
 
 ![diagrams logo](docs/assets/aws-vpc.png)
 
