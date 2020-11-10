@@ -1,9 +1,18 @@
+import base64
+import zlib
 from pathlib import Path
 from typing import List, Dict
 
 from diagrams import Diagram, Cluster, Edge
 
 from shared.common import Resource, ResourceEdge, ResourceDigest, message_handler
+from shared.diagramsnet import (
+    DIAGRAM_HEADER,
+    DIAGRAM_SUFFIX,
+    MX_FILE,
+    CELL_TEMPLATE,
+    build_styles,
+)
 from shared.error_handler import exception
 
 PATH_DIAGRAM_OUTPUT = "./assets/diagrams/"
@@ -220,6 +229,8 @@ class Mapsources:
         "aws_vpn_client_endpoint": "ClientVpn",
     }
 
+    resource_styles = build_styles()
+
 
 def add_resource_to_group(ordered_resources, group, resource):
     if Mapsources.mapresources.get(resource.digest.type) is not None:
@@ -373,3 +384,201 @@ class NoDiagram(BaseDiagram):
         filename: str,
     ):
         pass
+
+
+class VPCDiagramsNetDiagram(BaseDiagram):
+    def generate_diagram(
+        self,
+        resources: List[Resource],
+        initial_resource_relations: List[ResourceEdge],
+        title: str,
+        filename: str,
+    ):
+        ordered_resources = self.group_by_group(resources, initial_resource_relations)
+        relations = self.process_relationships(
+            ordered_resources, initial_resource_relations
+        )
+        diagram = self.build_diagram(ordered_resources, relations)
+        output_filename = PATH_DIAGRAM_OUTPUT + filename + ".drawio"
+
+        with open(output_filename, "w") as diagram_file:
+            diagram_file.write(diagram)
+
+    @staticmethod
+    def decode_inflate(value: str):
+        decoded = base64.b64decode(value)
+        try:
+            result = zlib.decompress(decoded, -15)
+        # pylint: disable=broad-except
+        except Exception:
+            result = decoded
+        return result.decode("utf-8")
+
+    @staticmethod
+    def deflate_encode(value: str):
+        return base64.b64encode(zlib.compress(value.encode("utf-8"))[2:-4]).decode(
+            "utf-8"
+        )
+
+    # pylint: disable=too-many-locals
+    def build_diagram(
+        self,
+        resources: Dict[str, List[Resource]],
+        resource_relations: List[ResourceEdge],
+    ):
+        mx_graph_model = DIAGRAM_HEADER
+        cell_id = 1
+
+        vpc_resource = None
+        for _, resource_group in resources.items():
+            for resource in resource_group:
+                if resource.digest.type == "aws_vpc":
+                    if vpc_resource is None:
+                        vpc_resource = resource
+                    else:
+                        raise Exception("Only one VPC in a region is supported now")
+        if vpc_resource is None:
+            raise Exception("Only one VPC in a region is supported now")
+
+        added_resources: List[ResourceDigest] = []
+
+        vpc_cell = (
+            '<mxCell id="zB3y0Dp3mfEUP9Fxs3Er-{0}" value="{1}" style="points=[[0,0],[0.25,0],[0.5,0],'
+            "[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],"
+            "[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;"
+            "fontStyle=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc;strokeColor=#248814;"
+            'fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#AAB7B8;dashed=0;" '
+            'parent="1" vertex="1"><mxGeometry x="0" y="0" width="1040" height="1000" as="geometry" />'
+            "</mxCell>".format(cell_id, vpc_resource.name)
+        )
+        cell_id += 1
+        mx_graph_model += vpc_cell
+
+        public_subnet_x = 80
+        public_subnet_y = 80
+        cell_id += 1
+        # pylint: disable=line-too-long
+        public_subnet = (
+            '<mxCell id="public_area_id" value="Public subnet" style="points=[[0,0],[0.25,0],[0.5,0],'
+            "[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],"
+            "[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;"
+            "fontStyle=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;"
+            "strokeColor=#248814;fillColor=#E9F3E6;verticalAlign=top;align=left;spacingLeft=30;"
+            'fontColor=#248814;dashed=0;" vertex="1" parent="1"><mxGeometry x="{X}" y="{Y}" width="420" '
+            'height="500" as="geometry" /></mxCell>'.format_map(
+                {"X": str(public_subnet_x), "Y": str(public_subnet_y)}
+            )
+        )
+        mx_graph_model += public_subnet
+
+        mx_graph_model = self.render_subnet_items(
+            added_resources,
+            mx_graph_model,
+            "{public subnet}",
+            public_subnet_x,
+            public_subnet_y,
+            resource_relations,
+            resources,
+        )
+
+        private_subnet_x = 580
+        private_subnet_y = 80
+        cell_id += 1
+        private_subnet = (
+            '<mxCell id="private_area_id" value="Private subnet" style="points=[[0,0],[0.25,0],'
+            "[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],"
+            "[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;"
+            "fontSize=12;fontStyle=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;"
+            "grStroke=0;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;"
+            'spacingLeft=30;fontColor=#147EBA;dashed=0;" vertex="1" parent="1"><mxGeometry '
+            'x="{X}" y="{Y}" width="420" height="500" as="geometry" /></mxCell>'.format_map(
+                {"X": str(private_subnet_x), "Y": str(private_subnet_y)}
+            )
+        )
+        mx_graph_model += private_subnet
+
+        mx_graph_model = self.render_subnet_items(
+            added_resources,
+            mx_graph_model,
+            "{private subnet}",
+            private_subnet_x,
+            private_subnet_y,
+            resource_relations,
+            resources,
+        )
+
+        count = 0
+        row = 0
+        for _, resource_group in resources.items():
+            for resource in resource_group:
+                if resource.digest.type in ["aws_subnet", "aws_vpc"]:
+                    continue
+                if resource.digest not in added_resources:
+                    added_resources.append(resource.digest)
+                    style = (
+                        Mapsources.resource_styles[resource.digest.type]
+                        if resource.digest.type in Mapsources.resource_styles
+                        else Mapsources.resource_styles["aws_general"]
+                    )
+                    cell = CELL_TEMPLATE.format_map(
+                        {
+                            "CELL_IDX": resource.digest.to_string(),
+                            "X": str(count * 140 + public_subnet_x + 40),
+                            "Y": str(580 + row * 100 + 40),
+                            "STYLE": style.replace("fontSize=12", "fontSize=8"),
+                            "TITLE": resource.name,
+                        }
+                    )
+                    count += 1
+                    mx_graph_model += cell
+                    if count % 6 == 0:
+                        row += 1
+                        count = 0
+
+        mx_graph_model += DIAGRAM_SUFFIX
+        return MX_FILE.replace("<MX_GRAPH>", self.deflate_encode(mx_graph_model))
+
+    # pylint: disable=too-many-locals,too-many-arguments
+    def render_subnet_items(
+        self,
+        added_resources,
+        mx_graph_model,
+        subnet_id,
+        subnet_x,
+        subnet_y,
+        resource_relations,
+        resources,
+    ):
+        count = 0
+        row = 0
+        # pylint: disable=too-many-nested-blocks
+        for relation in resource_relations:
+            if relation.to_node == ResourceDigest(id=subnet_id, type="aws_subnet"):
+                for _, resource_group in resources.items():
+                    for resource in resource_group:
+                        if (
+                            resource.digest == relation.from_node
+                            and relation.from_node not in added_resources
+                        ):
+                            added_resources.append(relation.from_node)
+                            style = (
+                                Mapsources.resource_styles[relation.from_node.type]
+                                if relation.from_node.type in Mapsources.resource_styles
+                                else Mapsources.resource_styles["aws_general"]
+                            )
+
+                            cell = CELL_TEMPLATE.format_map(
+                                {
+                                    "CELL_IDX": relation.from_node.to_string(),
+                                    "X": str(count * 140 + subnet_x + 40),
+                                    "Y": str(subnet_y + row * 100 + 40),
+                                    "STYLE": style.replace("fontSize=12", "fontSize=8"),
+                                    "TITLE": resource.name,
+                                }
+                            )
+                            count += 1
+                            mx_graph_model += cell
+                            if count % 3 == 0:
+                                row += 1
+                                count = 0
+        return mx_graph_model

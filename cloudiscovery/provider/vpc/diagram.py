@@ -1,7 +1,7 @@
 from typing import List, Dict, Optional
 
 from shared.common import ResourceEdge, Resource, ResourceDigest
-from shared.diagram import BaseDiagram, add_resource_to_group
+from shared.diagram import add_resource_to_group, VPCDiagramsNetDiagram
 
 PUBLIC_SUBNET = "{public subnet}"
 PRIVATE_SUBNET = "{private subnet}"
@@ -95,16 +95,14 @@ def aggregate_asg_groups(
             add_resource_to_group(groups, "", agg_resource)
 
 
-class VpcDiagram(BaseDiagram):
+class VpcDiagram(VPCDiagramsNetDiagram):
     def __init__(self, vpc_id: str):
         """
         VPC diagram
 
         :param vpc_id:
         """
-        super().__init__(
-            "sfdp"
-        )  # Change to fdp and clusters once mingrammer/diagrams#17 is done
+        super().__init__()
         self.vpc_id = vpc_id
 
     # pylint: disable=too-many-branches

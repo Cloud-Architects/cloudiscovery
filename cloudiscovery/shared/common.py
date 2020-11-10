@@ -37,6 +37,9 @@ class ResourceDigest(NamedTuple):
     id: str
     type: str
 
+    def to_string(self):
+        return f"{self.type}:{self.id}"
+
 
 class ResourceEdge(NamedTuple):
     from_node: ResourceDigest
