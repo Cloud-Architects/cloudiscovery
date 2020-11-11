@@ -99,7 +99,7 @@ class NATGATEWAY(ResourceProvider):
 
         for data in response["NatGateways"]:
 
-            if data["VpcId"] == self.vpc_options.vpc_id:
+            if data["VpcId"] == self.vpc_options.vpc_id and data["State"] != "deleted":
                 nametag = get_name_tag(data)
 
                 name = data["NatGatewayId"] if nametag is None else nametag

@@ -404,6 +404,9 @@ class VPCDiagramsNetDiagram(BaseDiagram):
         with open(output_filename, "w") as diagram_file:
             diagram_file.write(diagram)
 
+        message_handler("\n\nDiagrams.net diagram generated", "HEADER")
+        message_handler("Check your diagram: " + output_filename, "OKBLUE")
+
     @staticmethod
     def decode_inflate(value: str):
         decoded = base64.b64decode(value)
@@ -442,20 +445,22 @@ class VPCDiagramsNetDiagram(BaseDiagram):
 
         added_resources: List[ResourceDigest] = []
 
+        vpc_box_height = 56565656
+        subnet_box_height = 424242
         vpc_cell = (
             '<mxCell id="zB3y0Dp3mfEUP9Fxs3Er-{0}" value="{1}" style="points=[[0,0],[0.25,0],[0.5,0],'
             "[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],"
             "[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;"
             "fontStyle=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc;strokeColor=#248814;"
             'fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#AAB7B8;dashed=0;" '
-            'parent="1" vertex="1"><mxGeometry x="0" y="0" width="1040" height="1000" as="geometry" />'
-            "</mxCell>".format(cell_id, vpc_resource.name)
+            'parent="1" vertex="1"><mxGeometry x="0" y="0" width="960" height="{2}" as="geometry" />'
+            "</mxCell>".format(cell_id, vpc_resource.name, vpc_box_height)
         )
         cell_id += 1
         mx_graph_model += vpc_cell
 
-        public_subnet_x = 80
-        public_subnet_y = 80
+        public_subnet_x = 40
+        public_subnet_y = 40
         cell_id += 1
         # pylint: disable=line-too-long
         public_subnet = (
@@ -465,13 +470,17 @@ class VPCDiagramsNetDiagram(BaseDiagram):
             "fontStyle=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;"
             "strokeColor=#248814;fillColor=#E9F3E6;verticalAlign=top;align=left;spacingLeft=30;"
             'fontColor=#248814;dashed=0;" vertex="1" parent="1"><mxGeometry x="{X}" y="{Y}" width="420" '
-            'height="500" as="geometry" /></mxCell>'.format_map(
-                {"X": str(public_subnet_x), "Y": str(public_subnet_y)}
+            'height="{H}" as="geometry" /></mxCell>'.format_map(
+                {
+                    "X": str(public_subnet_x),
+                    "Y": str(public_subnet_y),
+                    "H": subnet_box_height,
+                }
             )
         )
         mx_graph_model += public_subnet
 
-        mx_graph_model = self.render_subnet_items(
+        (mx_graph_model, public_rows) = self.render_subnet_items(
             added_resources,
             mx_graph_model,
             "{public subnet}",
@@ -481,8 +490,8 @@ class VPCDiagramsNetDiagram(BaseDiagram):
             resources,
         )
 
-        private_subnet_x = 580
-        private_subnet_y = 80
+        private_subnet_x = 480
+        private_subnet_y = 40
         cell_id += 1
         private_subnet = (
             '<mxCell id="private_area_id" value="Private subnet" style="points=[[0,0],[0.25,0],'
@@ -491,13 +500,17 @@ class VPCDiagramsNetDiagram(BaseDiagram):
             "fontSize=12;fontStyle=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;"
             "grStroke=0;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;"
             'spacingLeft=30;fontColor=#147EBA;dashed=0;" vertex="1" parent="1"><mxGeometry '
-            'x="{X}" y="{Y}" width="420" height="500" as="geometry" /></mxCell>'.format_map(
-                {"X": str(private_subnet_x), "Y": str(private_subnet_y)}
+            'x="{X}" y="{Y}" width="420" height="{H}" as="geometry" /></mxCell>'.format_map(
+                {
+                    "X": str(private_subnet_x),
+                    "Y": str(private_subnet_y),
+                    "H": subnet_box_height,
+                }
             )
         )
         mx_graph_model += private_subnet
 
-        mx_graph_model = self.render_subnet_items(
+        (mx_graph_model, private_rows) = self.render_subnet_items(
             added_resources,
             mx_graph_model,
             "{private subnet}",
@@ -505,6 +518,12 @@ class VPCDiagramsNetDiagram(BaseDiagram):
             private_subnet_y,
             resource_relations,
             resources,
+        )
+        subnet_rows = max(public_rows, private_rows)
+        new_subnet_box_height = subnet_rows * 100 + 80
+
+        mx_graph_model = mx_graph_model.replace(
+            str(subnet_box_height), str(new_subnet_box_height)
         )
 
         count = 0
@@ -524,7 +543,7 @@ class VPCDiagramsNetDiagram(BaseDiagram):
                         {
                             "CELL_IDX": resource.digest.to_string(),
                             "X": str(count * 140 + public_subnet_x + 40),
-                            "Y": str(580 + row * 100 + 40),
+                            "Y": str(new_subnet_box_height + row * 100 + 60),
                             "STYLE": style.replace("fontSize=12", "fontSize=8"),
                             "TITLE": resource.name,
                         }
@@ -534,6 +553,11 @@ class VPCDiagramsNetDiagram(BaseDiagram):
                     if count % 6 == 0:
                         row += 1
                         count = 0
+
+        new_vpc_box_height = new_subnet_box_height + 100 * row + 180
+        mx_graph_model = mx_graph_model.replace(
+            str(vpc_box_height), str(new_vpc_box_height)
+        )
 
         mx_graph_model += DIAGRAM_SUFFIX
         return MX_FILE.replace("<MX_GRAPH>", self.deflate_encode(mx_graph_model))
@@ -548,7 +572,7 @@ class VPCDiagramsNetDiagram(BaseDiagram):
         subnet_y,
         resource_relations,
         resources,
-    ):
+    ) -> (str, int):
         count = 0
         row = 0
         # pylint: disable=too-many-nested-blocks
@@ -581,4 +605,4 @@ class VPCDiagramsNetDiagram(BaseDiagram):
                             if count % 3 == 0:
                                 row += 1
                                 count = 0
-        return mx_graph_model
+        return mx_graph_model, row
