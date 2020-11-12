@@ -117,6 +117,13 @@ class Report(object):
                 with open(image_name, "rb") as image_file:
                     diagram_image = base64.b64encode(image_file.read()).decode("utf-8")
 
+        """generate diagrams.net link"""
+        diagramsnet_image = None
+        if filename is not None:
+            image_name = PATH_DIAGRAM_OUTPUT + filename + ".drawio"
+            if os.path.exists(image_name):
+                diagramsnet_image = f"..{os.path.sep}..{os.path.sep}" + image_name
+
         group_title = "Group"
         if resources:
             if resources[0].limits:
@@ -131,6 +138,7 @@ class Report(object):
                     resources_found=resources,
                     resources_relations=resource_relations,
                     diagram_image=diagram_image,
+                    diagramsnet_image=diagramsnet_image,
                     group_title=group_title,
                 )
 

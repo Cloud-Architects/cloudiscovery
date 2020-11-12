@@ -58,5 +58,9 @@
     {% set base64img = "data:image/png;base64," + diagram_image %}
     <img src={{ base64img }} widht="1024" height="768">
 {%endif %}
+{% if diagramsnet_image is not none %}
+    <p>Diagram file for <a href="https://diagrams.net/">diagrams.net</a></p>
+    <a href={{ diagramsnet_image }}>diagrams.net diagram</a>
+{%endif %}
 
 <p>&nbsp;</p>
