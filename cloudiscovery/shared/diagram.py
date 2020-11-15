@@ -17,6 +17,7 @@ from shared.error_handler import exception
 
 PATH_DIAGRAM_OUTPUT = "./assets/diagrams/"
 DIAGRAM_CLUSTER = "diagram_cluster"
+DIAGRAM_ROW_HEIGHT = 100
 
 
 class Mapsources:
@@ -520,7 +521,7 @@ class VPCDiagramsNetDiagram(BaseDiagram):
             resources,
         )
         subnet_rows = max(public_rows, private_rows)
-        new_subnet_box_height = subnet_rows * 100 + 80
+        new_subnet_box_height = subnet_rows * DIAGRAM_ROW_HEIGHT + 40
 
         mx_graph_model = mx_graph_model.replace(
             str(subnet_box_height), str(new_subnet_box_height)
@@ -543,7 +544,9 @@ class VPCDiagramsNetDiagram(BaseDiagram):
                         {
                             "CELL_IDX": resource.digest.to_string(),
                             "X": str(count * 140 + public_subnet_x + 40),
-                            "Y": str(new_subnet_box_height + row * 100 + 60),
+                            "Y": str(
+                                new_subnet_box_height + row * DIAGRAM_ROW_HEIGHT + 60
+                            ),
                             "STYLE": style.replace("fontSize=12", "fontSize=8"),
                             "TITLE": resource.name,
                         }
@@ -554,7 +557,7 @@ class VPCDiagramsNetDiagram(BaseDiagram):
                         row += 1
                         count = 0
 
-        new_vpc_box_height = new_subnet_box_height + 100 * row + 180
+        new_vpc_box_height = new_subnet_box_height + DIAGRAM_ROW_HEIGHT * row + 180
         mx_graph_model = mx_graph_model.replace(
             str(vpc_box_height), str(new_vpc_box_height)
         )
@@ -595,7 +598,7 @@ class VPCDiagramsNetDiagram(BaseDiagram):
                                 {
                                     "CELL_IDX": relation.from_node.to_string(),
                                     "X": str(count * 140 + subnet_x + 40),
-                                    "Y": str(subnet_y + row * 100 + 40),
+                                    "Y": str(subnet_y + row * DIAGRAM_ROW_HEIGHT + 40),
                                     "STYLE": style.replace("fontSize=12", "fontSize=8"),
                                     "TITLE": resource.name,
                                 }
@@ -605,4 +608,4 @@ class VPCDiagramsNetDiagram(BaseDiagram):
                             if count % 3 == 0:
                                 row += 1
                                 count = 0
-        return mx_graph_model, row
+        return mx_graph_model, row + 1
