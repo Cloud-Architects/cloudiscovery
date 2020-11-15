@@ -424,7 +424,7 @@ class VPCDiagramsNetDiagram(BaseDiagram):
             "utf-8"
         )
 
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-statements
     def build_diagram(
         self,
         resources: Dict[str, List[Resource]],
@@ -460,66 +460,86 @@ class VPCDiagramsNetDiagram(BaseDiagram):
         cell_id += 1
         mx_graph_model += vpc_cell
 
-        public_subnet_x = 40
-        public_subnet_y = 40
-        cell_id += 1
-        # pylint: disable=line-too-long
-        public_subnet = (
-            '<mxCell id="public_area_id" value="Public subnet" style="points=[[0,0],[0.25,0],[0.5,0],'
-            "[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],"
-            "[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;"
-            "fontStyle=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;"
-            "strokeColor=#248814;fillColor=#E9F3E6;verticalAlign=top;align=left;spacingLeft=30;"
-            'fontColor=#248814;dashed=0;" vertex="1" parent="1"><mxGeometry x="{X}" y="{Y}" width="420" '
-            'height="{H}" as="geometry" /></mxCell>'.format_map(
-                {
-                    "X": str(public_subnet_x),
-                    "Y": str(public_subnet_y),
-                    "H": subnet_box_height,
-                }
+        public_rows = 0
+        private_rows = 0
+
+        has_public_resources = self.has_subnet_type(
+            "{public subnet}", resource_relations
+        )
+        has_private_resources = self.has_subnet_type(
+            "{private subnet}", resource_relations
+        )
+
+        subnet_box_width = "420"
+        if not has_public_resources & has_private_resources:
+            subnet_box_width = "880"
+
+        if has_public_resources:
+            public_subnet_x = 40
+            public_subnet_y = 40
+            cell_id += 1
+            # pylint: disable=line-too-long
+            public_subnet = (
+                '<mxCell id="public_area_id" value="Public subnet" style="points=[[0,0],[0.25,0],[0.5,0],'
+                "[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],"
+                "[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;"
+                "fontStyle=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;"
+                "strokeColor=#248814;fillColor=#E9F3E6;verticalAlign=top;align=left;spacingLeft=30;"
+                'fontColor=#248814;dashed=0;" vertex="1" parent="1"><mxGeometry x="{X}" y="{Y}" width="{W}" '
+                'height="{H}" as="geometry" /></mxCell>'.format_map(
+                    {
+                        "X": str(public_subnet_x),
+                        "Y": str(public_subnet_y),
+                        "H": subnet_box_height,
+                        "W": subnet_box_width,
+                    }
+                )
             )
-        )
-        mx_graph_model += public_subnet
+            mx_graph_model += public_subnet
 
-        (mx_graph_model, public_rows) = self.render_subnet_items(
-            added_resources,
-            mx_graph_model,
-            "{public subnet}",
-            public_subnet_x,
-            public_subnet_y,
-            resource_relations,
-            resources,
-        )
-
-        private_subnet_x = 480
-        private_subnet_y = 40
-        cell_id += 1
-        private_subnet = (
-            '<mxCell id="private_area_id" value="Private subnet" style="points=[[0,0],[0.25,0],'
-            "[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],"
-            "[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;"
-            "fontSize=12;fontStyle=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;"
-            "grStroke=0;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;"
-            'spacingLeft=30;fontColor=#147EBA;dashed=0;" vertex="1" parent="1"><mxGeometry '
-            'x="{X}" y="{Y}" width="420" height="{H}" as="geometry" /></mxCell>'.format_map(
-                {
-                    "X": str(private_subnet_x),
-                    "Y": str(private_subnet_y),
-                    "H": subnet_box_height,
-                }
+            (mx_graph_model, public_rows) = self.render_subnet_items(
+                added_resources,
+                mx_graph_model,
+                "{public subnet}",
+                public_subnet_x,
+                public_subnet_y,
+                resource_relations,
+                resources,
+                has_private_resources,
             )
-        )
-        mx_graph_model += private_subnet
 
-        (mx_graph_model, private_rows) = self.render_subnet_items(
-            added_resources,
-            mx_graph_model,
-            "{private subnet}",
-            private_subnet_x,
-            private_subnet_y,
-            resource_relations,
-            resources,
-        )
+        if has_private_resources:
+            private_subnet_x = 480
+            private_subnet_y = 40
+            cell_id += 1
+            private_subnet = (
+                '<mxCell id="private_area_id" value="Private subnet" style="points=[[0,0],[0.25,0],'
+                "[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],"
+                "[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;"
+                "fontSize=12;fontStyle=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;"
+                "grStroke=0;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;"
+                'spacingLeft=30;fontColor=#147EBA;dashed=0;" vertex="1" parent="1"><mxGeometry '
+                'x="{X}" y="{Y}" width="{W}" height="{H}" as="geometry" /></mxCell>'.format_map(
+                    {
+                        "X": str(private_subnet_x),
+                        "Y": str(private_subnet_y),
+                        "H": subnet_box_height,
+                        "W": subnet_box_width,
+                    }
+                )
+            )
+            mx_graph_model += private_subnet
+
+            (mx_graph_model, private_rows) = self.render_subnet_items(
+                added_resources,
+                mx_graph_model,
+                "{private subnet}",
+                private_subnet_x,
+                private_subnet_y,
+                resource_relations,
+                resources,
+                has_public_resources,
+            )
         subnet_rows = max(public_rows, private_rows)
         new_subnet_box_height = subnet_rows * DIAGRAM_ROW_HEIGHT + 40
 
@@ -575,7 +595,11 @@ class VPCDiagramsNetDiagram(BaseDiagram):
         subnet_y,
         resource_relations,
         resources,
+        has_other_subnet,
     ) -> (str, int):
+        items_in_row = 6
+        if has_other_subnet:
+            items_in_row = 3
         count = 0
         row = 0
         # pylint: disable=too-many-nested-blocks
@@ -605,7 +629,14 @@ class VPCDiagramsNetDiagram(BaseDiagram):
                             )
                             count += 1
                             mx_graph_model += cell
-                            if count % 3 == 0:
+                            if count % items_in_row == 0:
                                 row += 1
                                 count = 0
         return mx_graph_model, row + 1
+
+    @staticmethod
+    def has_subnet_type(subnet_id, resource_relations) -> bool:
+        for relation in resource_relations:
+            if relation.to_node == ResourceDigest(id=subnet_id, type="aws_subnet"):
+                return True
+        return False
