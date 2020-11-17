@@ -13,6 +13,14 @@ COMMANDS_ENABLED = {
         "method": "ebs_encryption",
         "short_description": "Check that Amazon Elastic Block Store (EBS) encryption is enabled by default.",
     },
+    "restricted-ssh": {
+        "parameters": [
+            {"name": "restricted_ssh", "default_value": "no", "type": "bool"}
+        ],
+        "class": "EC2",
+        "method": "restricted_ssh",
+        "short_description": "Checks whether SG that are in use disallow unrestricted incoming SSH traffic.",
+    },
     "imdsv2-check": {
         "parameters": [{"name": "imdsv2_check", "default_value": "no", "type": "bool"}],
         "class": "EC2",
@@ -24,5 +32,13 @@ COMMANDS_ENABLED = {
         "class": "DYNAMODB",
         "method": "pitr_enabled",
         "short_description": "Checks that point in time recovery is enabled for Amazon DynamoDB tables.",
+    },
+    "cloudtrail-enabled": {
+        "parameters": [
+            {"name": "cloudtrail_enabled", "default_value": "no", "type": "bool"}
+        ],
+        "class": "CLOUDTRAIL",
+        "method": "cloudtrail_enabled",
+        "short_description": "Checks whether AWS CloudTrail is enabled in your AWS account.",
     },
 }

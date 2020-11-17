@@ -15,6 +15,7 @@ pep8:
     - D400
     - D401
     - W503
+    - E501
   options:
     max-line-length: 120
 

@@ -99,7 +99,7 @@ class NATGATEWAY(ResourceProvider):
 
         for data in response["NatGateways"]:
 
-            if data["VpcId"] == self.vpc_options.vpc_id:
+            if data["VpcId"] == self.vpc_options.vpc_id and data["State"] != "deleted":
                 nametag = get_name_tag(data)
 
                 name = data["NatGatewayId"] if nametag is None else nametag
@@ -265,15 +265,15 @@ class RouteTable(ResourceProvider):
             message_handler("Collecting data from Route Tables...", "HEADER")
 
         # Iterate to get all route table filtered
-        for data in response["RouteTables"]:
-            nametag = get_name_tag(data)
+        for route_table in response["RouteTables"]:
+            nametag = get_name_tag(route_table)
 
-            name = data["RouteTableId"] if nametag is None else nametag
+            name = route_table["RouteTableId"] if nametag is None else nametag
             table_digest = ResourceDigest(
-                id=data["RouteTableId"], type="aws_route_table"
+                id=route_table["RouteTableId"], type="aws_route_table"
             )
             is_main = False
-            for association in data["Associations"]:
+            for association in route_table["Associations"]:
                 if association["Main"] is True:
                     is_main = True
             if is_main:
@@ -283,7 +283,7 @@ class RouteTable(ResourceProvider):
                     )
                 )
             else:
-                for association in data["Associations"]:
+                for association in route_table["Associations"]:
                     if "SubnetId" in association:
                         self.relations_found.append(
                             ResourceEdge(
@@ -296,7 +296,7 @@ class RouteTable(ResourceProvider):
 
             is_public = False
 
-            for route in data["Routes"]:
+            for route in route_table["Routes"]:
                 if (
                     "DestinationCidrBlock" in route
                     and route["DestinationCidrBlock"] == "0.0.0.0/0"
@@ -311,7 +311,7 @@ class RouteTable(ResourceProvider):
                     name=name,
                     details="default: {}, public: {}".format(is_main, is_public),
                     group="network",
-                    tags=resource_tags(data),
+                    tags=resource_tags(route_table),
                 )
             )
         return resources_found
@@ -591,7 +591,7 @@ class VPCENDPOINT(ResourceProvider):
                     resources_found.append(
                         Resource(
                             digest=endpoint_digest,
-                            name=data["ServiceName"],
+                            name=data["VpcEndpointId"],
                             details="Vpc Endpoint Gateway RouteTable {}".format(
                                 ", ".join(data["RouteTableIds"])
                             ),
@@ -609,7 +609,7 @@ class VPCENDPOINT(ResourceProvider):
                     resources_found.append(
                         Resource(
                             digest=endpoint_digest,
-                            name=data["ServiceName"],
+                            name=data["VpcEndpointId"],
                             details="Vpc Endpoint Service Subnet {}".format(
                                 ", ".join(data["SubnetIds"])
                             ),

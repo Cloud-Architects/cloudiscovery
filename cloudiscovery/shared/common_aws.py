@@ -323,11 +323,11 @@ class AwsCommandRunner(object):
                 lambda data: execute_provider(options, data), providers
             )
 
-        for provider_results in provider_results:
-            if provider_results[0] is not None:
-                all_resources.extend(provider_results[0])
-            if provider_results[1] is not None:
-                resource_relations.extend(provider_results[1])
+            for provider_result in provider_results:
+                if provider_result[0] is not None:
+                    all_resources.extend(provider_result[0])
+                if provider_result[1] is not None:
+                    resource_relations.extend(provider_result[1])
 
         unique_resources_dict: Dict[ResourceDigest, Resource] = dict()
         for resource in all_resources:
@@ -368,7 +368,7 @@ class AwsCommandRunner(object):
         report = Report()
         report.general_report(
             resources=filtered_resources, resource_relations=filtered_relations
-        ),
+        )
         report.html_report(
             resources=filtered_resources,
             resource_relations=filtered_relations,
