@@ -70,3 +70,59 @@ class EC2:
                     )
 
         return resources_found
+
+    def restricted_ssh(self, restricted_ssh):
+
+        client = self.options.client("ec2")
+
+        security_groups = client.describe_security_groups()
+
+        resources_found = []
+
+        # pylint: disable=too-many-nested-blocks
+        for security_group in security_groups["SecurityGroups"]:
+            for ip_permission in security_group["IpPermissions"]:
+                if "FromPort" in ip_permission and "ToPort" in ip_permission:
+                    # Port 22 possible opened using port range
+                    if ip_permission["FromPort"] <= 22 >= ip_permission["ToPort"]:
+                        # IPv4
+                        for cidr in ip_permission["IpRanges"]:
+                            if cidr["CidrIp"] == "0.0.0.0/0":
+                                resources_found.append(
+                                    Resource(
+                                        digest=ResourceDigest(
+                                            id=security_group["GroupId"],
+                                            type="restricted_ssh",
+                                        ),
+                                        details="The SSH port of this security group is opened to the world.",
+                                        name=security_group["GroupName"],
+                                        group="ec2_security",
+                                        security=SecurityValues(
+                                            status="CRITICAL",
+                                            parameter="restricted_ssh",
+                                            value="False",
+                                        ),
+                                    )
+                                )
+
+                        # IPv6
+                        for cidr in ip_permission["Ipv6Ranges"]:
+                            if cidr["CidrIpv6"] == "::/0":
+                                resources_found.append(
+                                    Resource(
+                                        digest=ResourceDigest(
+                                            id=security_group["GroupId"],
+                                            type="restricted_ssh",
+                                        ),
+                                        details="The SSH port of this security group is opened to the world.",
+                                        name=security_group["GroupName"],
+                                        group="ec2_security",
+                                        security=SecurityValues(
+                                            status="CRITICAL",
+                                            parameter="restricted_ssh",
+                                            value="False",
+                                        ),
+                                    )
+                                )
+
+        return resources_found

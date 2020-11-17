@@ -313,6 +313,8 @@ This features is experimental, but now you can run commands to check and analyze
 *   EBS Encryption enabled
 *   EC2 IMDSV2 Check
 *   DynamoDB PITR Enabled
+*   Incoming SSH Disabled
+*   Cloudtrail enabled
 
 ## Using a Docker container
 To build docker container using Dockerfile
