@@ -316,6 +316,11 @@ This features is experimental, but now you can run commands to check and analyze
 *   Incoming SSH Disabled
 *   Cloudtrail enabled
 
+
+## Regions outside of main partition
+
+If you wish to analyze accounts in regions outside the main AWS partition (e.g. GovCloud or China), you should provide credentials (e.g. a profile) that are applicable to a given partition. It's not possible to analyze regions from multiple partitions.
+
 ## Using a Docker container
 To build docker container using Dockerfile
 

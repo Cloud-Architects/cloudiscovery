@@ -81,19 +81,52 @@ class BaseAwsOptions:
 
 
 class GlobalParameters:
-    def __init__(self, session, region: str, path: str):
+    def __init__(self, session, region: str, path: str, partition_code: str):
         self.region = region
-        self.session = session.client("ssm", region_name="us-east-1")
+        self.session = session
+        self.client = None
         self.path = path
+        self.partition_code = partition_code
         self.cache = ResourceCache()
 
-    def get_parameters_by_path(self, next_token=None):
+    def paths(self):
 
-        params = {"Path": self.path, "Recursive": True, "MaxResults": 10}
-        if next_token is not None:
-            params["NextToken"] = next_token
+        cache_key = "aws_paths_" + self.region
+        cache = self.cache.get_key(cache_key)
 
-        return self.session.get_parameters_by_path(**params)
+        if cache is not None:
+            return cache
+
+        paths_found = []
+        if self.partition_code == "aws":
+            message_handler(
+                "Fetching available resources in region {} to cache...".format(
+                    self.region
+                ),
+                "HEADER",
+            )
+            self.client = self.session.client("ssm", region_name="us-east-1")
+            paths = self.parameters()
+            for path in paths:
+                paths_found.append(path["Value"])
+        else:
+            message_handler(
+                "Loading available resources in region {} to cache...".format(
+                    self.region
+                ),
+                "HEADER",
+            )
+            # pylint: disable=protected-access
+            loader = self.session._session.get_component("data_loader")
+            endpoints = loader.load_data("endpoints")
+            for partition in endpoints["partitions"]:
+                for service, service_info in partition["services"].items():
+                    for endpoint_region, _ in service_info["endpoints"].items():
+                        if self.region == endpoint_region:
+                            paths_found.append(service)
+
+        self.cache.set_key(key=cache_key, value=paths_found, expire=86400)
+        return paths_found
 
     def parameters(self):
         next_token = None
@@ -108,37 +141,27 @@ class GlobalParameters:
                 break
             next_token = response["NextToken"]
 
-    def paths(self):
+    def get_parameters_by_path(self, next_token=None):
 
-        cache_key = "aws_paths_" + self.region
-        cache = self.cache.get_key(cache_key)
+        params = {"Path": self.path, "Recursive": True, "MaxResults": 10}
+        if next_token is not None:
+            params["NextToken"] = next_token
 
-        if cache is not None:
-            return cache
-
-        message_handler(
-            "Fetching available resources in region {} to cache...".format(self.region),
-            "HEADER",
-        )
-        paths_found = []
-        paths = self.parameters()
-        for path in paths:
-            paths_found.append(path["Value"])
-
-        self.cache.set_key(key=cache_key, value=paths_found, expire=86400)
-        return paths_found
+        return self.client.get_parameters_by_path(**params)
 
 
 class BaseAwsCommand(BaseCommand):
-    def __init__(self, region_names, session):
+    def __init__(self, region_names, session, partition_code):
         """
         Base class for discovery command
 
         :param region_names:
         :param session:
+        :param partition_code:
         """
         self.region_names: List[str] = region_names
         self.session: Session = session
+        self.partition_code: str = partition_code
 
     def run(
         self,
@@ -150,9 +173,14 @@ class BaseAwsCommand(BaseCommand):
         raise NotImplementedError()
 
     def init_region_cache(self, region):
-        # Get and cache SSM services available in specific region
+        # Get and cache services available in specific region
         path = "/aws/service/global-infrastructure/regions/" + region + "/services/"
-        GlobalParameters(session=self.session, region=region, path=path).paths()
+        GlobalParameters(
+            session=self.session,
+            region=region,
+            path=path,
+            partition_code=self.partition_code,
+        ).paths()
 
 
 def resource_tags(resource_data: dict) -> List[ResourceTag]:

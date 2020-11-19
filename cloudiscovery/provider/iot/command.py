@@ -21,15 +21,16 @@ class IotOptions(BaseAwsOptions, BaseOptions):
 
 class Iot(BaseAwsCommand):
     # pylint: disable=too-many-arguments
-    def __init__(self, thing_name, region_names, session):
+    def __init__(self, thing_name, region_names, session, partition_code):
         """
         Iot command
 
         :param thing_name:
         :param region_names:
         :param session:
+        :param partition_code:
         """
-        super().__init__(region_names, session)
+        super().__init__(region_names, session, partition_code)
         self.thing_name = thing_name
 
     def run(

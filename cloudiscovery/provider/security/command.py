@@ -31,15 +31,16 @@ class SecurityParameters:
 
 
 class Security(BaseAwsCommand):
-    def __init__(self, region_names, session, commands):
+    def __init__(self, region_names, session, commands, partition_code):
         """
         All AWS resources
 
         :param region_names:
         :param session:
         :param commands:
+        :param partition_code:
         """
-        super().__init__(region_names, session)
+        super().__init__(region_names, session, partition_code)
         self.commands = commands
 
     def run(
