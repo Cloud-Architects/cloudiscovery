@@ -129,15 +129,16 @@ class LimitParameters:
 
 
 class Limit(BaseAwsCommand):
-    def __init__(self, region_names, session, threshold):
+    def __init__(self, region_names, session, threshold, partition_code):
         """
         All AWS resources
 
         :param region_names:
         :param session:
         :param threshold:
+        :param partition_code:
         """
-        super().__init__(region_names, session)
+        super().__init__(region_names, session, partition_code)
         self.threshold = threshold
 
     def init_globalaws_limits_cache(self, region, services, options: LimitOptions):

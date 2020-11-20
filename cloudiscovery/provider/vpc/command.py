@@ -31,15 +31,16 @@ class VpcOptions(BaseAwsOptions, BaseOptions):
 
 class Vpc(BaseAwsCommand):
     # pylint: disable=too-many-arguments
-    def __init__(self, vpc_id, region_names, session):
+    def __init__(self, vpc_id, region_names, session, partition_code):
         """
         VPC command
 
         :param vpc_id:
         :param region_names:
         :param session:
+        :param partition_code:
         """
-        super().__init__(region_names, session)
+        super().__init__(region_names, session, partition_code)
         self.vpc_id = vpc_id
 
     @staticmethod
