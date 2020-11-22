@@ -174,7 +174,7 @@ class Limit(BaseAwsCommand):
                 region=region, services=services, options=limit_options
             )
 
-            command_runner = AwsCommandRunner(services=services)
+            command_runner = AwsCommandRunner()
             command_runner.run(
                 provider="limit",
                 options=limit_options,
