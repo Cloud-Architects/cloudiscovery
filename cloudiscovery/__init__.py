@@ -39,7 +39,7 @@ if sys.version_info < (3, 8):
     print("Python 3.8 or newer is required", file=sys.stderr)
     sys.exit(1)
 
-__version__ = "2.3"
+__version__ = "2.4"
 
 AVAILABLE_LANGUAGES = ["en_US", "pt_BR"]
 
