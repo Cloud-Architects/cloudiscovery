@@ -57,7 +57,8 @@
                   "networkmanager:DescribeGlobalNetworks",
                   "codeartifact:ListDomains",
                   "ses:GetSendQuota",
-                  "codeguru-profiler:ListProfilingGroups"
+                  "codeguru-profiler:ListProfilingGroups",
+                  "cloudtrail:ListTrails"
                 ],
                 "Resource": [ "*" ]
               }
