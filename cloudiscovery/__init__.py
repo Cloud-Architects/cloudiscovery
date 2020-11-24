@@ -21,11 +21,13 @@ from typing import List
 
 import pkg_resources
 
+"""path to pip package"""
+sys.path.append(dirname(__file__))
+
+# pylint: disable=wrong-import-position
 from provider.aws.command import aws_main
 from shared.parameters import generate_parser
 
-"""path to pip package"""
-sys.path.append(dirname(__file__))
 
 # pylint: disable=wrong-import-position
 from shared.common import (
