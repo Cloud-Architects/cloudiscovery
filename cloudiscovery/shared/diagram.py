@@ -549,6 +549,7 @@ class VPCDiagramsNetDiagram(BaseDiagram):
 
         count = 0
         row = 0
+        public_subnet_x = 0
         for _, resource_group in resources.items():
             for resource in resource_group:
                 if resource.digest.type in ["aws_subnet", "aws_vpc"]:
