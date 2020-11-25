@@ -396,6 +396,11 @@ To run pre-commit hooks, you can issue the following command:
 pre-commit run --all-files
 ```
 
+Running cloudiscovery in development mode:
+```
+python cloudiscovery/__init__.py OPTIONS
+```
+
 To add new resources to check limit, please remove "assets/.cache/cache.db"
 
 ## Making a release
