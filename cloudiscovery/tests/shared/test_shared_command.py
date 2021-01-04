@@ -4,11 +4,10 @@ from assertpy import assert_that
 
 from shared.command import filter_resources, filter_relations
 from shared.common import (
-    ResourceTag,
     Resource,
     ResourceDigest,
     ResourceEdge,
-    ResourceType,
+    Filterable,
 )
 
 
@@ -19,7 +18,7 @@ class TestCommand(TestCase):
                 Resource(
                     digest=ResourceDigest(id="1", type="type"),
                     name="name",
-                    tags=[ResourceTag(key="key", value="value")],
+                    tags=[Filterable(key="key", value="value")],
                 )
             ],
             [],
@@ -36,15 +35,15 @@ class TestCommand(TestCase):
                 Resource(
                     digest=ResourceDigest(id="1", type="type"),
                     name="name",
-                    tags=[ResourceTag(key="key", value="value")],
+                    tags=[Filterable(key="key", value="value")],
                 ),
                 Resource(
                     digest=ResourceDigest(id="2", type="type"),
                     name="name",
-                    tags=[ResourceTag(key="key", value="wrong")],
+                    tags=[Filterable(key="key", value="wrong")],
                 ),
             ],
-            [ResourceTag(key="key", value="value")],
+            [Filterable(key="key", value="value")],
         )
 
         assert_that(resources).is_length(1)
@@ -58,22 +57,22 @@ class TestCommand(TestCase):
                 Resource(
                     digest=ResourceDigest(id="1", type="type"),
                     name="name",
-                    tags=[ResourceTag(key="key", value="value1")],
+                    tags=[Filterable(key="key", value="value1")],
                 ),
                 Resource(
                     digest=ResourceDigest(id="2", type="type"),
                     name="name",
-                    tags=[ResourceTag(key="key", value="value2")],
+                    tags=[Filterable(key="key", value="value2")],
                 ),
                 Resource(
                     digest=ResourceDigest(id="3", type="type"),
                     name="name",
-                    tags=[ResourceTag(key="key", value="wrong")],
+                    tags=[Filterable(key="key", value="wrong")],
                 ),
             ],
             [
-                ResourceTag(key="key", value="value1"),
-                ResourceTag(key="key", value="value2"),
+                Filterable(key="key", value="value1"),
+                Filterable(key="key", value="value2"),
             ],
         )
 
@@ -87,15 +86,15 @@ class TestCommand(TestCase):
                 Resource(
                     digest=ResourceDigest(id="1", type="type1"),
                     name="name",
-                    tags=[ResourceTag(key="key", value="value")],
+                    tags=[Filterable(key="key", value="value")],
                 ),
                 Resource(
                     digest=ResourceDigest(id="2", type="type2"),
                     name="name",
-                    tags=[ResourceTag(key="key", value="wrong")],
+                    tags=[Filterable(key="key", value="wrong")],
                 ),
             ],
-            [ResourceType(type="type1")],
+            [Filterable(type="type1")],
         )
 
         assert_that(resources).is_length(1)
@@ -111,7 +110,7 @@ class TestCommand(TestCase):
                 Resource(
                     digest=digest,
                     name="name",
-                    tags=[ResourceTag(key="key", value="value")],
+                    tags=[Filterable(key="key", value="value")],
                 )
             ],
             [edge],

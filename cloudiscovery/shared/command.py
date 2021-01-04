@@ -9,8 +9,6 @@ from shared.common import (
     Resource,
     ResourceEdge,
     Filterable,
-    ResourceTag,
-    ResourceType,
     BaseOptions,
     message_handler,
     ResourceProvider,
@@ -161,14 +159,14 @@ def filter_resources(
     for resource in resources:
         matches_filter = False
         for resource_filter in filters:
-            if isinstance(resource_filter, ResourceTag):
+            if resource_filter.is_tag():
                 for resource_tag in resource.tags:
                     if (
                         resource_tag.key == resource_filter.key
                         and resource_tag.value == resource_filter.value
                     ):
                         matches_filter = True
-            elif isinstance(resource_filter, ResourceType):
+            elif resource_filter.is_type():
                 if resource.digest.type == resource_filter.type:
                     matches_filter = True
         if matches_filter:
