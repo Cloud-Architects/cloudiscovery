@@ -9,7 +9,6 @@ from shared.command import CommandRunner
 from shared.common import (
     ResourceCache,
     message_handler,
-    ResourceTag,
     Filterable,
     exit_critical,
     BaseCommand,
@@ -172,7 +171,7 @@ class BaseAwsCommand(BaseCommand):
         ).paths()
 
 
-def resource_tags(resource_data: dict) -> List[ResourceTag]:
+def resource_tags(resource_data: dict) -> List[Filterable]:
     if isinstance(resource_data, str):
         return []
 
@@ -196,7 +195,7 @@ def resource_tags(resource_data: dict) -> List[ResourceTag]:
     return tags
 
 
-def resource_tags_from_tuples(tuples: List[Dict[str, str]]) -> List[ResourceTag]:
+def resource_tags_from_tuples(tuples: List[Dict[str, str]]) -> List[Filterable]:
     """
         List of key-value tuples that store tags, syntax:
         [
@@ -218,13 +217,13 @@ def resource_tags_from_tuples(tuples: List[Dict[str, str]]) -> List[ResourceTag]
     result = []
     for tuple_elem in tuples:
         if "Key" in tuple_elem and "Value" in tuple_elem:
-            result.append(ResourceTag(key=tuple_elem["Key"], value=tuple_elem["Value"]))
+            result.append(Filterable(key=tuple_elem["Key"], value=tuple_elem["Value"]))
         elif "key" in tuple_elem and "value" in tuple_elem:
-            result.append(ResourceTag(key=tuple_elem["key"], value=tuple_elem["value"]))
+            result.append(Filterable(key=tuple_elem["key"], value=tuple_elem["value"]))
     return result
 
 
-def resource_tags_from_dict(tags: Dict[str, str]) -> List[ResourceTag]:
+def resource_tags_from_dict(tags: Dict[str, str]) -> List[Filterable]:
     """
         List of key-value dict that store tags, syntax:
         {
@@ -233,7 +232,7 @@ def resource_tags_from_dict(tags: Dict[str, str]) -> List[ResourceTag]:
     """
     result = []
     for key, value in tags.items():
-        result.append(ResourceTag(key=key, value=value))
+        result.append(Filterable(key=key, value=value))
     return result
 
 

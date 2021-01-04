@@ -47,8 +47,17 @@ class ResourceEdge(NamedTuple):
     label: str = None
 
 
-class Filterable:
-    pass
+# Either key/value is passed or type
+class Filterable(NamedTuple):
+    key: str = None
+    value: str = None
+    type: str = None
+
+    def is_type(self):
+        return self.type is not None
+
+    def is_tag(self):
+        return self.key is not None and self.value is not None
 
 
 class LimitsValues(NamedTuple):
@@ -67,21 +76,12 @@ class SecurityValues(NamedTuple):
     value: str
 
 
-class ResourceTag(NamedTuple, Filterable):
-    key: str
-    value: str
-
-
-class ResourceType(NamedTuple, Filterable):
-    type: str
-
-
 class Resource(NamedTuple):
     digest: ResourceDigest
     name: str = ""
     details: str = ""
     group: str = ""
-    tags: List[ResourceTag] = []
+    tags: List[Filterable] = []
     limits: LimitsValues = None
     security: SecurityValues = None
     attributes: Dict[str, object] = {}
@@ -190,9 +190,9 @@ def datetime_to_string(o):
 def _add_filter(filters: List[Filterable], is_tag: bool, full_name: str, value: str):
     if is_tag:
         name = full_name[len(FILTER_TAG_NAME_PREFIX) :]
-        filters.append(ResourceTag(key=name, value=value))
+        filters.append(Filterable(key=name, value=value))
     else:
-        filters.append(ResourceType(type=value))
+        filters.append(Filterable(type=value))
 
 
 def parse_filters(arg_filters) -> List[Filterable]:
