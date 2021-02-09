@@ -31,49 +31,55 @@ The commands generate reports that can be used to further analyze resources.
 
 ### CLI
 
+#### Overview
+
+The CLI runs under the format of `cloudiscovery <platform> <resource> [OPTIONS]`.
+
+#### AWS
+
 1.  Run the cloudiscovery command with following options (if a region not pass, this script will try to get it from ~/.aws/credentials):
 
 1.1 To detect AWS VPC resources (more on [AWS VPC](#aws-vpc)):
 
 ```sh
-cloudiscovery aws-vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram [yes/no]] [--filter xxx] [--verbose]
+cloudiscovery aws vpc [--vpc-id vpc-xxxxxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram [yes/no]] [--filter xxx] [--verbose]
 ```
 1.2 To detect AWS policy resources (more on [AWS Policy](#aws-policy)):
 
 ```sh
-cloudiscovery aws-policy [--profile-name profile] [--diagram [yes/no]] [--filter xxx] [--verbose]
+cloudiscovery aws policy [--profile-name profile] [--diagram [yes/no]] [--filter xxx] [--verbose]
 ```
 1.3 To detect AWS IoT resources (more on [AWS IoT](#aws-iot)):
 
 ```sh
-cloudiscovery aws-iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram [yes/no]] [--filter xxx] [--verbose]
+cloudiscovery aws iot [--thing-name thing-xxxx] --region-name xx-xxxx-xxx [--profile-name profile] [--diagram [yes/no]] [--filter xxx] [--verbose]
 ```
 
 1.4 To detect all AWS resources (more on [AWS All](#aws-all)):
 
 ```sh
-cloudiscovery aws-all --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx] [--filter xxx] [--verbose]
+cloudiscovery aws all --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx] [--filter xxx] [--verbose]
 ```
 
 1.5 To check AWS limits per resource (more on [AWS Limit](#aws-limit)):
 
 ```sh
-cloudiscovery aws-limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx] [--usage 0-100] [--verbose]
+cloudiscovery aws limit --region-name xx-xxxx-xxx [--profile-name profile] [--services xxx,xxx] [--usage 0-100] [--verbose]
 ```
 
 1.6 To run AWS security controls (experimental feature):
 
 ```sh
-cloudiscovery aws-security --region-name xx-xxxx-xxx [--profile-name profile] [--commands x] [--verbose]
+cloudiscovery aws security --region-name xx-xxxx-xxx [--profile-name profile] [--commands x] [--verbose]
 ```
 
 2.  For help use:
 
 ```sh
-cloudiscovery [aws-vpc|aws-policy|aws-iot|aws-all|aws-limit] -h
+cloudiscovery [aws|az] [vpc|policy|iot|all|limit] -h
 ```
 
-### Debbuging 
+### Debugging 
 
 Enabling verbose mode, it is possible to debug all calls to the providers endpoints and check possible problems.
 
@@ -107,15 +113,23 @@ pip install -U cloudiscovery
 
 Once a while after installation, there can be some issues related with a cache from older version being used by a newer version. In that case, it's recommended to remove directory `./assets/.cache`.
 
-### AWS Credentials
+### Provider-specific dependencies
+| Provider | Dependency | URL |
+|:---------|:-----------|:----|
+|AWS|AWS CLI|https://aws.amazon.com/cli/|
+|Azure|Az CLI|https://docs.microsoft.com/en-us/cli/azure/install-azure-cli|
 
-Make sure you have properly configured your AWS-CLI with a valid Access Key and Region:
+### Credentials
 
-```sh
-aws configure
-```
+Credentials should be configured via the terminal before running the Cloudiscovery CLI.
 
-More on credentials configuration: [Configuration basics](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html)
+*Note* - Use of service principals are not currently supported
+
+| Provider | Command | Reference |
+|:---------|:--------|:----------|
+| AWS | `aws configure` | [AWS Docs](https://docs.aws.amazon.com/cli/latest/reference/configure/)
+| Azure | `az login` | [Microsoft Docs](https://docs.microsoft.com/en-us/cli/azure/authenticate-azure-cli)
+
 
 #### AWS Permissions
 
