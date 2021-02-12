@@ -18,37 +18,41 @@ def generate_parser():
 
     subparsers = parser.add_subparsers(help="commands", dest="command")
 
-    vpc_parser = subparsers.add_parser("aws-vpc", help="Analyze VPCs")
-    add_default_arguments(vpc_parser)
-    vpc_parser.add_argument(
+    # Begin AWS "aws" parser declarations
+    aws_parser = subparsers.add_parser("aws", help="aws help")
+    aws_subparser = aws_parser.add_subparsers(title="AWS Discovery", dest="resource")
+
+    aws_vpc_parser = aws_subparser.add_parser("vpc", help="aws vpc help")
+    add_default_arguments(aws_vpc_parser)
+    aws_vpc_parser.add_argument(
         "-v",
         "--vpc-id",
         required=False,
         help="Inform VPC to analyze. If not informed, script will check all vpcs.",
     )
 
-    iot_parser = subparsers.add_parser("aws-iot", help="Analyze IoTs")
-    add_default_arguments(iot_parser)
-    iot_parser.add_argument(
+    aws_iot_parser = aws_subparser.add_parser("iot", help="aws iot help")
+    add_default_arguments(aws_iot_parser)
+    aws_iot_parser.add_argument(
         "-t",
         "--thing-name",
         required=False,
         help="Inform Thing Name to analyze. If not informed, script will check all things inside a region.",
     )
 
-    policy_parser = subparsers.add_parser("aws-policy", help="Analyze policies")
-    add_default_arguments(policy_parser, is_global=True)
+    aws_policy_parser = aws_subparser.add_parser("policy", help="aws policy help")
+    add_default_arguments(aws_policy_parser, is_global=True)
 
-    all_parser = subparsers.add_parser("aws-all", help="Analyze all resources")
-    add_default_arguments(all_parser, diagram_enabled=False)
-    add_services_argument(all_parser)
+    aws_all_parser = aws_subparser.add_parser("all", help="aws all help")
+    add_default_arguments(aws_all_parser, diagram_enabled=False)
+    add_services_argument(aws_all_parser)
 
-    limit_parser = subparsers.add_parser(
-        "aws-limit", help="Analyze aws limit resources."
+    aws_limit_parser = aws_subparser.add_parser("limit", help="aws limit help")
+    add_default_arguments(
+        aws_limit_parser, diagram_enabled=False, filters_enabled=False
     )
-    add_default_arguments(limit_parser, diagram_enabled=False, filters_enabled=False)
-    add_services_argument(limit_parser)
-    limit_parser.add_argument(
+    add_services_argument(aws_limit_parser)
+    aws_limit_parser.add_argument(
         "-t",
         "--threshold",
         required=False,
@@ -56,11 +60,11 @@ def generate_parser():
               For example: --threshold 50 will report all resources with more than 50%% threshold.",
     )
 
-    security_parser = subparsers.add_parser(
-        "aws-security", help="Analyze aws several security checks."
+    aws_security_parser = aws_subparser.add_parser("security", help="aws security help")
+    add_default_arguments(
+        aws_security_parser, diagram_enabled=False, filters_enabled=False
     )
-    add_default_arguments(security_parser, diagram_enabled=False, filters_enabled=False)
-    security_parser.add_argument(
+    aws_security_parser.add_argument(
         "-c",
         "--commands",
         action="append",
@@ -69,6 +73,14 @@ def generate_parser():
               To see available commands, please type "-c list". \
               If not passed, command will check all services.',
     )
+
+    # Begin Azure "az" parser declaration
+    az_parser = subparsers.add_parser("az", help="az help")
+    az_subparser = az_parser.add_subparsers(title="Azure Discovery", dest="resource")
+
+    az_all_parser = az_subparser.add_parser("all", help="az all help")
+    add_default_arguments(az_all_parser, diagram_enabled=False)
+    add_services_argument(az_all_parser)
 
     return parser
 

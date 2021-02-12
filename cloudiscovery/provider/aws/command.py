@@ -115,36 +115,36 @@ def aws_main(args) -> BaseCommand:
                 if int(args.threshold) < 0 or int(args.threshold) > 100:
                     exit_critical("Threshold must be between 0 and 100")
 
-    if args.command == "aws-vpc":
+    if args.resource == "vpc":
         command = Vpc(
             vpc_id=args.vpc_id,
             region_names=region_names,
             session=session,
             partition_code=partition_code,
         )
-    elif args.command == "aws-policy":
+    elif args.resource == "policy":
         command = Policy(
             region_names=region_names, session=session, partition_code=partition_code
         )
-    elif args.command == "aws-iot":
+    elif args.resource == "iot":
         command = Iot(
             thing_name=args.thing_name,
             region_names=region_names,
             session=session,
             partition_code=partition_code,
         )
-    elif args.command == "aws-all":
+    elif args.resource == "all":
         command = All(
             region_names=region_names, session=session, partition_code=partition_code
         )
-    elif args.command == "aws-limit":
+    elif args.resource == "limit":
         command = Limit(
             region_names=region_names,
             session=session,
             threshold=args.threshold,
             partition_code=partition_code,
         )
-    elif args.command == "aws-security":
+    elif args.resource == "security":
         command = Security(
             region_names=region_names,
             session=session,
