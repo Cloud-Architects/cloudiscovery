@@ -37,6 +37,7 @@ class CommandRunner(object):
         diagram_builder: BaseDiagram,
         title: str,
         filename: str,
+        import_module: str,
     ):
         """
         Executes a command.
@@ -63,7 +64,8 @@ class CommandRunner(object):
                 # Load and call all run check
                 for nameclass, cls in inspect.getmembers(
                     importlib.import_module(
-                        "provider.aws."
+                        import_module
+                        #"provider.aws."
                         + provider.replace("/", ".")
                         + ".resource."
                         + module
@@ -90,7 +92,7 @@ class CommandRunner(object):
                     all_resources.extend(provider_result[0])
                 if provider_result[1] is not None:
                     resource_relations.extend(provider_result[1])
-
+        
         unique_resources_dict: Dict[ResourceDigest, Resource] = dict()
         for resource in all_resources:
             unique_resources_dict[resource.digest] = resource

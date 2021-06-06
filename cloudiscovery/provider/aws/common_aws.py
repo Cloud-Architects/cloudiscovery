@@ -157,6 +157,7 @@ class BaseAwsCommand(BaseCommand):
         verbose: bool,
         services: List[str],
         filters: List[Filterable],
+        import_module: str,
     ):
         raise NotImplementedError()
 
@@ -197,22 +198,22 @@ def resource_tags(resource_data: dict) -> List[Filterable]:
 
 def resource_tags_from_tuples(tuples: List[Dict[str, str]]) -> List[Filterable]:
     """
-        List of key-value tuples that store tags, syntax:
-        [
-            {
-                'Key': 'string',
-                'Value': 'string',
-                ...
-            },
-        ]
-        OR
-        [
-            {
-                'key': 'string',
-                'value': 'string',
-                ...
-            },
-        ]
+    List of key-value tuples that store tags, syntax:
+    [
+        {
+            'Key': 'string',
+            'Value': 'string',
+            ...
+        },
+    ]
+    OR
+    [
+        {
+            'key': 'string',
+            'value': 'string',
+            ...
+        },
+    ]
     """
     result = []
     for tuple_elem in tuples:
@@ -225,10 +226,10 @@ def resource_tags_from_tuples(tuples: List[Dict[str, str]]) -> List[Filterable]:
 
 def resource_tags_from_dict(tags: Dict[str, str]) -> List[Filterable]:
     """
-        List of key-value dict that store tags, syntax:
-        {
-            'string': 'string'
-        }
+    List of key-value dict that store tags, syntax:
+    {
+        'string': 'string'
+    }
     """
     result = []
     for key, value in tags.items():
@@ -255,8 +256,10 @@ def generate_session(profile_name, region_name):
         return boto3.Session(profile_name=profile_name, region_name=region_name)
     # pylint: disable=broad-except
     except Exception as e:
-        message = "You must configure awscli before use this script.\nError: {0}".format(
-            str(e)
+        message = (
+            "You must configure awscli before use this script.\nError: {0}".format(
+                str(e)
+            )
         )
         exit_critical(message)
 

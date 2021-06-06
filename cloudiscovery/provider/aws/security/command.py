@@ -14,7 +14,12 @@ class SecurityOptions(BaseAwsOptions, BaseOptions):
 
     # pylint: disable=too-many-arguments
     def __init__(
-        self, verbose: bool, filters: List[Filterable], session, region_name, commands,
+        self,
+        verbose: bool,
+        filters: List[Filterable],
+        session,
+        region_name,
+        commands,
     ):
         BaseAwsOptions.__init__(self, session, region_name)
         BaseOptions.__init__(self, verbose, filters)
@@ -49,6 +54,7 @@ class Security(BaseAwsCommand):
         verbose: bool,
         services: List[str],
         filters: List[Filterable],
+        import_module: str,
     ):
 
         for region in self.region_names:
@@ -68,4 +74,5 @@ class Security(BaseAwsCommand):
                 title="AWS Security - Region {}".format(region),
                 # pylint: disable=no-member
                 filename=security_options.resulting_file_name("security"),
+                import_module=import_module,
             )

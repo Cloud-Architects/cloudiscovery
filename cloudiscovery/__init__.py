@@ -26,6 +26,7 @@ sys.path.append(dirname(__file__))
 
 # pylint: disable=wrong-import-position
 from provider.aws.command import aws_main
+from provider.ibm.command import ibm_main
 from shared.parameters import generate_parser
 
 
@@ -54,14 +55,11 @@ def main():
     if len(sys.argv) <= 1:
         parser.print_help()
         return
-
     args = parser.parse_args()
-
     if args.language is None or args.language not in AVAILABLE_LANGUAGES:
         language = "en_US"
     else:
         language = args.language
-
     # Diagram check
     if "diagram" not in args:
         diagram = False
@@ -77,7 +75,6 @@ def main():
 
     # diagram version check
     check_diagram_version(diagram)
-
     # filters check
     filters: List[Filterable] = []
     if "filters" in args:
@@ -86,6 +83,10 @@ def main():
 
     if args.command.startswith("aws"):
         command = aws_main(args)
+        import_module = "provider.aws."
+    elif args.command.startswith("ibm"):
+        command = ibm_main(args)
+        import_module = "provider.ibm."
     else:
         raise NotImplementedError("Unknown command")
 
@@ -94,7 +95,7 @@ def main():
     else:
         services = []
 
-    command.run(diagram, args.verbose, services, filters)
+    command.run(diagram, args.verbose, services, filters, import_module)
 
 
 def check_diagram_version(diagram):

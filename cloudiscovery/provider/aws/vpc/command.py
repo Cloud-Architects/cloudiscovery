@@ -68,6 +68,7 @@ class Vpc(BaseAwsCommand):
         verbose: bool,
         services: List[str],
         filters: List[Filterable],
+        import_module: str,
     ):
         # pylint: disable=too-many-branches
         command_runner = AwsCommandRunner(filters)
@@ -100,6 +101,7 @@ class Vpc(BaseAwsCommand):
                         diagram_builder=diagram_builder,
                         title="AWS VPC {} Resources - Region {}".format(vpc_id, region),
                         filename=vpc_options.resulting_file_name(vpc_id + "_vpc"),
+                        import_module=import_module,
                     )
             else:
                 vpc_options = VpcOptions(
@@ -123,6 +125,7 @@ class Vpc(BaseAwsCommand):
                         self.vpc_id, region
                     ),
                     filename=vpc_options.resulting_file_name(self.vpc_id + "_vpc"),
+                    import_module=import_module,
                 )
 
 

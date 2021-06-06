@@ -245,6 +245,7 @@ class BaseCommand(ABC):
         verbose: bool,
         services: List[str],
         filters: List[Filterable],
+        import_module: str,
     ):
         raise NotImplementedError()
 

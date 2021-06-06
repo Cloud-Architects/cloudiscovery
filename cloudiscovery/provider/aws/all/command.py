@@ -22,6 +22,7 @@ class All(BaseAwsCommand):
         verbose: bool,
         services: List[str],
         filters: List[Filterable],
+        import_module: str,
     ):
         for region in self.region_names:
             self.init_region_cache(region)
@@ -41,4 +42,5 @@ class All(BaseAwsCommand):
                 title="AWS Resources - Region {}".format(region),
                 # pylint: disable=no-member
                 filename=options.resulting_file_name("all"),
+                import_module=import_module,
             )

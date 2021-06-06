@@ -18,6 +18,27 @@ def generate_parser():
 
     subparsers = parser.add_subparsers(help="commands", dest="command")
 
+    vpc_parser = subparsers.add_parser("ibm-vpc", help="Analyze VPCs")
+    add_default_arguments(vpc_parser)
+    vpc_parser.add_argument(
+        "-v",
+        "--vpc_id",
+        required=False,
+        help="Inform VPC to analyze. If not informed, script will check all vpcs.",
+    )
+    vpc_parser.add_argument(
+        "-n",
+        "--region_name",
+        required=False,
+        help="Inform region name to analyze.",
+    )
+    vpc_parser.add_argument(
+        "-a",
+        "--api_key",
+        required=False,
+        help="Inform apikey to login to cloud.",
+    )
+
     vpc_parser = subparsers.add_parser("aws-vpc", help="Analyze VPCs")
     add_default_arguments(vpc_parser)
     vpc_parser.add_argument(

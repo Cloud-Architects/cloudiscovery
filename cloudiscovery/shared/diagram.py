@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List, Dict
 
 from diagrams import Diagram, Cluster, Edge
+from diagrams.ibm.network import Vpc, Subnet, Rules, Firewall, Router
 
 from shared.common import Resource, ResourceEdge, ResourceDigest, message_handler
 from shared.diagramsnet import (
@@ -22,6 +23,7 @@ DIAGRAM_ROW_HEIGHT = 100
 
 class Mapsources:
     # diagrams modules that store classes that represent diagram elements
+    provider = ""
     diagrams_modules = [
         "analytics",
         "ar",
@@ -49,6 +51,23 @@ class Mapsources:
         "satellite",
         "security",
         "storage",
+    ]
+
+    ibm_diagrams_modules = [
+        "analytics",
+        "applications",
+        "blockchain",
+        "compute",
+        "data",
+        "devops",
+        "general",
+        "infrastructure",
+        "management", 
+        "network",
+        "security",
+        "social",
+        "storage",
+        "user",   
     ]
 
     # Class to mapping type resource from Terraform to Diagram Nodes
@@ -228,9 +247,14 @@ class Mapsources:
         "aws_vpn_connection": "SiteToSiteVpn",
         "aws_vpn_gateway": "SiteToSiteVpn",
         "aws_vpn_client_endpoint": "ClientVpn",
+        "ibm_vpc": "Vpc",
+        "ibm_security_group": "Firewall",
+        "ibm_network_acl": "Rules",
+        "ibm_subnet": "Subnet",
+        "ibm_route_table": "Router",
     }
 
-    resource_styles = build_styles()
+    resource_styles = build_styles(provider)
 
 
 def add_resource_to_group(ordered_resources, group, resource):
@@ -307,7 +331,6 @@ class BaseDiagram(object):
             graph_attr={"nodesep": "2.0", "ranksep": "1.0", "splines": "curved"},
         ) as d:
             d.dot.engine = self.engine
-
             self.draw_diagram(ordered_resources=ordered_resources, relations=relations)
 
         message_handler("\n\nPNG diagram generated", "HEADER")
@@ -319,6 +342,9 @@ class BaseDiagram(object):
         # Import all AWS nodes
         for module in Mapsources.diagrams_modules:
             exec("from diagrams.aws." + module + " import *")
+
+        for module in Mapsources.ibm_diagrams_modules:
+            exec("from diagrams.ibm." + module + " import *")    
 
         nodes: Dict[ResourceDigest, any] = {}
         # Iterate resources to draw it
@@ -432,15 +458,23 @@ class VPCDiagramsNetDiagram(BaseDiagram):
     ):
         mx_graph_model = DIAGRAM_HEADER
         cell_id = 1
-
+        isAWS = True
         vpc_resource = None
+        
         for _, resource_group in resources.items():
             for resource in resource_group:
-                if resource.digest.type == "aws_vpc":
+                if resource.digest.type == "aws_vpc" or resource.digest.type == "ibm_vpc":
+                    Mapsources.provider = "aws"
+                    Mapsources.resource_styles = build_styles("aws")
                     if vpc_resource is None:
                         vpc_resource = resource
                     else:
                         raise Exception("Only one VPC in a region is supported now")
+                if resource.digest.type == "ibm_vpc":
+                    isAWS = False
+                    Mapsources.provider = "ibm"
+                    Mapsources.resource_styles = build_styles("ibm")
+
         if vpc_resource is None:
             raise Exception("Only one VPC in a region is supported now")
 
@@ -448,7 +482,8 @@ class VPCDiagramsNetDiagram(BaseDiagram):
 
         vpc_box_height = 56565656
         subnet_box_height = 424242
-        vpc_cell = (
+        if isAWS:
+            vpc_cell = (
             '<mxCell id="zB3y0Dp3mfEUP9Fxs3Er-{0}" value="{1}" style="points=[[0,0],[0.25,0],[0.5,0],'
             "[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],"
             "[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;"
@@ -457,6 +492,15 @@ class VPCDiagramsNetDiagram(BaseDiagram):
             'parent="1" vertex="1"><mxGeometry x="0" y="0" width="960" height="{2}" as="geometry" />'
             "</mxCell>".format(cell_id, vpc_resource.name, vpc_box_height)
         )
+        else:
+            vpc_cell = (
+            '<mxCell id="zB3y0Dp3mfEUP9Fxs3Er-{0}" value="{1}" style="shape=mxgraph.ibm.box;prType=vpc;'
+            "fontStyle=0;verticalAlign=top;align=left;spacingLeft=32;spacingTop=4;fillColor=none;rounded=0;"
+            "whiteSpace=wrap;html=1;strokeColor=#4376BB;strokeWidth=2;dashed=0;container=1;spacing=-4;"
+            'collapsible=0;expand=0;recursiveResize=0;" '
+            'parent="1" vertex="1"><mxGeometry x="0" y="0" width="960" height="{2}" as="geometry" />'
+            "</mxCell>".format(cell_id, vpc_resource.name, vpc_box_height)
+        )      
         cell_id += 1
         mx_graph_model += vpc_cell
 
@@ -479,13 +523,30 @@ class VPCDiagramsNetDiagram(BaseDiagram):
             public_subnet_y = 40
             cell_id += 1
             # pylint: disable=line-too-long
-            public_subnet = (
+            if isAWS:
+                public_subnet = (
                 '<mxCell id="public_area_id" value="Public subnet" style="points=[[0,0],[0.25,0],[0.5,0],'
                 "[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],"
                 "[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;"
                 "fontStyle=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;"
                 "strokeColor=#248814;fillColor=#E9F3E6;verticalAlign=top;align=left;spacingLeft=30;"
                 'fontColor=#248814;dashed=0;" vertex="1" parent="1"><mxGeometry x="{X}" y="{Y}" width="{W}" '
+                'height="{H}" as="geometry" /></mxCell>'.format_map(
+                    {
+                        "X": str(public_subnet_x),
+                        "Y": str(public_subnet_y),
+                        "H": subnet_box_height,
+                        "W": subnet_box_width,
+                    }
+                )
+            )
+            else:
+                public_subnet = (
+                '<mxCell id="public_area_id" value="Public subnet" style="shape=mxgraph.ibm.box;'
+                "prType=subnet;fontStyle=0;verticalAlign=top;align=left;spacingLeft=32;spacingTop=4;"
+                "fillColor=#E6F0E2;rounded=0;whiteSpace=wrap;html=1;strokeColor=#00882B;strokeWidth=1;dashed=0;"
+                'container=1;spacing=-4;collapsible=0;expand=0;recursiveResize=0;" '
+                'vertex="1" parent="1"><mxGeometry x="{X}" y="{Y}" width="{W}" '
                 'height="{H}" as="geometry" /></mxCell>'.format_map(
                     {
                         "X": str(public_subnet_x),
@@ -512,7 +573,8 @@ class VPCDiagramsNetDiagram(BaseDiagram):
             private_subnet_x = 480
             private_subnet_y = 40
             cell_id += 1
-            private_subnet = (
+            if isAWS:
+                private_subnet = (
                 '<mxCell id="private_area_id" value="Private subnet" style="points=[[0,0],[0.25,0],'
                 "[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],"
                 "[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;"
@@ -525,6 +587,22 @@ class VPCDiagramsNetDiagram(BaseDiagram):
                         "Y": str(private_subnet_y),
                         "H": subnet_box_height,
                         "W": subnet_box_width,
+                    }
+                )
+            )
+            else:
+                private_subnet = (
+                '<mxCell id="private_area_id" value="Private subnet" style="shape=mxgraph.ibm.box;'
+                "prType=subnet;fontStyle=0;verticalAlign=top;align=left;spacingLeft=32;spacingTop=4;"
+                "fillColor=#E6F0E2;rounded=0;whiteSpace=wrap;html=1;strokeColor=#00882B;strokeWidth=1;dashed=0;"
+                'container=1;spacing=-4;collapsible=0;expand=0;recursiveResize=0;" '
+                'vertex="1" parent="1"><mxGeometry '
+                'x="{X}" y="{Y}" width="{W}" height="{H}" as="geometry" /></mxCell>'.format_map(
+                    {
+                        "X": str(private_subnet_x),
+                        "Y": str(private_subnet_y),
+                        "H": 200,
+                        "W": 200,
                     }
                 )
             )
@@ -552,15 +630,22 @@ class VPCDiagramsNetDiagram(BaseDiagram):
         public_subnet_x = 0
         for _, resource_group in resources.items():
             for resource in resource_group:
-                if resource.digest.type in ["aws_subnet", "aws_vpc"]:
+                if resource.digest.type in ["aws_subnet", "aws_vpc", "ibm_subnet", "ibm_vpc"]:
                     continue
                 if resource.digest not in added_resources:
                     added_resources.append(resource.digest)
-                    style = (
+                    if isAWS:
+                        style = (
                         Mapsources.resource_styles[resource.digest.type]
                         if resource.digest.type in Mapsources.resource_styles
                         else Mapsources.resource_styles["aws_general"]
-                    )
+                        )
+                    else:
+                        style = (
+                        Mapsources.resource_styles[resource.digest.type]
+                        if resource.digest.type in Mapsources.resource_styles
+                        else Mapsources.resource_styles["ibm_general"]
+                        )  
                     cell = CELL_TEMPLATE.format_map(
                         {
                             "CELL_IDX": resource.digest.to_string(),
@@ -605,7 +690,7 @@ class VPCDiagramsNetDiagram(BaseDiagram):
         row = 0
         # pylint: disable=too-many-nested-blocks
         for relation in resource_relations:
-            if relation.to_node == ResourceDigest(id=subnet_id, type="aws_subnet"):
+            if relation.to_node == ResourceDigest(id=subnet_id, type=("aws_subnet" or "ibm_subnet")):
                 for _, resource_group in resources.items():
                     for resource in resource_group:
                         if (
@@ -640,4 +725,6 @@ class VPCDiagramsNetDiagram(BaseDiagram):
         for relation in resource_relations:
             if relation.to_node == ResourceDigest(id=subnet_id, type="aws_subnet"):
                 return True
+            if relation.to_node == ResourceDigest(id=subnet_id, type="ibm_subnet"):
+                return True     
         return False

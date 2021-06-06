@@ -153,6 +153,7 @@ class Limit(BaseAwsCommand):
         verbose: bool,
         services: List[str],
         filters: List[Filterable],
+        import_module: str,
     ):
         if not services:
             services = []
@@ -182,4 +183,5 @@ class Limit(BaseAwsCommand):
                 title="AWS Limits - Region {}".format(region),
                 # pylint: disable=no-member
                 filename=limit_options.resulting_file_name("limit"),
+                import_module=import_module,
             )
