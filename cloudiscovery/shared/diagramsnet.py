@@ -260,9 +260,9 @@ def _add_network_resources(styles, provider):
         styles["ibm_security_group"] = styles["ibm_security_group"] + 'dashed=1;container=1;collapsible=0;'
         styles["ibm_security_group"] = styles["ibm_security_group"] + 'expand=0;recursiveResize=0;'
         styles["ibm_network_acl"] = 'shape=mxgraph.ibm.box;prType=subnet;fontStyle=0;verticalAlign=top;'
-        styles["ibm_network_acl"] =  styles["ibm_network_acl"] + 'align=left;spacingLeft=32;spacingTop=4;'
-        styles["ibm_network_acl"] =  styles["ibm_network_acl"] + 'fillColor=#E6F0E2;rounded=0;whiteSpace=wrap;'
-        styles["ibm_network_acl"] =  styles["ibm_network_acl"] + 'html=1;strokeColor=#00882B;strokeWidth=1;dashed=0;'
+        styles["ibm_network_acl"] = styles["ibm_network_acl"] + 'align=left;spacingLeft=32;spacingTop=4;'
+        styles["ibm_network_acl"] = styles["ibm_network_acl"] + 'fillColor=#E6F0E2;rounded=0;whiteSpace=wrap;'
+        styles["ibm_network_acl"] = styles["ibm_network_acl"] + 'html=1;strokeColor=#00882B;strokeWidth=1;dashed=0;'
         styles["ibm_network_acl"] = styles["ibm_network_acl"] + 'container=1;spacing=-4;collapsible=0;expand=0;'
         styles["ibm_network_acl"] = styles["ibm_network_acl"] + 'recursiveResize=0;'
 

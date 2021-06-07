@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import List, Dict
 
 from diagrams import Diagram, Cluster, Edge
-from diagrams.ibm.network import Subnet, Rules, Firewall, Router
 
 from shared.common import Resource, ResourceEdge, ResourceDigest, message_handler
 from shared.diagramsnet import (
@@ -341,10 +340,10 @@ class BaseDiagram(object):
 
         # Import all AWS nodes
         for module in Mapsources.diagrams_modules:
-            exec("from diagrams.aws." + module + " import *")
+            exec("from diagrams.aws." + module + " import *") #pylint: disable=exec-used
 
         for module in Mapsources.ibm_diagrams_modules:
-            exec("from diagrams.ibm." + module + " import *")
+            exec("from diagrams.ibm." + module + " import *") #pylint: disable=exec-used
 
         nodes: Dict[ResourceDigest, any] = {}
         # Iterate resources to draw it
@@ -644,7 +643,7 @@ class VPCDiagramsNetDiagram(BaseDiagram):
                         Mapsources.resource_styles[resource.digest.type]
                         if resource.digest.type in Mapsources.resource_styles
                         else Mapsources.resource_styles["ibm_general"]
-                        )  
+                        )
                     cell = CELL_TEMPLATE.format_map(
                         {
                             "CELL_IDX": resource.digest.to_string(),
