@@ -335,6 +335,7 @@ class BaseDiagram(object):
         message_handler("\n\nPNG diagram generated", "HEADER")
         message_handler("Check your diagram: " + output_filename + ".png", "OKBLUE")
 
+    # pylint: disable=exec-used
     def draw_diagram(self, ordered_resources, relations):
         already_drawn_elements = {}
 
