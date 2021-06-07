@@ -33,6 +33,7 @@ class Iot(BaseAwsCommand):
         super().__init__(region_names, session, partition_code)
         self.thing_name = thing_name
 
+    #pylint: disable=too-many-arguments
     def run(
         self,
         diagram: bool,

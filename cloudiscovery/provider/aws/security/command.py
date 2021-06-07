@@ -48,6 +48,7 @@ class Security(BaseAwsCommand):
         super().__init__(region_names, session, partition_code)
         self.commands = commands
 
+    #pylint: disable=too-many-arguments
     def run(
         self,
         diagram: bool,

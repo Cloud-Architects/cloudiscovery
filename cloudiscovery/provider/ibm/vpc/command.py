@@ -69,6 +69,7 @@ class Vpc(BaseIbmCommand):
         )
         print(message)
 
+    #pylint: disable=too-many-arguments
     def run(
         self,
         diagram: bool,
@@ -77,7 +78,6 @@ class Vpc(BaseIbmCommand):
         filters: List[Filterable],
         import_module: str,
     ):
-        # pylint: disable=too-many-branches
         command_runner = IbmCommandRunner(filters)
 
         # if vpc is none, get all vpcs and check

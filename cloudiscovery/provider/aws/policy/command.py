@@ -13,13 +13,14 @@ class PolicyOptions(BaseAwsOptions, BaseOptions):
 
 
 class Policy(BaseAwsCommand):
+    #pylint: disable=too-many-arguments
     def run(
         self,
         diagram: bool,
         verbose: bool,
         services: List[str],
         filters: List[Filterable],
-        import_module:str,
+        import_module: str,
     ):
         for region in self.region_names:
             self.init_region_cache(region)

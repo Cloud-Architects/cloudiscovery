@@ -239,6 +239,7 @@ def parse_filters(arg_filters) -> List[Filterable]:
 
 
 class BaseCommand(ABC):
+    #pylint: disable=too-many-arguments
     def run(
         self,
         diagram: bool,

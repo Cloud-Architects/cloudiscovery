@@ -45,13 +45,10 @@ def _add_general_resources(styles, provider):
         "strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;"
         "fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.ibm."
         )
-        gn = "mxgraph.ibm"
-        styles["ibm_general"] = n3 + "resourceIcon;resIcon=" + gn + ".general;"
+        styles["ibm_general"] = n3 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".general;"
 
-    
 def _add_analytics_resources(styles, provider):
     if provider == "aws":
-        gn = "mxgraph.aws4"
         n2 = (
         "outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;"
         "strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;"
@@ -79,54 +76,47 @@ def _add_analytics_resources(styles, provider):
         styles["aws_glue"] = n2 + "resourceIcon;resIcon=" + gn + ".glue;"
         styles["aws_lakeformation"] = n2 + "resourceIcon;resIcon=" + gn + ".lake_formation;"
     else:
-        gn = "mxgraph.ibm"
         n2 = (
         "outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;"
         "strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;"
         "fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.ibm."
         )
-        styles["aws_athena"] = n2 + "resourceIcon;resIcon=" + gn + ".athena;"
+        styles["aws_athena"] = n2 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".athena;"
         styles["aws_elasticsearch_domain"] = (
-            n2 + "resourceIcon;resIcon=" + gn + ".elasticsearch_service;"
+            n2 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".elasticsearch_service;"
         )
-        styles["aws_emr"] = n2 + "resourceIcon;resIcon=" + gn + ".emr;"
-        styles["aws_emr_cluster"] = n2 + "resourceIcon;resIcon=" + gn + ".emr;"
-        styles["aws_kinesis"] = n2 + "resourceIcon;resIcon=" + gn + ".kinesis;"
+        styles["aws_emr"] = n2 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".emr;"
+        styles["aws_emr_cluster"] = n2 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".emr;"
+        styles["aws_kinesis"] = n2 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".kinesis;"
         styles["aws_kinesisanalytics"] = (
-            n2 + "resourceIcon;resIcon=" + gn + ".kinesis_data_analytics;"
+            n2 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".kinesis_data_analytics;"
         )
         styles["aws_kinesis_firehose"] = (
-            n2 + "resourceIcon;resIcon=" + gn + ".kinesis_data_firehose;"
+            n2 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".kinesis_data_firehose;"
         )
-        styles["aws_quicksight"] = n2 + "resourceIcon;resIcon=" + gn + ".quicksight;"
-        styles["aws_redshift"] = n2 + "resourceIcon;resIcon=" + gn + ".redshift;"
-        styles["aws_data_pipeline"] = n2 + "resourceIcon;resIcon=" + gn + ".data_pipeline;"
+        styles["aws_quicksight"] = n2 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".quicksight;"
+        styles["aws_redshift"] = n2 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".redshift;"
+        styles["aws_data_pipeline"] = n2 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".data_pipeline;"
         styles["aws_msk_cluster"] = (
-            n2 + "resourceIcon;resIcon=" + gn + ".managed_streaming_for_kafka;"
+            n2 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".managed_streaming_for_kafka;"
         )
-        styles["aws_glue"] = n2 + "resourceIcon;resIcon=" + gn + ".glue;"
-        styles["aws_lakeformation"] = n2 + "resourceIcon;resIcon=" + gn + ".lake_formation;"
-
+        styles["aws_glue"] = n2 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".glue;"
+        styles["aws_lakeformation"] = n2 + "resourceIcon;resIcon=" + "mxgraph.ibm" + ".lake_formation;"
 
 def _add_application_integration_resources(styles, provider):
     if provider == "aws":
-        gn = "mxgraph.aws4"
         n2 = (
         "outlineConnect=0;fontColor=#232F3E;gradientColor=#F34482;gradientDirection=north;fillColor=#BC1356;"
         "strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;"
         "fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4."
         )
-
         styles["aws_sns_topic"] = n2 + "resourceIcon;resIcon=" + gn + ".sns;"
         styles["aws_sqs"] = n2 + "resourceIcon;resIcon=" + gn + ".sqs;"
         styles["aws_appsync_graphql_api"] = n2 + "resourceIcon;resIcon=" + gn + ".appsync;"
         styles["aws_events"] = n2 + "resourceIcon;resIcon=" + gn + ".eventbridge;"
-    else:
-        gn = "mxgraph.ibm"  
 
 def _add_compute_resources(styles, provider):
     if provider == "aws":
-        gn = "mxgraph.aws4"
         n = (
         "outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#D05C17;strokeColor=none;dashed=0;"
         "verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;"
@@ -147,44 +137,33 @@ def _add_compute_resources(styles, provider):
         n2 + "resourceIcon;resIcon=" + gn + ".elastic_beanstalk;"
         )
         styles["aws_lambda_function"] = n + "lambda_function;"
-    else:
-        gn = "mxgraph.ibm"  
 
 def _add_container_resources(styles, provider):
     if provider == "aws":
-        gn = "mxgraph.aws4"
         n2 = (
         "outlineConnect=0;fontColor=#232F3E;gradientColor=#F78E04;gradientDirection=north;fillColor=#D05C17;"
         "strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;"
         "fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4."
         )
-
         styles["aws_eks_cluster"] = n2 + "resourceIcon;resIcon=" + gn + ".eks;"
         styles["aws_ecr"] = n2 + "resourceIcon;resIcon=" + gn + ".ecr;"
         styles["aws_ecs_cluster"] = n2 + "resourceIcon;resIcon=" + gn + ".ecs;"
-    else:
-        gn = "mxgraph.ibm"    
 
 
 def _add_customer_engagement_resources(styles, provider):
     if provider == "aws":
-        gn = "mxgraph.aws4"
         n2 = (
         "outlineConnect=0;fontColor=#232F3E;gradientColor=#4D72F3;gradientDirection=north;fillColor=#3334B9;"
         "strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;"
         "fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4."
         )
-
         styles["aws_connect"] = n2 + "resourceIcon;resIcon=" + gn + ".connect;"
         styles["aws_pinpoint"] = n2 + "resourceIcon;resIcon=" + gn + ".pinpoint;"
         styles["aws_ses"] = n2 + "resourceIcon;resIcon=" + gn + ".simple_email_service;"
-    else:
-        gn = "mxgraph.ibm"
 
 
 def _add_database_resources(styles, provider):
     if provider == "aws":
-        gn = "mxgraph.aws4"
         n = (
         "outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#3334B9;strokeColor=none;dashed=0;"
         "verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;"
@@ -195,7 +174,6 @@ def _add_database_resources(styles, provider):
         "strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;"
         "fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4."
         )
-
         styles["aws_docdb_cluster"] = (
         n2 + "resourceIcon;resIcon=" + gn + ".documentdb_with_mongodb_compatibility;"
         )
@@ -208,31 +186,24 @@ def _add_database_resources(styles, provider):
 
         styles["aws_db_instance"] = n + "rds_instance;"
         styles["aws_dax"] = n + "dynamodb_dax;"
-    else:
-        gn = "mxgraph.ibm"
+
 
 def _add_ml_resources(styles, provider):
     if provider == "aws":
-        gn = "mxgraph.aws4"
         n2 = (
         "outlineConnect=0;fontColor=#232F3E;gradientColor=#4AB29A;gradientDirection=north;fillColor=#116D5B;"
         "strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;"
         "fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4."
         )
-
         styles["aws_sagemaker"] = n2 + "resourceIcon;resIcon=" + gn + ".sagemaker;"
-    else:
-        gn = "mxgraph.ibm"
 
 def _add_management_governance_resources(styles, provider):
     if provider == "aws":
-        gn = "mxgraph.aws4"
         n2 = (
         "outlineConnect=0;fontColor=#232F3E;gradientColor=#F34482;gradientDirection=north;fillColor=#BC1356;"
         "strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;"
         "fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4."
         )
-
         styles["aws_cloudwatch"] = n2 + "resourceIcon;resIcon=" + gn + ".cloudwatch_2;"
         styles["aws_autoscaling_group"] = (
         n2 + "resourceIcon;resIcon=" + gn + ".autoscaling;"
@@ -241,13 +212,9 @@ def _add_management_governance_resources(styles, provider):
         styles["aws_cloudformation"] = (
         n2 + "resourceIcon;resIcon=" + gn + ".cloudformation;"
         )
-    else:
-        gn = "mxgraph.ibm"    
-
 
 def _add_network_resources(styles, provider):
     if provider == "aws":
-        gn = "mxgraph.aws4"
         n = (
             "outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#5A30B5;strokeColor=none;dashed=0;"
             "verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;"
@@ -258,7 +225,6 @@ def _add_network_resources(styles, provider):
             "strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;"
             "fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4."
         )
-
         styles["aws_api_gateway_rest_api"] = (
             n2 + "resourceIcon;resIcon=" + gn + ".api_gateway;"
         )
@@ -274,7 +240,6 @@ def _add_network_resources(styles, provider):
         styles["aws_global_accelerator"] = (
             n2 + "resourceIcon;resIcon=" + gn + ".global_accelerator;"
         )
-
         styles["aws_route_table"] = n + "route_table;"
         styles["aws_vpc_endpoint_gateway"] = n + "gateway;"
         styles["aws_internet_gateway"] = n + "internet_gateway;"
@@ -284,20 +249,26 @@ def _add_network_resources(styles, provider):
         styles["aws_vpn_connection"] = n + "vpn_connection;"
         styles["aws_vpn_gateway"] = n + "vpn_gateway;"
     else:
-        gn = "mxgraph.ibm"
-        n = (
+        styles["ibm_route_table"] = (
             "outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#5A30B5;strokeColor=none;dashed=0;"
             "verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;"
-            "pointerEvents=1;shape=mxgraph.aws4."
+            "pointerEvents=1;shape=mxgraph.aws4.route_table;"
         )
-        styles["ibm_security_group"] = 'fontStyle=0;verticalAlign=top;align=center;spacingTop=-2;fillColor=none;rounded=0;whiteSpace=wrap;html=1;strokeColor=#FF0000;strokeWidth=2;dashed=1;container=1;collapsible=0;expand=0;recursiveResize=0;'
-        styles["ibm_network_acl"] = 'shape=mxgraph.ibm.box;prType=subnet;fontStyle=0;verticalAlign=top;align=left;spacingLeft=32;spacingTop=4;fillColor=#E6F0E2;rounded=0;whiteSpace=wrap;html=1;strokeColor=#00882B;strokeWidth=1;dashed=0;container=1;spacing=-4;collapsible=0;expand=0;recursiveResize=0;'
-        styles["ibm_route_table"] = n + "route_table;"
+        styles["ibm_security_group"] = 'fontStyle=0;verticalAlign=top;align=center;spacingTop=-2;fillColor=none;'
+        styles["ibm_security_group"] = styles["ibm_security_group"] + 'rounded=0;whiteSpace=wrap;html=1;'
+        styles["ibm_security_group"] = styles["ibm_security_group"] + 'strokeColor=#FF0000;strokeWidth=2;'
+        styles["ibm_security_group"] = styles["ibm_security_group"] + 'dashed=1;container=1;collapsible=0;'
+        styles["ibm_security_group"] = styles["ibm_security_group"] + 'expand=0;recursiveResize=0;'
+        styles["ibm_network_acl"] = 'shape=mxgraph.ibm.box;prType=subnet;fontStyle=0;verticalAlign=top;'
+        styles["ibm_network_acl"] =  styles["ibm_network_acl"] + 'align=left;spacingLeft=32;spacingTop=4;'
+        styles["ibm_network_acl"] =  styles["ibm_network_acl"] + 'fillColor=#E6F0E2;rounded=0;whiteSpace=wrap;'
+        styles["ibm_network_acl"] =  styles["ibm_network_acl"] + 'html=1;strokeColor=#00882B;strokeWidth=1;dashed=0;'
+        styles["ibm_network_acl"] = styles["ibm_network_acl"] + 'container=1;spacing=-4;collapsible=0;expand=0;'
+        styles["ibm_network_acl"] = styles["ibm_network_acl"] + 'recursiveResize=0;'
 
 
 def _add_storage_resources(styles, provider):
     if provider == "aws":
-        gn = "mxgraph.aws4"
         n = (
         "outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#277116;strokeColor=none;dashed=0;"
         "verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;"
@@ -315,8 +286,6 @@ def _add_storage_resources(styles, provider):
         styles["aws_fsx"] = n2 + "resourceIcon;resIcon=" + gn + ".fsx;"
 
         styles["aws_s3"] = n + "bucket;"
-    else:
-        gn = "mxgraph.ibm"
 
 
 def build_styles(provider):

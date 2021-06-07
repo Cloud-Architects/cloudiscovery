@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Dict
 
 from diagrams import Diagram, Cluster, Edge
-from diagrams.ibm.network import Vpc, Subnet, Rules, Firewall, Router
+from diagrams.ibm.network import Subnet, Rules, Firewall, Router
 
 from shared.common import Resource, ResourceEdge, ResourceDigest, message_handler
 from shared.diagramsnet import (
@@ -62,12 +62,12 @@ class Mapsources:
         "devops",
         "general",
         "infrastructure",
-        "management", 
+        "management",
         "network",
         "security",
         "social",
         "storage",
-        "user",   
+        "user",
     ]
 
     # Class to mapping type resource from Terraform to Diagram Nodes
@@ -344,7 +344,7 @@ class BaseDiagram(object):
             exec("from diagrams.aws." + module + " import *")
 
         for module in Mapsources.ibm_diagrams_modules:
-            exec("from diagrams.ibm." + module + " import *")    
+            exec("from diagrams.ibm." + module + " import *")
 
         nodes: Dict[ResourceDigest, any] = {}
         # Iterate resources to draw it
@@ -460,7 +460,6 @@ class VPCDiagramsNetDiagram(BaseDiagram):
         cell_id = 1
         isAWS = True
         vpc_resource = None
-        
         for _, resource_group in resources.items():
             for resource in resource_group:
                 if resource.digest.type == "aws_vpc" or resource.digest.type == "ibm_vpc":
@@ -500,7 +499,7 @@ class VPCDiagramsNetDiagram(BaseDiagram):
             'collapsible=0;expand=0;recursiveResize=0;" '
             'parent="1" vertex="1"><mxGeometry x="0" y="0" width="960" height="{2}" as="geometry" />'
             "</mxCell>".format(cell_id, vpc_resource.name, vpc_box_height)
-        )      
+        )
         cell_id += 1
         mx_graph_model += vpc_cell
 
@@ -726,5 +725,5 @@ class VPCDiagramsNetDiagram(BaseDiagram):
             if relation.to_node == ResourceDigest(id=subnet_id, type="aws_subnet"):
                 return True
             if relation.to_node == ResourceDigest(id=subnet_id, type="ibm_subnet"):
-                return True     
+                return True
         return False

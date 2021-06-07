@@ -151,6 +151,7 @@ class BaseAwsCommand(BaseCommand):
         self.session: Session = session
         self.partition_code: str = partition_code
 
+    #pylint: disable=too-many-arguments
     def run(
         self,
         diagram: bool,
