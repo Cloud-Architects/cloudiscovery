@@ -346,6 +346,7 @@ class BaseDiagram(object):
 
         for module in Mapsources.ibm_diagrams_modules:
             # pylint: disable=exec-used
+            # pylint: disable=exec-used
             exec("from diagrams.ibm." + module + " import *")
 
         nodes: Dict[ResourceDigest, any] = {}
