@@ -23,7 +23,8 @@ DIAGRAM_ROW_HEIGHT = 100
 class Mapsources:
     # diagrams modules that store classes that represent diagram elements
     provider = ""
-    diagrams_modules = [
+    modules_dict = {}
+    modules_dict["aws"] = [
         "analytics",
         "ar",
         "blockchain",
@@ -52,7 +53,7 @@ class Mapsources:
         "storage",
     ]
 
-    ibm_diagrams_modules = [
+    modules_dict['ibm'] = [
         "analytics",
         "applications",
         "blockchain",
@@ -338,13 +339,11 @@ class BaseDiagram(object):
     # pylint: disable=exec-used
     def draw_diagram(self, ordered_resources, relations):
         already_drawn_elements = {}
-        # Import all AWS nodes
-        for module in Mapsources.diagrams_modules:
-            # pylint: disable=exec-used
-            exec("from diagrams.aws." + module + " import *")
-        # Import all IBM nodes
-        for module in Mapsources.ibm_diagrams_modules:
-            exec("from diagrams.ibm." + module + " import *") # pylint: disable=exec-used
+        # Import all AWS, IBM nodes
+        for key, val in Mapsources.modules_dict:
+            for module in val:
+                # pylint: disable=exec-used
+                exec("from diagrams." + key + "." + module + " import *")
         nodes: Dict[ResourceDigest, any] = {}
         # Iterate resources to draw it
         for group_name in ordered_resources:
