@@ -339,15 +339,15 @@ class BaseDiagram(object):
     def draw_diagram(self, ordered_resources, relations):
         already_drawn_elements = {}
 
+         # Import all IBM nodes
+        for module in Mapsources.ibm_diagrams_modules:
+            # pylint: disable=exec-used
+            exec("from diagrams.ibm." + module + " import *")
+
         # Import all AWS nodes
         for module in Mapsources.diagrams_modules:
             # pylint: disable=exec-used
             exec("from diagrams.aws." + module + " import *")
-
-        for module in Mapsources.ibm_diagrams_modules:
-            # pylint: disable=exec-used
-            # pylint: disable=exec-used
-            exec("from diagrams.ibm." + module + " import *")
 
         nodes: Dict[ResourceDigest, any] = {}
         # Iterate resources to draw it
