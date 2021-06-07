@@ -13,12 +13,14 @@ class PolicyOptions(BaseAwsOptions, BaseOptions):
 
 
 class Policy(BaseAwsCommand):
+    #pylint: disable=too-many-arguments
     def run(
         self,
         diagram: bool,
         verbose: bool,
         services: List[str],
         filters: List[Filterable],
+        import_module: str,
     ):
         for region in self.region_names:
             self.init_region_cache(region)
@@ -40,4 +42,5 @@ class Policy(BaseAwsCommand):
                 diagram_builder=diagram,
                 title="AWS IAM Policies - Region {}".format(region),
                 filename=options.resulting_file_name("policy"),
+                import_module=import_module,
             )

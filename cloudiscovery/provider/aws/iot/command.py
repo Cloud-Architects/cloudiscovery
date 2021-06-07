@@ -33,12 +33,14 @@ class Iot(BaseAwsCommand):
         super().__init__(region_names, session, partition_code)
         self.thing_name = thing_name
 
+    #pylint: disable=too-many-arguments
     def run(
         self,
         diagram: bool,
         verbose: bool,
         services: List[str],
         filters: List[Filterable],
+        import_module: str,
     ):
         command_runner = AwsCommandRunner(filters)
 
@@ -67,6 +69,7 @@ class Iot(BaseAwsCommand):
                     diagram_builder=diagram_builder,
                     title="AWS IoT Resources - Region {}".format(region_name),
                     filename=thing_options.resulting_file_name("iot"),
+                    import_module=import_module,
                 )
             else:
                 things = dict()
@@ -94,4 +97,5 @@ class Iot(BaseAwsCommand):
                     filename=thing_options.resulting_file_name(
                         self.thing_name + "_iot"
                     ),
+                    import_module=import_module,
                 )

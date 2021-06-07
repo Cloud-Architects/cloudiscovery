@@ -16,12 +16,14 @@ class AllOptions(BaseAwsOptions, BaseOptions):
 
 
 class All(BaseAwsCommand):
+    #pylint: disable=too-many-arguments
     def run(
         self,
         diagram: bool,
         verbose: bool,
         services: List[str],
         filters: List[Filterable],
+        import_module: str,
     ):
         for region in self.region_names:
             self.init_region_cache(region)
@@ -32,7 +34,6 @@ class All(BaseAwsCommand):
                 region_name=region,
                 services=services,
             )
-
             command_runner = AwsCommandRunner(filters=filters)
             command_runner.run(
                 provider="all",
@@ -41,4 +42,5 @@ class All(BaseAwsCommand):
                 title="AWS Resources - Region {}".format(region),
                 # pylint: disable=no-member
                 filename=options.resulting_file_name("all"),
+                import_module=import_module,
             )

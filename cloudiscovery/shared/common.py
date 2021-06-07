@@ -239,12 +239,14 @@ def parse_filters(arg_filters) -> List[Filterable]:
 
 
 class BaseCommand(ABC):
+    #pylint: disable=too-many-arguments
     def run(
         self,
         diagram: bool,
         verbose: bool,
         services: List[str],
         filters: List[Filterable],
+        import_module: str,
     ):
         raise NotImplementedError()
 
