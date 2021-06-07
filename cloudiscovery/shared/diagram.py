@@ -341,12 +341,12 @@ class BaseDiagram(object):
 
         # Import all AWS nodes
         for module in Mapsources.diagrams_modules:
-            # pylint: disable=exec-used
-            exec("from diagrams.aws." + module + " import *") # pylint: disable=exec-used
+            # pylint: disable=W0122
+            exec("from diagrams.aws." + module + " import *") # pylint: disable=W0122
 
         for module in Mapsources.ibm_diagrams_modules:
-            # pylint: disable=exec-used
-            exec("from diagrams.ibm." + module + " import *") # pylint: disable=exec-used
+            # pylint: disable=W0122
+            exec("from diagrams.ibm." + module + " import *") # pylint: disable=W0122
 
         nodes: Dict[ResourceDigest, any] = {}
         # Iterate resources to draw it
