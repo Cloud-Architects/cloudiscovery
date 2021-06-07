@@ -344,8 +344,7 @@ class BaseDiagram(object):
             exec("from diagrams.aws." + module + " import *")
         # Import all IBM nodes
         for module in Mapsources.ibm_diagrams_modules:
-            # pylint: disable=exec-used
-            exec("from diagrams.ibm." + module + " import *")
+            exec("from diagrams.ibm." + module + " import *") # pylint: disable=exec-used
         nodes: Dict[ResourceDigest, any] = {}
         # Iterate resources to draw it
         for group_name in ordered_resources:
