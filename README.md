@@ -361,7 +361,7 @@ When developing, it's recommended to use [venv](https://docs.python.org/3/librar
 
 In order to create a venv on macOS and Linux:
 ```sh
-python3 -m venv env
+python3 -m venv venv
 ```
 On Windows:
 ```sh
