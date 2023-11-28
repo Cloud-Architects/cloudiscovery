@@ -93,7 +93,7 @@ class GlobalParameters:
                 ),
                 "HEADER",
             )
-            self.client = self.session.client("ssm", region_name="us-east-1")
+            self.client = self.session.client("ssm", region_name=self.region)
             paths = self.parameters()
             for path in paths:
                 paths_found.append(path["Value"])
