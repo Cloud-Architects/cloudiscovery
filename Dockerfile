@@ -13,5 +13,6 @@ RUN apt-get install -y bash
 COPY . /opt/cloudiscovery
 
 RUN pip install -r requirements.txt
+RUN ./setup.py build && ./setup.py install && ./setup.py bdist
 
-RUN bash
+CMD bash

@@ -5,3 +5,4 @@ diagrams>=0.14
 cachetools
 diskcache
 pytz
+markupsafe==2.0.1
